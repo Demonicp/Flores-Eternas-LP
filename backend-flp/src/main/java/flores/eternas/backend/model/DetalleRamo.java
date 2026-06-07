@@ -29,4 +29,8 @@ public class DetalleRamo extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "id_color_flor")
     private ColorFlor colorFlor;
+
+    @ManyToOne
+    @JoinColumn(name = "id_ramo")
+    private Ramo ramo;
 }
