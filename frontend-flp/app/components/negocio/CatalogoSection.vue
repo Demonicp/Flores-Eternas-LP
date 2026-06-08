@@ -122,38 +122,43 @@
       <!-- Lista derecha -->
       <div class="w-full lg:w-80">
         <h3 class="text-base font-serif text-text-primary mb-2">Tus Ramos Publicados</h3>
-        <div class="bg-bg-card rounded-xl p-3 max-h-96 overflow-y-auto space-y-2">
-          <p v-if="store.ramos.length === 0 && !store.ramoLoading" class="text-sm text-text-primary text-center py-4">
+        <div class="bg-bg-card rounded-xl p-3 max-h-96 overflow-y-auto">
+          <table v-if="store.ramos.length > 0" class="w-full text-sm text-text-primary">
+            <thead>
+              <tr class="text-left border-b border-border-soft">
+                <th class="pb-2 pr-2 font-medium">Nombre</th>
+                <th class="pb-2 pr-2 font-medium">Precio</th>
+                <th class="pb-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ramo in store.ramos" :key="ramo.id" class="border-b border-border-soft/50">
+                <td class="py-2 pr-2 truncate max-w-[140px]">{{ ramo.nombreRamo }}</td>
+                <td class="py-2 pr-2">${{ Number(ramo.precioRamo).toFixed(2) }}</td>
+                <td class="py-2 flex gap-1">
+                  <button
+                    type="button"
+                    @click="store.editarRamo(ramo)"
+                    class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
+                    title="Editar"
+                  >
+                    <Icon icon="mdi:pencil-outline" class="text-lg" />
+                  </button>
+                  <button
+                    type="button"
+                    @click="confirmarEliminar(ramo)"
+                    class="px-2 py-1 text-sm text-red-500 hover:text-red-700"
+                    title="Eliminar"
+                  >
+                    <Icon icon="mdi:delete-outline" class="text-lg" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p v-else class="text-sm text-text-primary text-center py-4">
             No hay ramos publicados aún.
           </p>
-          <div
-            v-for="ramo in store.ramos"
-            :key="ramo.id"
-            class="flex items-center justify-between bg-bg-input rounded-lg px-3 py-2"
-          >
-            <div class="min-w-0 flex-1">
-              <p class="text-sm font-medium text-text-primary truncate">{{ ramo.nombreRamo }}</p>
-              <p class="text-xs text-text-primary/70">${{ Number(ramo.precioRamo).toFixed(2) }}</p>
-            </div>
-            <div class="flex gap-1 ml-2">
-              <button
-                type="button"
-                @click="store.editarRamo(ramo)"
-                class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
-                title="Editar"
-              >
-                <Icon icon="mdi:pencil-outline" class="text-lg" />
-              </button>
-              <button
-                type="button"
-                @click="confirmarEliminar(ramo)"
-                class="px-2 py-1 text-sm text-red-500 hover:text-red-700"
-                title="Eliminar"
-              >
-                <Icon icon="mdi:delete-outline" class="text-lg" />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
