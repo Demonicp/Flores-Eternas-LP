@@ -30,12 +30,9 @@
             </NuxtLink>
           </div>
 
-          <NuxtLink
-            to="/admin/dashboard"
-            class="text-white font-serif text-[29px] tracking-[0.2em] hover:opacity-80"
-          >
+          <span class="text-white font-serif text-[29px] tracking-[0.2em] cursor-default">
             FLORES ETERNAS
-          </NuxtLink>
+          </span>
 
           <div class="flex items-center gap-6">
             <span class="text-white text-[17px] tracking-wide">Empleados</span>
