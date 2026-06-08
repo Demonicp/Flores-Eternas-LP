@@ -2,6 +2,7 @@ package flores.eternas.backend.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,18 +42,21 @@ public class ColorFlorController {
 
     //Santiago Montenegro HU6
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ColorFlorDTO> crear(@RequestBody ColorFlorDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
     }
 
     //Santiago Montenegro HU6
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ColorFlorDTO> actualizar(@PathVariable Long id, @RequestBody ColorFlorDTO dto) {
         return ResponseEntity.ok(service.actualizar(id, dto));
     }
 
     //Santiago Montenegro HU6
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
