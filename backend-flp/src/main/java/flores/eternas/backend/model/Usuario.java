@@ -1,6 +1,7 @@
 package flores.eternas.backend.model;
 
 import flores.eternas.backend.model.enums.Rol;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,7 +29,7 @@ public class Usuario extends AbstractEntity {
 
     private String contrasena;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL) // @author esteban - cascade para guardar Persona junto con Usuario
     @JoinColumn(name = "id_persona")
     private Persona persona;
 
