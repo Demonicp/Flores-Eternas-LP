@@ -6,99 +6,69 @@
 -->
 <template>
   <div class="min-h-screen" style="background-color: #FFFCF6;">
-    <!-- Header con imagen de fondo -->
     <header
-      class="relative bg-cover bg-center"
+      class="relative bg-cover bg-center h-95"
       style="background-image: url('/assets/images/landing.jpg'); background-position: center 35%;"
     >
-      <div class="bg-black/30">
-        <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-6">
-          <NuxtLink to="/">
-            <img
-              src="/assets/images/flplogowhite.png"
-              alt="Flores Eternas"
-              class="h-12 object-contain"
-            />
-          </NuxtLink>
+      <div class="bg-black/30 h-full">
+        <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-6 h-full">
+          <div class="flex-1" />
           <div class="flex items-center gap-6">
-            <span class="text-white font-['Poppins'] text-[17px] tracking-wide">
-              ¿No tienes cuenta?
-            </span>
-            <NuxtLink
-              to="/admin/registro"
-              class="px-4 py-2 rounded-lg bg-[#FFEDE3] text-[#83572E] font-['Poppins'] text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              Regístrate
-            </NuxtLink>
+
+
           </div>
         </nav>
-
-        <div class="text-center pb-24 pt-16">
-          <h1
-            class="text-white font-['Radley'] text-4xl md:text-[43px] font-light"
-            style="text-shadow: 0 2px 8px rgba(0,0,0,0.4);"
-          >
-            ¡Bienvenida de nuevo!
-          </h1>
-          <p
-            class="text-white/90 font-['Poppins'] text-lg mt-2"
-            style="text-shadow: 0 1px 4px rgba(0,0,0,0.3);"
-          >
-            Inicia sesión para gestionar tu negocio
-          </p>
-        </div>
       </div>
     </header>
 
-    <!-- Formulario de login -->
-    <main class="relative -mt-16 px-4 pb-12">
+    <div class="flex justify-center -mt-90 relative z-10">
+      <img
+        :src="logoUrl"
+        alt="Flores Eternas"
+        class="h-80 object-contain"
+      />
+    </div>
+
+    <main class="relative -mt-10 px-4 pb-12">
       <div class="max-w-md mx-auto">
         <UiCard :elevated="true" :padding="8">
-          <form @submit.prevent="handleLogin" class="space-y-5">
-            <h2 class="font-['Radley'] text-2xl text-[#83572E] text-center mb-2">
-              Iniciar Sesión
-            </h2>
+          <div class="max-w-xs mx-auto flex flex-col justify-center py-8">
+            <form @submit.prevent="handleLogin" class="space-y-8">
+              <UiInput
+                v-model="form.correo"
+                type="email"
+                placeholder="Correo electrónico"
+                :error="errores.correo"
+              />
 
-            <!-- Correo -->
-            <UiInput
-              v-model="form.correo"
-              type="email"
-              label="Correo electrónico"
-              placeholder="tu@email.com"
-              :error="errores.correo"
-              required
-            />
+              <UiInput
+                v-model="form.contrasena"
+                type="password"
+                placeholder="Contraseña"
+                :error="errores.contrasena"
+              />
 
-            <!-- Contraseña -->
-            <UiInput
-              v-model="form.contrasena"
-              type="password"
-              label="Contraseña"
-              placeholder="Tu contraseña"
-              :error="errores.contrasena"
-              required
-            />
+              <div
+                v-if="store.error"
+                class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600 font-['Poppins']"
+              >
+                {{ store.error }}
+              </div>
 
-            <!-- Mensaje de error del servidor -->
-            <div
-              v-if="store.error"
-              class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600 font-['Poppins']"
-            >
-              {{ store.error }}
-            </div>
-
-            <!-- Botón submit -->
-            <UiButton
-              type="submit"
-              variant="primary"
-              size="lg"
-              :loading="store.loading"
-              :disabled="!formValido || store.loading"
-              class="w-full"
-            >
-              {{ store.loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
-            </UiButton>
-          </form>
+              <div class="flex justify-center pt-4">
+                <UiButton
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  :loading="store.loading"
+                  :disabled="!formValido || store.loading"
+                  class="w-full"
+                >
+                  {{ store.loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+                </UiButton>
+              </div>
+            </form>
+          </div>
         </UiCard>
       </div>
     </main>
@@ -121,6 +91,15 @@ definePageMeta({ layout: false })
 
 const store = useAuthStore()
 const router = useRouter()
+
+/**
+ * @author esteban
+ * URL del logo que funciona tanto en local como en producción.
+ * Usa new URL() para resolución correcta en ambos entornos.
+ */
+const logoUrl = computed(() => {
+  return new URL('/assets/images/flplogowhite.png', window.location.origin).href
+})
 
 /**
  * @author esteban

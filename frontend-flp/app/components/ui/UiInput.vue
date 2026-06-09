@@ -23,12 +23,12 @@
       :disabled="disabled"
       :class="[
         'w-full rounded-lg border bg-white px-3 py-2.5 text-sm font-[\'Poppins\'] text-[#83572E]',
-        'placeholder:text-[#83572E]/40',
+        'placeholder:text-gray-400',
         'focus:outline-none focus:ring-2 focus:ring-[#FFEDE3] focus:border-[#FFEDE3]',
         'transition-all duration-200',
         error
           ? 'border-red-400 focus:ring-red-300'
-          : 'border-[#E8D5C8]',
+          : 'border-black',
         disabled && 'opacity-50 cursor-not-allowed bg-gray-100',
       ]"
       :aria-describedby="error ? `${inputId}-error` : undefined"
@@ -92,10 +92,5 @@ defineEmits<{
  * El ID es estable ya que depende del label (string estático),
  * no de valores aleatorios o hooks de Vue.
  */
-const inputId = computed(() => {
-  if (props.id) return props.id
-  if (!props.label) return `input-${Math.random().toString(36).slice(2, 9)}`
-  const slug = props.label.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-  return `input-${slug}`
-})
+const inputId = useId()
 </script>
