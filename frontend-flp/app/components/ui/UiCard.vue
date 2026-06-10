@@ -7,7 +7,7 @@
 <template>
   <div
     :class="[
-      'rounded-xl bg-white border border-[#E8D5C8] overflow-hidden',
+      'rounded-3xl bg-white/90 border border-[#E8D5C8] overflow-hidden backdrop-blur-sm',
       elevated ? 'shadow-md' : 'shadow-sm',
       padding ? `p-${padding}` : 'p-6',
     ]"

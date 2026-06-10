@@ -7,119 +7,80 @@
 -->
 <template>
   <div class="min-h-screen" style="background-color: #FFFCF6;">
-    <!-- Header con imagen de fondo -->
     <header
-      class="relative bg-cover bg-center"
-      style="background-image: url('/assets/images/landing.jpg'); background-position: center 35%;"
+      class="relative bg-cover bg-center h-80"
+      style="background-image: url('/assets/images/FondoProvicional.png'); background-position: center 35%;"
     >
-      <div class="bg-black/30">
-        <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-6">
-          <NuxtLink to="/">
-            <img
-              src="/assets/images/flplogowhite.png"
-              alt="Flores Eternas"
-              class="h-12 object-contain"
-            />
-          </NuxtLink>
-          <div class="flex items-center gap-6">
-            <span class="text-white font-['Poppins'] text-[17px] tracking-wide">
-              ¿Ya tienes cuenta?
-            </span>
-            <NuxtLink
-              to="/admin/login"
-              class="px-4 py-2 rounded-lg bg-[#FFEDE3] text-[#83572E] font-['Poppins'] text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              Inicia Sesión
-            </NuxtLink>
-          </div>
+      <div class="bg-black/30 h-full">
+        <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-6 h-full">
+          <div class="flex-1" />
+          <div class="flex-1" />
         </nav>
-
-        <div class="text-center pb-24 pt-16">
-          <h1
-            class="text-white font-['Radley'] text-4xl md:text-[43px] font-light"
-            style="text-shadow: 0 2px 8px rgba(0,0,0,0.4);"
-          >
-            ¡Bienvenida!
-          </h1>
-          <p
-            class="text-white/90 font-['Poppins'] text-lg mt-2"
-            style="text-shadow: 0 1px 4px rgba(0,0,0,0.3);"
-          >
-            Crea tu cuenta para comenzar a gestionar tu negocio
-          </p>
-        </div>
       </div>
     </header>
 
-    <!-- Formulario de registro -->
-    <main class="relative -mt-16 px-4 pb-12">
-      <div class="max-w-md mx-auto">
+    <div class="flex justify-center -mt-90 relative z-10">
+      <img
+        :src="logoUrl"
+        alt="Flores Eternas"
+        class="h-80 object-contain"
+      />
+    </div>
+
+    <main class="relative -mt-10 px-4 pb-12">
+      <div class="max-w-sm mx-auto">
         <UiCard :elevated="true" :padding="8">
-          <form @submit.prevent="handleRegistro" class="space-y-5">
-            <h2 class="font-['Radley'] text-2xl text-[#83572E] text-center mb-2">
-              Crear Cuenta
-            </h2>
+          <div class="max-w-xs mx-auto flex flex-col justify-center py-8">
+            <form @submit.prevent="handleRegistro" class="space-y-8">
+              <UiInput
+                v-model="form.nombre"
+                type="text"
+                placeholder="Nombre completo"
+                :error="errores.nombre"
+              />
 
-            <!-- Nombre completo -->
-            <UiInput
-              v-model="form.nombre"
-              type="text"
-              label="Nombre completo"
-              placeholder="Tu nombre"
-              :error="errores.nombre"
-              required
-            />
+              <UiInput
+                v-model="form.correo"
+                type="email"
+                placeholder="Correo electrónico"
+                :error="errores.correo"
+              />
 
-            <!-- Correo -->
-            <UiInput
-              v-model="form.correo"
-              type="email"
-              label="Correo electrónico"
-              placeholder="tu@email.com"
-              :error="errores.correo"
-              required
-            />
+              <UiInput
+                v-model="form.contrasena"
+                type="password"
+                placeholder="Contraseña"
+                :error="errores.contrasena"
+              />
 
-            <!-- Contraseña -->
-            <UiInput
-              v-model="form.contrasena"
-              type="password"
-              label="Contraseña"
-              placeholder="Mínimo 6 caracteres"
-              :error="errores.contrasena"
-              required
-            />
+              <UiInput
+                v-model="form.confirmar"
+                type="password"
+                placeholder="Confirmar contraseña"
+                :error="errores.confirmar"
+              />
 
-            <!-- Confirmar contraseña -->
-            <UiInput
-              v-model="form.confirmar"
-              type="password"
-              label="Confirmar contraseña"
-              placeholder="Repite tu contraseña"
-              :error="errores.confirmar"
-              required
-            />
+              <div
+                v-if="store.error"
+                class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600 font-['Poppins']"
+              >
+                {{ store.error }}
+              </div>
 
-            <!-- Mensaje de error del servidor -->
-            <div
-              v-if="store.error"
-              class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600 font-['Poppins']"
-            >
-              {{ store.error }}
-            </div>
-
-            <!-- Botón submit -->
-            <UiButton
-              type="submit"
-              variant="primary"
-              size="lg"
-              :loading="store.loading"
-              :disabled="!formValido || store.loading"
-              class="w-full"
-            >
-              {{ store.loading ? 'Creando cuenta...' : 'Crear Cuenta' }}
-            </UiButton>
-          </form>
+              <div class="flex justify-center pt-4">
+                <UiButton
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  :loading="store.loading"
+                  :disabled="!formValido || store.loading"
+                  class="w-full"
+                >
+                  {{ store.loading ? 'Creando cuenta...' : 'Crear Cuenta' }}
+                </UiButton>
+              </div>
+            </form>
+          </div>
         </UiCard>
       </div>
     </main>
@@ -142,6 +103,18 @@ definePageMeta({ layout: false })
 
 const store = useAuthStore()
 const router = useRouter()
+
+/**
+ * @author esteban
+ * URL del logo que funciona tanto en local como en producción.
+ * Usa new URL() para resolución correcta en ambos entornos.
+ */
+const logoUrl = computed(() => {
+  if (typeof window !== 'undefined') {
+    return new URL('/assets/images/flplogowhite.png', window.location.origin).href
+  }
+  return '/assets/images/flplogowhite.png'
+})
 
 /**
  * @author esteban
