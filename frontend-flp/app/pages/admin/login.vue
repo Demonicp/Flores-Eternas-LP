@@ -98,7 +98,10 @@ const router = useRouter()
  * Usa new URL() para resolución correcta en ambos entornos.
  */
 const logoUrl = computed(() => {
-  return new URL('/assets/images/flplogowhite.png', window.location.origin).href
+  if (typeof window !== 'undefined') {
+    return new URL('/assets/images/flplogowhite.png', window.location.origin).href
+  }
+  return '/assets/images/flplogowhite.png'
 })
 
 /**
