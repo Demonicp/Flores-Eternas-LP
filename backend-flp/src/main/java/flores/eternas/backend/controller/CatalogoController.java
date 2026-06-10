@@ -49,4 +49,10 @@ public class CatalogoController {
         List<FlorDisponibleDTO> flores = ramoService.listarFloresDisponibles();
         return ResponseEntity.ok(flores);
     }
+
+    @PostMapping("/seed")
+    public ResponseEntity<String> seedCatalogo() {
+        ramoService.seedCatalogo();
+        return ResponseEntity.ok("Catálogo poblado con 10 ramos por sección");
+    }
 }

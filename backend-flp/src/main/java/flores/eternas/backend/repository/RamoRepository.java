@@ -16,5 +16,7 @@ public interface RamoRepository extends JpaRepository<Ramo, Long> {
 
     List<Ramo> findByCategoriaRamoAndDisponibleTrue(CategoriaRamo categoriaRamo);
 
+    long countByCategoriaRamo(CategoriaRamo categoriaRamo);
+
     boolean existsByDisponibleTrue();
 }

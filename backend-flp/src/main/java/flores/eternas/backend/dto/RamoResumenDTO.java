@@ -1,6 +1,7 @@
 package flores.eternas.backend.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class RamoResumenDTO {
 
@@ -10,16 +11,18 @@ public class RamoResumenDTO {
     private String descripcionCorta;
     private BigDecimal precio;
     private boolean disponible;
+    private LocalDateTime fechaCreacion;
 
     public RamoResumenDTO() {}
 
-    public RamoResumenDTO(Long id, String nombre, String foto, String descripcionCorta, BigDecimal precio, boolean disponible) {
+    public RamoResumenDTO(Long id, String nombre, String foto, String descripcionCorta, BigDecimal precio, boolean disponible, LocalDateTime fechaCreacion) {
         this.id = id;
         this.nombre = nombre;
         this.foto = foto;
         this.descripcionCorta = descripcionCorta;
         this.precio = precio;
         this.disponible = disponible;
+        this.fechaCreacion = fechaCreacion;
     }
 
     public Long getId() { return id; }
@@ -34,4 +37,6 @@ public class RamoResumenDTO {
     public void setPrecio(BigDecimal precio) { this.precio = precio; }
     public boolean isDisponible() { return disponible; }
     public void setDisponible(boolean disponible) { this.disponible = disponible; }
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 }

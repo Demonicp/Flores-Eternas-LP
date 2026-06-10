@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -37,6 +38,9 @@ public class Ramo extends AbstractEntity {
 
     @Column(name = "descripcion_ramo")
     private String descripcionRamo;
+
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
 
     @Column(name = "disponible")
     private Boolean disponible = true;
