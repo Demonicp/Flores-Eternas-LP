@@ -8,7 +8,7 @@
   <div class="min-h-screen" style="background-color: #FFFCF6;">
     <header
       class="relative bg-cover bg-center h-95"
-      style="background-image: url('/assets/images/landing.jpg'); background-position: center 35%;"
+      style="background-image: url('/assets/images/FondoProvicional.png'); background-position: center 35%;"
     >
       <div class="bg-black/30 h-full">
         <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-6 h-full">
@@ -30,7 +30,7 @@
     </div>
 
     <main class="relative -mt-10 px-4 pb-12">
-      <div class="max-w-md mx-auto">
+      <div class="max-w-sm mx-auto">
         <UiCard :elevated="true" :padding="8">
           <div class="max-w-xs mx-auto flex flex-col justify-center py-8">
             <form @submit.prevent="handleLogin" class="space-y-8">
