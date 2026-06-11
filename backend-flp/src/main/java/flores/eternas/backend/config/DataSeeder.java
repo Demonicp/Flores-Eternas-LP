@@ -4,6 +4,7 @@ import flores.eternas.backend.model.*;
 import flores.eternas.backend.model.enums.Rol;
 import flores.eternas.backend.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Component
+@Order(1)
 public class DataSeeder implements CommandLineRunner {
 
     private final CategoriaRamoRepository categoriaRamoRepository;

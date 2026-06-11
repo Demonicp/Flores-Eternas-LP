@@ -20,6 +20,8 @@ export type RamoRequest = {
   descripcionRamo: string
   fotoRamo: string
   idCategoriaRamo: number
+  disponible: boolean
+  stock: number | null
   detallesRamo: DetalleLinea[]
 }
 
@@ -36,6 +38,8 @@ export type RamoResponse = {
   precioRamo: number
   descripcionRamo: string
   fotoRamo: string
+  disponible: boolean
+  stock: number | null
   categoria: CategoriaRamo
   detallesRamo: DetalleRamoResponse[]
 }
