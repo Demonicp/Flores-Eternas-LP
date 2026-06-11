@@ -5,9 +5,7 @@
         <a href="#" class="hover:underline">Entrega inmediata</a>
         <a href="#" class="font-semibold underline">Personalizado</a>
       </div>
-      <div class="text-center font-serif text-2xl tracking-wide">
-        <span class="font-bold">LP</span> FLORES ETERNAS
-      </div>
+      <NuxtLink to="/"><img src="/assets/images/flplogoblack.png" alt="Flores Eternas LP" class="h-14 w-auto cursor-pointer" /></NuxtLink>
       <div class="flex gap-6 items-center">
         <button><Icon name="ph:user" size="26" /></button>
         <button><Icon name="ph:shopping-cart" size="26" /></button>
@@ -22,7 +20,7 @@
           class="w-56 h-72 rounded-xl shadow-md flex flex-col items-center justify-center gap-3 flex-shrink-0 bg-[#FFEDE3]"
         >
           <div class="text-5xl">🌸</div>
-          <span class="text-[#7A4E2D] text-lg font-serif">{{ store.tipoFlor?.descripcion }}</span>
+          <span class="text-[#7A4E2D] text-lg font-serif">{{ store.tipoFlor?.descripcionFlor }}</span>
           <span class="text-[#7A4E2D] text-sm">${{ store.tipoFlor?.precioUnidad?.toFixed(2) }} c/u</span>
         </div>
 

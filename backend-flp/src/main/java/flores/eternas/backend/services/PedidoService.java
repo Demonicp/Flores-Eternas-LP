@@ -1,5 +1,6 @@
 package flores.eternas.backend.services;
 
+import flores.eternas.backend.dto.CrearPedidoRequest;
 import flores.eternas.backend.dto.PedidoRequestDTO;
 import flores.eternas.backend.dto.PedidoResponseDTO;
 import flores.eternas.backend.model.*;
@@ -14,31 +15,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import flores.eternas.backend.dto.CrearPedidoRequest;
-import flores.eternas.backend.model.CategoriaRamo;
-import flores.eternas.backend.model.ColorFlor;
-import flores.eternas.backend.model.DetalleAnadido;
-import flores.eternas.backend.model.DetallePedido;
-import flores.eternas.backend.model.DetalleRamo;
-import flores.eternas.backend.model.Inventario;
-import flores.eternas.backend.model.Pedido;
-import flores.eternas.backend.model.Persona;
-import flores.eternas.backend.model.Ramo;
-import flores.eternas.backend.model.TipoFlor;
-import flores.eternas.backend.model.enums.Estado;
-import flores.eternas.backend.repository.CategoriaRamoRepository;
-import flores.eternas.backend.repository.ColorFlorRepository;
-import flores.eternas.backend.repository.DetalleAnadidoRepository;
-import flores.eternas.backend.repository.DetallePedidoRepository;
-import flores.eternas.backend.repository.InventarioRepository;
-import flores.eternas.backend.repository.PedidoRepository;
-import flores.eternas.backend.repository.PersonaRepository;
-import flores.eternas.backend.repository.RamoRepository;
-import flores.eternas.backend.repository.TipoFlorRepository;
 
 @Service
 public class PedidoService {
@@ -104,7 +80,7 @@ public class PedidoService {
 
         Ramo ramo = new Ramo();
         ramo.setNombreRamo("Ramo Personalizado - " + tipoFlor.getDescripcionFlor());
-        ramo.setDescripcionRamo(
+        ramo.setDescripcionCorta(
                 "Ramo personalizado con " + request.getCantidad() + " " + tipoFlor.getDescripcionFlor());
         ramo.setCategoriaRamo(categoria);
         ramo.setDetallesRamo(detalles);
@@ -152,25 +128,28 @@ public class PedidoService {
                 }
                 persona = personaRepository.save(persona);
             }
-@Service
-@Transactional
-public class PedidoService {
+        }
 
-    private final PedidoRepository pedidoRepository;
-    private final PersonaRepository personaRepository;
-    private final RamoRepository ramoRepository;
-    private final DetallePedidoRepository detallePedidoRepository;
+        Pedido pedido = new Pedido();
+        pedido.setTotalPedido(total);
+        pedido.setDireccionEntrega(request.getDireccionEntrega());
+        pedido.setFechaEntrega(LocalDate.now().plusDays(3));
+        pedido.setEstado(Estado.EN_PREPARACION);
+        if (persona != null) {
+            pedido.setCliente(persona);
+        }
+        pedido = pedidoRepository.save(pedido);
 
-    public PedidoService(PedidoRepository pedidoRepository,
-                         PersonaRepository personaRepository,
-                         RamoRepository ramoRepository,
-                         DetallePedidoRepository detallePedidoRepository) {
-        this.pedidoRepository = pedidoRepository;
-        this.personaRepository = personaRepository;
-        this.ramoRepository = ramoRepository;
-        this.detallePedidoRepository = detallePedidoRepository;
+        DetallePedido detallePedido = new DetallePedido();
+        detallePedido.setPedido(pedido);
+        detallePedido.setRamo(ramo);
+        detallePedido.setCantidad(1);
+        detallePedidoRepository.save(detallePedido);
+
+        return pedido;
     }
 
+    @Transactional
     public PedidoResponseDTO crearPedido(PedidoRequestDTO request) {
         LocalDate hoy = LocalDate.now();
         if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(hoy.plusDays(5))) {
@@ -219,20 +198,6 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         pedido.setTotalPedido(total);
         pedido.setDireccionEntrega(request.getDireccionEntrega());
-        pedido.setFechaEntrega(LocalDate.now().plusDays(3));
-        pedido.setEstado(Estado.EN_PREPARACION);
-        if (persona != null) {
-            pedido.setCliente(persona);
-        }
-        pedido = pedidoRepository.save(pedido);
-
-        DetallePedido detallePedido = new DetallePedido();
-        detallePedido.setPedido(pedido);
-        detallePedido.setRamo(ramo);
-        detallePedido.setCantidad(1);
-        detallePedidoRepository.save(detallePedido);
-
-        return pedido;
         pedido.setFechaEntrega(request.getFechaEntrega());
         pedido.setCliente(persona);
         pedido.setMetodoPago(null);

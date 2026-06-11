@@ -19,20 +19,22 @@
           >
             Entrega inmediata
           </a>
-          <a
-            href="#"
+          <NuxtLink
+            to="/flor/SeleccionFlor"
             class="text-sm text-text-primary/80 hover:text-text-primary transition-colors duration-200 hidden sm:block font-medium"
           >
             Personalizado
-          </a>
+          </NuxtLink>
         </nav>
 
         <div class="flex-shrink-0">
-          <img
-            src="/assets/images/flplogoblack.png"
-            alt="Flores Eternas LP"
-            class="h-16 md:h-20 w-auto object-contain"
-          />
+          <NuxtLink to="/">
+            <img
+              src="/assets/images/flplogoblack.png"
+              alt="Flores Eternas LP"
+              class="h-16 md:h-20 w-auto object-contain cursor-pointer"
+            />
+          </NuxtLink>
         </div>
 
         <nav class="flex items-center gap-4 flex-1 justify-end">
