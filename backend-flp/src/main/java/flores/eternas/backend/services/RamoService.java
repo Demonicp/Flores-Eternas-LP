@@ -276,7 +276,35 @@ public class RamoService {
         RamoDetalleDTO dto = new RamoDetalleDTO();
         dto.setId(ramo.getId());
         dto.setNombre(ramo.getNombreRamo());
-        dto.setFoto(ramo.getFotoRamo());
+
+        String foto = ramo.getFotoRamo();
+        if (foto != null && foto.contains("cloudinary.com/demo")) {
+            String[] flowerImages = {
+                "https://images.unsplash.com/photo-1566378246598-5b11a0d486cc?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1535842802993-71e182ad4f23?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1519378058457-4c29c926d6e8?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1559561853-084c0b1b6b88?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1596815064285-7ed0c2216b5a?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1589123053640-8fd29e4a2c4e?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1549480017-d76466a0b2d0?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1594671146480-dc26e3086c4f?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1596436889106-be35e843f974?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1578956520118-613e9e8d45f1?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1567696153792-87f41e9b8823?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1559561853-084c0b1b6b88?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1470509037661-1e2d5e5f8b5f?w=400&h=300&fit=crop"
+            };
+            int idx = (int) (ramo.getId() % flowerImages.length);
+            foto = flowerImages[idx];
+        }
+        dto.setFoto(foto);
         dto.setDescripcionCorta(ramo.getDescripcionCorta());
         dto.setDescripcionCompleta(ramo.getDescripcionRamo());
         dto.setPrecio(ramo.getPrecioRamo());
@@ -380,7 +408,35 @@ public class RamoService {
         dto.setNombreRamo(ramo.getNombreRamo());
         dto.setPrecioRamo(ramo.getPrecioRamo());
         dto.setDescripcionRamo(ramo.getDescripcionRamo());
-        dto.setFotoRamo(ramo.getFotoRamo());
+
+        String foto = ramo.getFotoRamo();
+        if (foto != null && foto.contains("cloudinary.com/demo")) {
+            String[] flowerImages = {
+                "https://images.unsplash.com/photo-1566378246598-5b11a0d486cc?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1535842802993-71e182ad4f23?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1519378058457-4c29c926d6e8?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1559561853-084c0b1b6b88?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1596815064285-7ed0c2216b5a?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1589123053640-8fd29e4a2c4e?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1549480017-d76466a0b2d0?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1594671146480-dc26e3086c4f?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1596436889106-be35e843f974?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1578956520118-613e9e8d45f1?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1567696153792-87f41e9b8823?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1559561853-084c0b1b6b88?w=400&h=300&fit=crop",
+                "https://images.unsplash.com/photo-1470509037661-1e2d5e5f8b5f?w=400&h=300&fit=crop"
+            };
+            int idx = (int) (ramo.getId() % flowerImages.length);
+            foto = flowerImages[idx];
+        }
+        dto.setFotoRamo(foto);
 
         if (ramo.getCategoriaRamo() != null) {
             dto.setCategoria(new CategoriaRamoDTO(

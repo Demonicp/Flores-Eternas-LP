@@ -363,6 +363,18 @@ export const useNegocioStore = defineStore('negocio', () => {
     coloresDisponibles.value = cols
   }
 
+  const categoriasVisibles = computed(() =>
+    categorias.value.filter(c => !/personalizado/i.test(c.descripcionCategoriaRamo))
+  )
+
+  const categoriasDisponiblesVisibles = computed(() =>
+    categoriasDisponibles.value.filter(c => !/personalizado/i.test(c.descripcionCategoriaRamo))
+  )
+
+  const ramosVisibles = computed(() =>
+    ramos.value.filter(r => !r.categoria || !/personalizado/i.test(r.categoria.descripcionCategoriaRamo))
+  )
+
   async function cargarTodo() {
     await Promise.all([
       cargarRamos(),
@@ -398,6 +410,7 @@ export const useNegocioStore = defineStore('negocio', () => {
     cargarFlores, guardarFlor, editarFlor, eliminarFlor,
 
     categoriasDisponibles, tiposFlorDisponibles, coloresDisponibles,
+    categoriasVisibles, categoriasDisponiblesVisibles, ramosVisibles,
     cargarDatosCompartidos, cargarTodo,
     cargarCategoriasDisponibles, cargarTiposFlorDisponibles, cargarColoresDisponibles,
   }

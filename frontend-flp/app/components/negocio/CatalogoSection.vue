@@ -65,7 +65,7 @@
             class="w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
           >
             <option :value="null" disabled>Seleccione...</option>
-            <option v-for="cat in store.categoriasDisponibles" :key="cat.id" :value="cat.id">
+            <option v-for="cat in store.categoriasDisponiblesVisibles" :key="cat.id" :value="cat.id">
               {{ cat.descripcionCategoriaRamo }}
             </option>
           </select>
@@ -123,7 +123,7 @@
       <div class="w-full lg:w-80">
         <h3 class="text-base font-serif text-text-primary mb-2">Tus Ramos Publicados</h3>
         <div class="bg-bg-card rounded-xl p-3 max-h-96 overflow-y-auto">
-          <table v-if="store.ramos.length > 0" class="w-full text-sm text-text-primary">
+          <table v-if="store.ramosVisibles.length > 0" class="w-full text-sm text-text-primary">
             <thead>
               <tr class="text-left border-b border-border-soft">
                 <th class="pb-2 pr-2 font-medium">Nombre</th>
@@ -132,7 +132,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="ramo in store.ramos" :key="ramo.id" class="border-b border-border-soft/50">
+              <tr v-for="ramo in store.ramosVisibles" :key="ramo.id" class="border-b border-border-soft/50">
                 <td class="py-2 pr-2 truncate max-w-[140px]">{{ ramo.nombreRamo }}</td>
                 <td class="py-2 pr-2">${{ Number(ramo.precioRamo).toFixed(2) }}</td>
                 <td class="py-2 flex gap-1">

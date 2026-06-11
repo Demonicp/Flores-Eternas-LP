@@ -41,7 +41,7 @@
       <div class="w-full lg:w-80">
         <h3 class="text-base font-serif text-text-primary mb-2">Tus Eventos Creados</h3>
         <div class="bg-bg-card rounded-xl p-3 max-h-64 overflow-y-auto">
-          <table v-if="store.categorias.length > 0" class="w-full text-sm text-text-primary">
+          <table v-if="store.categoriasVisibles.length > 0" class="w-full text-sm text-text-primary">
             <thead>
               <tr class="text-left border-b border-border-soft">
                 <th class="pb-2 pr-2 font-medium">Nombre</th>
@@ -49,7 +49,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="cat in store.categorias" :key="cat.id" class="border-b border-border-soft/50">
+              <tr v-for="cat in store.categoriasVisibles" :key="cat.id" class="border-b border-border-soft/50">
                 <td class="py-2 pr-2 truncate max-w-[200px]">{{ cat.descripcionCategoriaRamo }}</td>
                 <td class="py-2 flex gap-1">
                   <button
