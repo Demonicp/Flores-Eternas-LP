@@ -29,6 +29,9 @@
       <h3 class="font-serif text-base text-text-primary font-medium truncate">
         {{ producto.nombre }}
       </h3>
+      <p v-if="producto.descripcionCorta" class="text-xs text-text-primary/60 line-clamp-2 leading-relaxed">
+        {{ producto.descripcionCorta }}
+      </p>
       <p class="text-sm text-text-primary/70 font-medium">
         {{ formatoPrecio(producto.precio) }} COP
       </p>
@@ -50,7 +53,7 @@ import type { RamoResumen } from '../../models/catalogo.model'
 
 const props = defineProps<{
   producto: RamoResumen
-  badge?: 'nuevo' | 'entrega-inmediata'
+  badge?: string
 }>()
 
 defineEmits<{

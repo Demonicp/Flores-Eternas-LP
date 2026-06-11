@@ -48,8 +48,11 @@
           <button class="text-text-primary hover:text-text-primary/70 transition-colors duration-200 p-1" aria-label="Perfil">
             <Icon icon="mdi:account-outline" class="text-xl" />
           </button>
-          <button class="text-text-primary hover:text-text-primary/70 transition-colors duration-200 p-1 relative" aria-label="Carrito">
+          <button class="text-text-primary hover:text-text-primary/70 transition-colors duration-200 p-1 relative" aria-label="Carrito" @click="cartStore.toggleCarrito()">
             <Icon icon="mdi:cart-outline" class="text-xl" />
+            <span v-if="cartStore.totalItems > 0" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-btn-primary text-btn-primary-text text-[10px] flex items-center justify-center font-bold leading-none">
+              {{ cartStore.totalItems > 9 ? '9+' : cartStore.totalItems }}
+            </span>
           </button>
         </nav>
 
@@ -57,3 +60,9 @@
     </div>
   </header>
 </template>
+
+<script setup lang="ts">
+import { useCartStore } from '../../stores/cart.store'
+
+const cartStore = useCartStore()
+</script>

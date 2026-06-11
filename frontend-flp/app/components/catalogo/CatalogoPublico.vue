@@ -11,7 +11,7 @@
       <div class="relative group">
         <button
           class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
-          :class="{ 'opacity-100': scrollLefts[seccion.nombre] > 0 }"
+          :class="{ 'opacity-100': (scrollLefts[seccion.nombre] ?? 0) > 0 }"
           @click="scrollSection(seccion.nombre, -1)"
           aria-label="Anterior"
         >
@@ -27,7 +27,7 @@
             v-for="item in seccion.ramos"
             :key="item.id"
             :producto="item"
-            :badge="seccion.badge ?? undefined"
+            :badge="seccion.badge || undefined"
             @add-to-cart="onAddToCart"
           />
           <div
@@ -84,8 +84,12 @@ function onScroll(nombre: string) {
   }
 }
 
-function onAddToCart(producto: { id: number; nombre: string }) {
-  console.log('Añadir al carrito:', producto.nombre)
+import { useCartStore } from '../../stores/cart.store'
+
+const cartStore = useCartStore()
+
+function onAddToCart(producto: { id: number; nombre: string; foto: string; precio: number }) {
+  cartStore.agregarItem(producto)
 }
 
 onMounted(async () => {
