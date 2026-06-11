@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "BackendApplication",
+            "request": "launch",
+            "mainClass": "flores.eternas.backend.BackendApplication",
+            "projectName": ""
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-BackendApplication<backend>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
