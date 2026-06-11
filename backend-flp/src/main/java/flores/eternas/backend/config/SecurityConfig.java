@@ -58,6 +58,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/flores/**").permitAll()
+                        .requestMatchers("/api/pedidos/**").permitAll()
                         .requestMatchers("/api/catalogo/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categorias-ramo/**", "/api/colores-flor/**", "/api/ramos/**", "/api/tipos-flor/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

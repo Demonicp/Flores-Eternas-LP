@@ -17,6 +17,13 @@ public class PedidoController {
         this.pedidoService = pedidoService;
     }
 
+    @PostMapping("/crear")
+    public ResponseEntity<Pedido> crearPedido(@RequestBody CrearPedidoRequest request) {
+        try {
+            Pedido pedido = pedidoService.crearPedido(request);
+            return ResponseEntity.ok(pedido);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     @PostMapping
     public ResponseEntity<?> crearPedido(@RequestBody PedidoRequestDTO request) {
         try {
