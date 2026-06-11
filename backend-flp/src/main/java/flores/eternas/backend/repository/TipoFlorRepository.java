@@ -1,11 +1,13 @@
 package flores.eternas.backend.repository;
 
+import flores.eternas.backend.model.TipoFlor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import flores.eternas.backend.model.TipoFlor;
+import java.util.List;
 
-//Santiago Montenegro HU6
 @Repository
 public interface TipoFlorRepository extends JpaRepository<TipoFlor, Long> {
+
+    List<TipoFlor> findAllByOrderByDescripcionFlorAsc();
 }

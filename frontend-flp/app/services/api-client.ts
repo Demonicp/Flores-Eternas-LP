@@ -1,3 +1,5 @@
+const TOKEN_KEY = 'flp_admin_token'
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message)
@@ -14,11 +16,21 @@ export function getApiBase(): string {
   return _apiBase
 }
 
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem(TOKEN_KEY)
+}
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const url = `${_apiBase}${path}`
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  const token = getToken()
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
   const options: RequestInit = {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers,
   }
   if (body !== undefined) {
     options.body = JSON.stringify(body)

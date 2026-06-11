@@ -43,6 +43,15 @@ public class Pedido extends AbstractEntity {
     @JoinColumn(name = "id_pago")
     private MetodoPago metodoPago;
 
+    @Column(name = "monto_pagado")
+    private BigDecimal montoPagado;
+
+    @Column(name = "tipo_pedido")
+    private String tipoPedido;
+
+    @Column(name = "email_cliente")
+    private String emailCliente;
+
     @Enumerated(EnumType.STRING)
     private Estado estado;
 }
