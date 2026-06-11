@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen" style="background-color: #FFFCF6;">
     <header
-      class="relative bg-cover bg-center"
+      class="relative bg-cover bg-center min-h-[340px]"
       style="background-image: url('/assets/images/FondoProvicional.png'); background-position: center 35%;"
     >
       <div class="bg-black/20">

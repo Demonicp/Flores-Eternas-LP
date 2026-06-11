@@ -171,7 +171,7 @@ async function handleLogin() {
   })
 
   if (success) {
-    router.push('/admin/dashboard')
+    router.push('/admin/pedidos')
   }
 }
 </script>

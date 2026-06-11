@@ -1,8 +1,10 @@
 package flores.eternas.backend.config;
 
 import flores.eternas.backend.model.*;
+import flores.eternas.backend.model.enums.Rol;
 import flores.eternas.backend.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -15,19 +17,38 @@ public class DataSeeder implements CommandLineRunner {
     private final TipoFlorRepository tipoFlorRepository;
     private final ColorFlorRepository colorFlorRepository;
     private final RamoRepository ramoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DataSeeder(CategoriaRamoRepository categoriaRamoRepository,
                       TipoFlorRepository tipoFlorRepository,
                       ColorFlorRepository colorFlorRepository,
-                      RamoRepository ramoRepository) {
+                      RamoRepository ramoRepository,
+                      UsuarioRepository usuarioRepository,
+                      PasswordEncoder passwordEncoder) {
         this.categoriaRamoRepository = categoriaRamoRepository;
         this.tipoFlorRepository = tipoFlorRepository;
         this.colorFlorRepository = colorFlorRepository;
         this.ramoRepository = ramoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
+        if (usuarioRepository.count() == 0) {
+            Persona persona = new Persona();
+            persona.setNombreCliente("Admin Flores Eternas");
+
+            Usuario admin = new Usuario();
+            admin.setCorreoElectronico("admin@floreseternas.com");
+            admin.setContrasena(passwordEncoder.encode("admin123"));
+            admin.setPersona(persona);
+            admin.setRol(Rol.ADMIN);
+
+            usuarioRepository.save(admin);
+        }
+
         if (categoriaRamoRepository.count() > 0) {
             return;
         }
