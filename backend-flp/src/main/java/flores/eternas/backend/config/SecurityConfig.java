@@ -42,13 +42,18 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-  @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
+
+   
+    configuration.addAllowedOriginPattern("https://*.vercel.app");
+
     configuration.setAllowedOrigins(List.of(
-        "https://flores-eternas-ran6p8u8m-diosbend-3786s-projects.vercel.app", 
-        "http://localhost:3000" 
+        "http://localhost:3000",
+        "https://flores-eternas-lp.vercel.app" // si configuras un dominio fijo en Vercel
     ));
+
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);
