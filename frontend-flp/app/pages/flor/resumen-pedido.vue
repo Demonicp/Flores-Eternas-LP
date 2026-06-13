@@ -131,8 +131,8 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
+import { floresApi } from '~/services/api-client'
 
-const config = useRuntimeConfig()
 const store = useRamoPersonalizadoStore()
 const router = useRouter()
 
@@ -174,8 +174,6 @@ async function realizarPedido() {
 
   enviando.value = true
   try {
-    const base = config.public.apiBase || 'http://localhost:8080'
-
     const adicionesPayload = store.adiciones.length > 0
       ? store.adiciones.map(a => ({
           inventarioId: a.id,
@@ -194,18 +192,7 @@ async function realizarPedido() {
       telefono: telefono.value
     }
 
-    const res = await fetch(`${base}/api/pedidos/crear`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    })
-
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(errText || 'Error al crear pedido')
-    }
-
-    const data = await res.json()
+    const data = await floresApi.crearPedido(body)
 
     exito.value = true
     mensajeTitulo.value = '¡Pedido creado!'

@@ -51,8 +51,8 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
+import { floresApi } from '~/services/api-client'
 
-const config = useRuntimeConfig()
 const store = useRamoPersonalizadoStore()
 const router = useRouter()
 
@@ -61,9 +61,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const base = config.public.apiBase || 'http://localhost:8080'
-    const res = await fetch(`${base}/api/flores/tipos`)
-    tiposFlor.value = await res.json()
+    tiposFlor.value = await floresApi.getTipos()
   } catch (e) {
     console.error('Error al cargar tipos de flor:', e)
   } finally {
