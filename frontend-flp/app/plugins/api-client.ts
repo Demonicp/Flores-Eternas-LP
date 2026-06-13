@@ -3,3 +3,5 @@ export default defineNuxtPlugin(() => {
   console.log("API Base configurado en:", apiBase)
   return { provide: { apiBase } }
 })
+
+console.log("Variables públicas:", import.meta.env)
