@@ -130,7 +130,7 @@
               class="px-6 py-2 rounded-lg text-sm font-medium transition-colors"
               :class="store.ramoLoading ? 'opacity-50 cursor-not-allowed bg-gray-300' : 'bg-btn-primary text-btn-primary-text hover:opacity-90'"
             >
-              {{ store.ramoLoading ? 'Guardando...' : store.esEdicionRamo ? 'Aceptar' : 'Aceptar' }}
+              {{ store.ramoLoading ? 'Guardando...' : store.esEdicionRamo ? 'Guardar' : 'Aceptar' }}
             </button>
             <button
               v-if="store.esEdicionRamo"
