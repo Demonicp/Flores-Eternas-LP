@@ -19,7 +19,7 @@
         v-if="producto.foto && !imgError"
         :src="producto.foto"
         :alt="producto.nombre"
-        class="w-full h-full object-cover"
+        class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
         @error="imgError = true"
       />
       <Icon v-else icon="mdi:flower-tulip-outline" class="text-5xl text-text-primary/30" />

@@ -20,5 +20,7 @@ public class RamoRequestDTO {
     private String descripcionRamo;
     private String fotoRamo;
     private Long idCategoriaRamo;
+    private Boolean disponible;
+    private Integer stock;
     private List<DetalleRamoLineaDTO> detallesRamo;
 }

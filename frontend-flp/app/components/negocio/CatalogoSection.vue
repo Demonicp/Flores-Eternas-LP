@@ -84,6 +84,41 @@
           />
         </div>
 
+        <!-- Stock -->
+        <div>
+          <label class="block text-sm text-text-primary font-medium mb-1">
+            Stock
+            <span class="text-xs text-text-primary/60 font-normal">(dejar vacío = sin control)</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            :value="store.ramoFormStock"
+            @input="store.ramoFormStock = ($event.target as HTMLInputElement).value ? Number(($event.target as HTMLInputElement).value) : null"
+            class="w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+            placeholder="Sin control"
+          />
+        </div>
+
+        <!-- Activo toggle -->
+        <div class="flex items-center gap-3">
+          <label class="block text-sm text-text-primary font-medium">Activo</label>
+          <button
+            type="button"
+            @click="store.ramoFormDisponible = !store.ramoFormDisponible"
+            class="relative w-11 h-6 rounded-full transition-colors duration-200"
+            :class="store.ramoFormDisponible ? 'bg-btn-primary' : 'bg-gray-300'"
+          >
+            <span
+              class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200"
+              :class="store.ramoFormDisponible ? 'translate-x-5' : ''"
+            />
+          </button>
+          <span class="text-xs text-text-primary/60">
+            {{ store.ramoFormDisponible ? 'Visible en catálogo' : 'Oculto en catálogo' }}
+          </span>
+        </div>
+
         <!-- Descripción -->
         <div>
           <label class="block text-sm text-text-primary font-medium mb-1">Descripción De Tu Ramo</label>
@@ -128,6 +163,8 @@
               <tr class="text-left border-b border-border-soft">
                 <th class="pb-2 pr-2 font-medium">Nombre</th>
                 <th class="pb-2 pr-2 font-medium">Precio</th>
+                <th class="pb-2 pr-2 font-medium">Stock</th>
+                <th class="pb-2 pr-2 font-medium">Estado</th>
                 <th class="pb-2"></th>
               </tr>
             </thead>
@@ -135,6 +172,24 @@
               <tr v-for="ramo in store.ramosVisibles" :key="ramo.id" class="border-b border-border-soft/50">
                 <td class="py-2 pr-2 truncate max-w-[140px]">{{ ramo.nombreRamo }}</td>
                 <td class="py-2 pr-2">${{ Number(ramo.precioRamo).toFixed(2) }}</td>
+                <td class="py-2 pr-2">
+                  <span v-if="ramo.stock != null">{{ ramo.stock }}</span>
+                  <span v-else class="text-text-primary/40">∞</span>
+                </td>
+                <td class="py-2 pr-2">
+                  <span
+                    v-if="ramo.stock != null && ramo.stock <= 0"
+                    class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700"
+                  >Agotado</span>
+                  <span
+                    v-else-if="ramo.disponible === false"
+                    class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500"
+                  >Inactivo</span>
+                  <span
+                    v-else
+                    class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700"
+                  >Activo</span>
+                </td>
                 <td class="py-2 flex gap-1">
                   <button
                     type="button"
