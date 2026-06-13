@@ -1,7 +1,14 @@
-export default defineNuxtPlugin(() => {
-  const apiBase = process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
-  console.log("API Base configurado en:", apiBase)
-  return { provide: { apiBase } }
-})
+import { defineNuxtPlugin } from '#app'
+import { setApiBase } from '~/services/api-client'
 
-console.log("Variables públicas:", import.meta.env)
+export default defineNuxtPlugin(() => {
+  if (import.meta.env.DEV) {
+    // 👉 Cuando corres npm run dev (local)
+    setApiBase('http://localhost:8080')
+  } else {
+    setApiBase('https://flores-eternas-lp.onrender.com')
+  }
+
+  // Opcional: log para verificar
+  console.log('API Base configurado en:', setApiBase)
+})
