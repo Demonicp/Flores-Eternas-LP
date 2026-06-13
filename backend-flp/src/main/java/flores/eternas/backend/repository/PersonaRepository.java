@@ -4,12 +4,10 @@ import flores.eternas.backend.model.Persona;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * @author esteban
- * Repository para la entidad Persona.
- * Proporciona metodos de acceso a datos para personas del sistema.
- */
+import java.util.Optional;
+
 @Repository
 public interface PersonaRepository extends JpaRepository<Persona, Long> {
 
+    Optional<Persona> findByCedula(String cedula);
 }
