@@ -45,7 +45,7 @@ public class RamoService {
                 .map(cat -> ramoRepository.findByCategoriaRamoOrderByNombreRamoAsc(cat))
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(r -> r.getDisponible() != false)
+                .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
                 .map(this::toResumenDTO)
                 .collect(Collectors.toList());
 
@@ -53,7 +53,7 @@ public class RamoService {
                 .map(cat -> ramoRepository.findByCategoriaRamoOrderByNombreRamoAsc(cat))
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(r -> r.getDisponible() != false)
+                .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
                 .map(this::toResumenDTO)
                 .collect(Collectors.toList());
 
@@ -68,7 +68,7 @@ public class RamoService {
             List<RamoResumenDTO> ramos = ramoRepository
                     .findByCategoriaRamoOrderByNombreRamoAsc(cat)
                     .stream()
-                    .filter(r -> r.getDisponible() != false)
+                    .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
                     .map(this::toResumenDTO)
                     .collect(Collectors.toList());
             if (!ramos.isEmpty()) {
@@ -158,7 +158,7 @@ public class RamoService {
     @Transactional(readOnly = true)
     public List<RamoResponseDTO> listarTodos() {
         return ramoRepository.findAll().stream()
-                .filter(r -> r.getDisponible() != false)
+                .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
                 .filter(r -> r.getCategoriaRamo() == null
                         || !"Personalizado".equalsIgnoreCase(r.getCategoriaRamo().getDescripcionCategoriaRamo()))
                 .map(this::toResponseDTO)
