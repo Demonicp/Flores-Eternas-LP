@@ -57,7 +57,7 @@ public class DataInitializer implements CommandLineRunner {
         if (tipoFlorRepository.findAll().stream().noneMatch(t -> t.getDescripcionFlor().equalsIgnoreCase("Clavel"))) {
             TipoFlor clavel = new TipoFlor();
             clavel.setDescripcionFlor("Clavel");
-            clavel.setPrecioUnidad(new BigDecimal("1.50"));
+            clavel.setPrecioUnidad(new BigDecimal("3000"));
             clavel.setPorcentajePorMayor(new BigDecimal("0.10"));
             tipoFlorRepository.save(clavel);
         }
@@ -82,13 +82,13 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         List<Inventario> adiciones = List.of(
-                crearInventario("Corona", "Corona decorativa para ramo", 20, new BigDecimal("5.00"), Estado.DISPONIBLE,
+                crearInventario("Corona", "Corona decorativa para ramo", 20, new BigDecimal("12000"), Estado.DISPONIBLE,
                         catAccesorio),
-                crearInventario("Moño", "Moño de tela para ramo", 50, new BigDecimal("1.50"), Estado.DISPONIBLE,
+                crearInventario("Moño", "Moño de tela para ramo", 50, new BigDecimal("3000"), Estado.DISPONIBLE,
                         catAccesorio),
-                crearInventario("Tarjeta", "Tarjeta personalizada", 100, new BigDecimal("2.00"), Estado.DISPONIBLE,
+                crearInventario("Tarjeta", "Tarjeta personalizada", 100, new BigDecimal("5000"), Estado.DISPONIBLE,
                         catAccesorio),
-                crearInventario("Papel de regalo", "Papel decorativo para envolver", 30, new BigDecimal("3.00"),
+                crearInventario("Papel de regalo", "Papel decorativo para envolver", 30, new BigDecimal("7000"),
                         Estado.DISPONIBLE, catAccesorio));
         inventarioRepository.saveAll(adiciones);
     }

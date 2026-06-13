@@ -115,6 +115,7 @@ export const useNegocioStore = defineStore('negocio', () => {
     try {
       await ramoService.eliminar(id)
       await cargarRamos()
+      resetRamoForm()
     } catch (e) {
       ramoError.value = e instanceof Error ? e.message : 'Error al eliminar ramo'
     } finally {
