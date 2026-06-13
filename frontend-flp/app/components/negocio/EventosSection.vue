@@ -10,30 +10,36 @@
           v-model="store.catFormNombre"
           type="text"
           maxlength="100"
-          class="w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+          :class="campoInvalido('nombre')"
           placeholder="Nombre del evento"
         />
       </div>
       <button
         type="button"
-        @click="guardarCategoria"
-        :disabled="!store.catFormNombre.trim() || store.catLoading"
+        @click="validarYGuardar"
+        :disabled="store.catLoading"
         class="px-6 py-2 rounded-lg text-sm font-medium transition-colors"
         :class="store.catLoading ? 'opacity-50 cursor-not-allowed bg-gray-300' : 'bg-btn-primary text-btn-primary-text hover:opacity-90'"
       >
-        {{ store.catLoading ? 'Guardando...' : store.esEdicionCat ? 'Aceptar' : 'Añadir' }}
+        {{ store.catLoading ? 'Guardando...' : store.esEdicionCat ? 'Guardar' : 'Añadir' }}
       </button>
       <button
         v-if="store.esEdicionCat"
         type="button"
-        @click="store.resetCatForm()"
+        @click="cancelarEdicion"
         class="px-6 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-600 hover:bg-gray-300"
       >
         Cancelar
       </button>
     </div>
 
-    <p v-if="store.catError" class="text-red-600 text-sm mt-2">{{ store.catError }}</p>
+    <ul v-if="erroresVisibles.length > 0" class="space-y-1 mt-2">
+      <li v-for="err in erroresVisibles" :key="err" class="text-red-600 text-sm flex items-start gap-1.5">
+        <span class="mt-0.5 shrink-0">•</span>
+        <span>{{ err }}</span>
+      </li>
+    </ul>
+    <p v-if="store.catError && erroresVisibles.length === 0" class="text-red-600 text-sm mt-2">{{ store.catError }}</p>
 
     <hr class="my-6 border-border-soft" />
 
@@ -139,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useNegocioStore } from '../../stores/negocio.store'
 import type { CategoriaRamo } from '../../models/categoria-ramo.model'
 import { useToast } from '~/composables/useToast'
@@ -149,10 +155,31 @@ const toast = useToast()
 
 const searchQuery = ref('')
 const modalEliminar = ref<CategoriaRamo | null>(null)
+const erroresVisibles = ref<string[]>([])
+
+const camposInvalidos = computed(() => ({
+  nombre: !store.catFormNombre.trim()
+}))
+
+const erroresValidacion = computed(() => {
+  const errores: string[] = []
+  if (camposInvalidos.value.nombre) errores.push('Falta el nombre del evento')
+  return errores
+})
+
+function campoInvalido(nombre: string) {
+  return camposInvalidos.value[nombre] && erroresVisibles.value.length > 0
+    ? 'w-full rounded-lg border border-red-400 bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-red-400'
+    : 'w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary'
+}
+
+watch(() => store.catEditandoId, () => {
+  erroresVisibles.value = []
+})
 
 const ramosEnCategoria = computed(() => {
   if (!modalEliminar.value) return []
-  return store.ramos.filter(r => r.categoria?.id === modalEliminar.value!.id)
+  return store.ramos.filter(r => r.disponible !== false && r.categoria?.id === modalEliminar.value!.id)
 })
 
 const filteredCategorias = computed(() => {
@@ -161,11 +188,23 @@ const filteredCategorias = computed(() => {
   return store.categoriasVisibles.filter(c => c.descripcionCategoriaRamo.toLowerCase().includes(q))
 })
 
+function cancelarEdicion() {
+  store.resetCatForm()
+  erroresVisibles.value = []
+}
+
+function validarYGuardar() {
+  erroresVisibles.value = erroresValidacion.value
+  if (erroresVisibles.value.length > 0) return
+  guardarCategoria()
+}
+
 async function guardarCategoria() {
   const esEdicion = store.esEdicionCat
   await store.guardarCategoria()
   if (!store.catError) {
     toast.success(esEdicion ? 'Evento actualizado con éxito' : 'Evento creado con éxito')
+    erroresVisibles.value = []
   }
 }
 

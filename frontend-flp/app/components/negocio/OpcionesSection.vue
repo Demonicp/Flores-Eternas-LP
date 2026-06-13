@@ -24,29 +24,35 @@
             v-model="store.colFormNombre"
             type="text"
             maxlength="50"
-            class="w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+            :class="campoInvalidoColor('nombre')"
             placeholder="Nombre del color"
           />
         </div>
         <button
           type="button"
-          @click="guardarColor"
-          :disabled="!store.colFormNombre.trim() || store.colLoading"
+          @click="validarYGuardarColor"
+          :disabled="store.colLoading"
           class="px-6 py-2 rounded-lg text-sm font-medium transition-colors"
           :class="store.colLoading ? 'opacity-50 cursor-not-allowed bg-gray-300' : 'bg-btn-primary text-btn-primary-text hover:opacity-90'"
         >
-          {{ store.colLoading ? 'Guardando...' : store.esEdicionCol ? 'Aceptar' : 'Añadir' }}
+          {{ store.colLoading ? 'Guardando...' : store.esEdicionCol ? 'Guardar' : 'Añadir' }}
         </button>
         <button
           v-if="store.esEdicionCol"
           type="button"
-          @click="store.resetColForm()"
+          @click="cancelarEdicionColor"
           class="px-6 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-600 hover:bg-gray-300"
         >
           Cancelar
         </button>
       </div>
-      <p v-if="store.colError" class="text-red-600 text-sm mb-4">{{ store.colError }}</p>
+      <ul v-if="erroresVisiblesCol.length > 0" class="space-y-1 mb-4">
+        <li v-for="err in erroresVisiblesCol" :key="err" class="text-red-600 text-sm flex items-start gap-1.5">
+          <span class="mt-0.5 shrink-0">•</span>
+          <span>{{ err }}</span>
+        </li>
+      </ul>
+      <p v-if="store.colError && erroresVisiblesCol.length === 0" class="text-red-600 text-sm mb-4">{{ store.colError }}</p>
 
       <hr class="my-6 border-border-soft" />
 
@@ -108,7 +114,7 @@
             v-model="store.florFormDescripcion"
             type="text"
             maxlength="100"
-            class="w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+            :class="campoInvalidoFlor('nombre')"
             placeholder="Nombre de la flor"
           />
         </div>
@@ -119,7 +125,7 @@
             type="number"
             min="0"
             @wheel.prevent
-            class="w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+            :class="campoInvalidoFlor('precio')"
             placeholder="0"
           />
         </div>
@@ -131,7 +137,7 @@
             min="0"
             max="100"
             @wheel.prevent
-            class="w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+            :class="campoInvalidoFlor('porcentaje')"
             placeholder="0"
           />
         </div>
@@ -140,24 +146,30 @@
       <div class="flex gap-2 mt-3">
         <button
           type="button"
-          @click="guardarFlor"
-          :disabled="!florFormValido || store.florLoading"
+          @click="validarYGuardarFlor"
+          :disabled="store.florLoading"
           class="px-6 py-2 rounded-lg text-sm font-medium transition-colors"
           :class="store.florLoading ? 'opacity-50 cursor-not-allowed bg-gray-300' : 'bg-btn-primary text-btn-primary-text hover:opacity-90'"
         >
-          {{ store.florLoading ? 'Guardando...' : store.esEdicionFlor ? 'Aceptar' : 'Añadir' }}
+          {{ store.florLoading ? 'Guardando...' : store.esEdicionFlor ? 'Guardar' : 'Añadir' }}
         </button>
         <button
           v-if="store.esEdicionFlor"
           type="button"
-          @click="store.resetFlorForm()"
+          @click="cancelarEdicionFlor"
           class="px-6 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-600 hover:bg-gray-300"
         >
           Cancelar
         </button>
       </div>
 
-      <p v-if="store.florError" class="text-red-600 text-sm mt-2">{{ store.florError }}</p>
+      <ul v-if="erroresVisiblesFlor.length > 0" class="space-y-1 mt-2">
+        <li v-for="err in erroresVisiblesFlor" :key="err" class="text-red-600 text-sm flex items-start gap-1.5">
+          <span class="mt-0.5 shrink-0">•</span>
+          <span>{{ err }}</span>
+        </li>
+      </ul>
+      <p v-if="store.florError && erroresVisiblesFlor.length === 0" class="text-red-600 text-sm mt-2">{{ store.florError }}</p>
 
       <hr class="my-6 border-border-soft" />
 
@@ -338,7 +350,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useNegocioStore } from '../../stores/negocio.store'
 import type { ColorFlor } from '../../models/color-flor.model'
 import type { TipoFlor } from '../../models/tipo-flor.model'
@@ -348,9 +360,28 @@ import { formatoPrecio } from '~/utils/formatters'
 const store = useNegocioStore()
 const toast = useToast()
 
-/* Color */
+/* ========= Color ========= */
 const colorSearch = ref('')
 const modalEliminarColor = ref<ColorFlor | null>(null)
+const erroresVisiblesCol = ref<string[]>([])
+
+const camposInvalidosCol = computed(() => ({
+  nombre: !store.colFormNombre.trim()
+}))
+
+const erroresValidacionCol = computed(() => {
+  const e: string[] = []
+  if (camposInvalidosCol.value.nombre) e.push('Falta el nombre del color')
+  return e
+})
+
+function campoInvalidoColor(nombre: string) {
+  return camposInvalidosCol.value[nombre] && erroresVisiblesCol.value.length > 0
+    ? 'w-full rounded-lg border border-red-400 bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-red-400'
+    : 'w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary'
+}
+
+watch(() => store.colEditandoId, () => { erroresVisiblesCol.value = [] })
 
 const filteredColores = computed(() => {
   let items = store.colores
@@ -364,14 +395,26 @@ const filteredColores = computed(() => {
 const ramosConColor = computed(() => {
   if (!modalEliminarColor.value) return []
   const id = modalEliminarColor.value.id
-  return store.ramos.filter(r => r.detallesRamo.some(d => d.colorFlor.id === id))
+  return store.ramos.filter(r => r.disponible !== false && r.detallesRamo.some(d => d.colorFlor.id === id))
 })
+
+function cancelarEdicionColor() {
+  store.resetColForm()
+  erroresVisiblesCol.value = []
+}
+
+function validarYGuardarColor() {
+  erroresVisiblesCol.value = erroresValidacionCol.value
+  if (erroresVisiblesCol.value.length > 0) return
+  guardarColor()
+}
 
 async function guardarColor() {
   const esEdicion = store.esEdicionCol
   await store.guardarColor()
   if (!store.colError) {
     toast.success(esEdicion ? 'Color actualizado con éxito' : 'Color creado con éxito')
+    erroresVisiblesCol.value = []
   }
 }
 
@@ -389,23 +432,40 @@ async function ejecutarEliminarColor() {
   }
 }
 
-/* Flor */
+/* ========= Flor ========= */
 const florSearch = ref('')
 type OrdenPrecio = 'asc' | 'desc' | null
 const ordenPrecio = ref<OrdenPrecio>(null)
 const modalEliminarFlor = ref<TipoFlor | null>(null)
+const erroresVisiblesFlor = ref<string[]>([])
+
+const camposInvalidosFlor = computed(() => ({
+  nombre: !store.florFormDescripcion.trim(),
+  precio: store.florFormPrecio === null || store.florFormPrecio <= 0,
+  porcentaje: store.florFormPorcentaje === null || store.florFormPorcentaje < 0 || store.florFormPorcentaje > 100
+}))
+
+const erroresValidacionFlor = computed(() => {
+  const e: string[] = []
+  if (camposInvalidosFlor.value.nombre) e.push('Falta el nombre de la flor')
+  if (camposInvalidosFlor.value.precio) e.push('El precio debe ser mayor a 0')
+  if (camposInvalidosFlor.value.porcentaje) e.push('El porcentaje debe estar entre 0 y 100')
+  return e
+})
+
+function campoInvalidoFlor(nombre: string) {
+  return camposInvalidosFlor.value[nombre] && erroresVisiblesFlor.value.length > 0
+    ? 'w-full rounded-lg border border-red-400 bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-red-400'
+    : 'w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary'
+}
+
+watch(() => store.florEditandoId, () => { erroresVisiblesFlor.value = [] })
 
 function toggleOrdenPrecio() {
   if (ordenPrecio.value === null) ordenPrecio.value = 'asc'
   else if (ordenPrecio.value === 'asc') ordenPrecio.value = 'desc'
   else ordenPrecio.value = null
 }
-
-const florFormValido = computed(() =>
-  store.florFormDescripcion.trim()
-  && store.florFormPrecio !== null && store.florFormPrecio > 0
-  && store.florFormPorcentaje !== null && store.florFormPorcentaje >= 0 && store.florFormPorcentaje <= 100
-)
 
 const filteredFlores = computed(() => {
   let items = store.flores
@@ -424,14 +484,26 @@ const filteredFlores = computed(() => {
 const ramosConFlor = computed(() => {
   if (!modalEliminarFlor.value) return []
   const id = modalEliminarFlor.value.id
-  return store.ramos.filter(r => r.detallesRamo.some(d => d.tipoFlor.id === id))
+  return store.ramos.filter(r => r.disponible !== false && r.detallesRamo.some(d => d.tipoFlor.id === id))
 })
+
+function cancelarEdicionFlor() {
+  store.resetFlorForm()
+  erroresVisiblesFlor.value = []
+}
+
+function validarYGuardarFlor() {
+  erroresVisiblesFlor.value = erroresValidacionFlor.value
+  if (erroresVisiblesFlor.value.length > 0) return
+  guardarFlor()
+}
 
 async function guardarFlor() {
   const esEdicion = store.esEdicionFlor
   await store.guardarFlor()
   if (!store.florError) {
     toast.success(esEdicion ? 'Flor actualizada con éxito' : 'Flor creada con éxito')
+    erroresVisiblesFlor.value = []
   }
 }
 

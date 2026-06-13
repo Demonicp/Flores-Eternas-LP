@@ -245,6 +245,7 @@ public class RamoService {
     public void eliminar(Long id) {
         Ramo ramo = ramoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ramo no encontrado con id: " + id));
+        ramo.getDetallesRamo().clear();
         ramo.setDisponible(false);
         ramoRepository.save(ramo);
     }
