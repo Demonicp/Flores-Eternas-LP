@@ -6,4 +6,5 @@ export default defineNuxtPlugin(() => {
   setApiBase(apiBase)
 
   console.log('API Base configurado en:', getApiBase())
+
 })
