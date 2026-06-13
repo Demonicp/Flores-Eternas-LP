@@ -1,5 +1,6 @@
 const TOKEN_KEY = 'flp_admin_token'
 
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message)
