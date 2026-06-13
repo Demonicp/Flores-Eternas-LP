@@ -1,8 +1,7 @@
 import { setApiBase } from "~/services/api-client";
 
 export default defineNuxtPlugin(() => {
-  const apiBase = import.meta.env.NUXT_PUBLIC_API_BASE
-  if (!apiBase) throw new Error('❌ Falta NUXT_PUBLIC_API_BASE en .env')
+  const apiBase = 'https://flores-eternas-lp.onrender.com'
   setApiBase(apiBase)
   console.log('API Base configurado en:', apiBase)
 })
