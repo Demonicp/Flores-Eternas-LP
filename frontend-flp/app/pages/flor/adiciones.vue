@@ -72,8 +72,8 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
+import { floresApi } from '~/services/api-client'
 
-const config = useRuntimeConfig()
 const store = useRamoPersonalizadoStore()
 const router = useRouter()
 
@@ -86,9 +86,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const base = config.public.apiBase || 'http://localhost:8080'
-    const res = await fetch(`${base}/api/flores/adiciones`)
-    adicionesDisponibles.value = await res.json()
+    adicionesDisponibles.value = await floresApi.getAdiciones()
   } catch (e) {
     console.error('Error al cargar adiciones:', e)
   } finally {

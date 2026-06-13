@@ -45,6 +45,13 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   return res.json()
 }
 
+export const floresApi = {
+  getTipos: () => apiClient.get<any[]>('/api/flores/tipos'),
+  getColores: () => apiClient.get<any[]>('/api/flores/colores'),
+  getAdiciones: () => apiClient.get<any[]>('/api/flores/adiciones'),
+  crearPedido: (data: any) => apiClient.post<any>('/api/pedidos/crear', data),
+}
+
 export const apiClient = {
   get<T>(path: string): Promise<T> {
     return request<T>('GET', path)

@@ -86,8 +86,8 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
+import { floresApi } from '~/services/api-client'
 
-const config = useRuntimeConfig()
 const store = useRamoPersonalizadoStore()
 const router = useRouter()
 
@@ -101,9 +101,7 @@ const cantidadLocal = ref(store.cantidad)
 
 onMounted(async () => {
   try {
-    const base = config.public.apiBase || 'http://localhost:8080'
-    const res = await fetch(`${base}/api/flores/colores`)
-    colores.value = await res.json()
+    colores.value = await floresApi.getColores()
   } catch (e) {
     console.error('Error al cargar colores:', e)
   }
