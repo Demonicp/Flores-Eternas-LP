@@ -45,6 +45,7 @@ public class RamoService {
                 .map(cat -> ramoRepository.findByCategoriaRamoOrderByNombreRamoAsc(cat))
                 .orElse(Collections.emptyList())
                 .stream()
+                .filter(r -> r.getDisponible() != false)
                 .map(this::toResumenDTO)
                 .collect(Collectors.toList());
 
@@ -52,18 +53,22 @@ public class RamoService {
                 .map(cat -> ramoRepository.findByCategoriaRamoOrderByNombreRamoAsc(cat))
                 .orElse(Collections.emptyList())
                 .stream()
+                .filter(r -> r.getDisponible() != false)
                 .map(this::toResumenDTO)
                 .collect(Collectors.toList());
 
         response.setPredefinidos(predefinidos);
         response.setTemporada(temporada);
 
-        List<CategoriaRamo> todasLasCategorias = categoriaRamoRepository.findAll();
+        List<CategoriaRamo> todasLasCategorias = categoriaRamoRepository.findAll().stream()
+                .filter(cat -> !"Personalizado".equalsIgnoreCase(cat.getDescripcionCategoriaRamo()))
+                .collect(Collectors.toList());
         List<CategoriaSeccionDTO> secciones = new ArrayList<>();
         for (CategoriaRamo cat : todasLasCategorias) {
             List<RamoResumenDTO> ramos = ramoRepository
                     .findByCategoriaRamoOrderByNombreRamoAsc(cat)
                     .stream()
+                    .filter(r -> r.getDisponible() != false)
                     .map(this::toResumenDTO)
                     .collect(Collectors.toList());
             if (!ramos.isEmpty()) {
@@ -153,6 +158,9 @@ public class RamoService {
     @Transactional(readOnly = true)
     public List<RamoResponseDTO> listarTodos() {
         return ramoRepository.findAll().stream()
+                .filter(r -> r.getDisponible() != false)
+                .filter(r -> r.getCategoriaRamo() == null
+                        || !"Personalizado".equalsIgnoreCase(r.getCategoriaRamo().getDescripcionCategoriaRamo()))
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -170,6 +178,8 @@ public class RamoService {
         ramo.setPrecioRamo(dto.getPrecioRamo());
         ramo.setDescripcionRamo(dto.getDescripcionRamo());
         ramo.setFotoRamo(dto.getFotoRamo());
+        ramo.setDisponible(dto.getDisponible() != null ? dto.getDisponible() : true);
+        ramo.setStock(dto.getStock());
         ramo.setFechaCreacion(java.time.LocalDateTime.now());
 
         CategoriaRamo categoria = categoriaRamoRepository.findById(dto.getIdCategoriaRamo())
@@ -203,6 +213,12 @@ public class RamoService {
         ramo.setPrecioRamo(dto.getPrecioRamo());
         ramo.setDescripcionRamo(dto.getDescripcionRamo());
         ramo.setFotoRamo(dto.getFotoRamo());
+        if (dto.getDisponible() != null) {
+            ramo.setDisponible(dto.getDisponible());
+        }
+        if (dto.getStock() != null) {
+            ramo.setStock(dto.getStock());
+        }
 
         CategoriaRamo categoria = categoriaRamoRepository.findById(dto.getIdCategoriaRamo())
                 .orElseThrow(() -> new EntityNotFoundException("Categoría no encontrada con id: " + dto.getIdCategoriaRamo()));
@@ -227,10 +243,23 @@ public class RamoService {
     }
 
     public void eliminar(Long id) {
-        if (!ramoRepository.existsById(id)) {
-            throw new EntityNotFoundException("Ramo no encontrado con id: " + id);
+        Ramo ramo = ramoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ramo no encontrado con id: " + id));
+        ramo.setDisponible(false);
+        ramoRepository.save(ramo);
+    }
+
+    public void descontarStock(Long ramoId, int cantidad) {
+        Ramo ramo = ramoRepository.findById(ramoId)
+                .orElseThrow(() -> new EntityNotFoundException("Ramo no encontrado con id: " + ramoId));
+        if (ramo.getStock() != null) {
+            int nuevoStock = Math.max(0, ramo.getStock() - cantidad);
+            ramo.setStock(nuevoStock);
+            if (nuevoStock <= 0) {
+                ramo.setDisponible(false);
+            }
+            ramoRepository.save(ramo);
         }
-        ramoRepository.deleteById(id);
     }
 
     private RamoResumenDTO toResumenDTO(Ramo ramo) {
@@ -408,6 +437,8 @@ public class RamoService {
         dto.setNombreRamo(ramo.getNombreRamo());
         dto.setPrecioRamo(ramo.getPrecioRamo());
         dto.setDescripcionRamo(ramo.getDescripcionRamo());
+        dto.setDisponible(ramo.getDisponible());
+        dto.setStock(ramo.getStock());
 
         String foto = ramo.getFotoRamo();
         if (foto != null && foto.contains("cloudinary.com/demo")) {

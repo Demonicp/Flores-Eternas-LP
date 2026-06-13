@@ -32,7 +32,7 @@
             <img
               src="/assets/images/flplogoblack.png"
               alt="Flores Eternas LP"
-              class="h-16 md:h-20 w-auto object-contain cursor-pointer"
+              class="h-24 md:h-32 w-auto object-contain cursor-pointer"
             />
           </NuxtLink>
         </div>

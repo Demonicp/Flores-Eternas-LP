@@ -1,10 +1,12 @@
 package flores.eternas.backend.model;
 
-import flores.eternas.backend.model.id.DetallePedidoId;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,18 +20,32 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(DetallePedidoId.class)
 public class DetallePedido {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @ManyToOne
-    @JoinColumn(name = "id_pedido")
+    @JoinColumn(name = "id_pedido", nullable = false)
     private Pedido pedido;
 
-    @Id
     @ManyToOne
     @JoinColumn(name = "id_ramo")
     private Ramo ramo;
 
     private Integer cantidad;
+
+    @Column(name = "tipo_flor")
+    private String tipoFlor;
+
+    @Column(name = "color_flor")
+    private String colorFlor;
+
+    @Column(name = "cantidad_flores")
+    private Integer cantidadFlores;
+
+    @Lob
+    @Column(name = "adiciones_json")
+    private String adicionesJson;
 }

@@ -58,57 +58,33 @@ public class PedidoService {
         ColorFlor colorFlor = colorFlorRepository.findById(request.getColorFlorId())
                 .orElseThrow(() -> new RuntimeException("Color de flor no encontrado"));
 
-        CategoriaRamo categoria = categoriaRamoRepository.findAll().stream()
-                .findFirst()
-                .orElseGet(() -> {
-                    CategoriaRamo cat = new CategoriaRamo();
-                    cat.setDescripcionCategoriaRamo("Personalizado");
-                    return categoriaRamoRepository.save(cat);
-                });
-
         BigDecimal precioFlores = tipoFlor.getPrecioUnidad()
                 .multiply(BigDecimal.valueOf(request.getCantidad()));
         BigDecimal precioAdiciones = BigDecimal.ZERO;
 
-        DetalleRamo detalleRamo = new DetalleRamo();
-        detalleRamo.setCantidad(request.getCantidad());
-        detalleRamo.setTipoFlor(tipoFlor);
-        detalleRamo.setColorFlor(colorFlor);
-
-        List<DetalleRamo> detalles = new ArrayList<>();
-        detalles.add(detalleRamo);
-
-        Ramo ramo = new Ramo();
-        ramo.setNombreRamo("Ramo Personalizado - " + tipoFlor.getDescripcionFlor());
-        ramo.setDescripcionCorta(
-                "Ramo personalizado con " + request.getCantidad() + " " + tipoFlor.getDescripcionFlor());
-        ramo.setCategoriaRamo(categoria);
-        ramo.setDetallesRamo(detalles);
-        ramo = ramoRepository.save(ramo);
-
-        detalleRamo.setRamo(ramo);
-        ramoRepository.save(ramo);
-
-        if (request.getAdiciones() != null) {
-            for (var adicionReq : request.getAdiciones()) {
+        StringBuilder adicionesJson = new StringBuilder();
+        if (request.getAdiciones() != null && !request.getAdiciones().isEmpty()) {
+            adicionesJson.append("[");
+            for (int i = 0; i < request.getAdiciones().size(); i++) {
+                var adicionReq = request.getAdiciones().get(i);
                 Inventario inventario = inventarioRepository.findById(adicionReq.getInventarioId())
                         .orElseThrow(() -> new RuntimeException("Adicion no encontrada"));
-
-                DetalleAnadido da = new DetalleAnadido();
-                da.setRamo(ramo);
-                da.setInventario(inventario);
-                da.setCantidad(adicionReq.getCantidad());
-                detalleAnadidoRepository.save(da);
 
                 BigDecimal subtotal = inventario.getPrecioCosto()
                         .multiply(BigDecimal.valueOf(adicionReq.getCantidad()));
                 precioAdiciones = precioAdiciones.add(subtotal);
+
+                if (i > 0) adicionesJson.append(",");
+                adicionesJson.append("{")
+                        .append("\"nombre\":\"").append(escapeJson(inventario.getNombreInventario())).append("\",")
+                        .append("\"cantidad\":").append(adicionReq.getCantidad()).append(",")
+                        .append("\"precio\":").append(inventario.getPrecioCosto())
+                        .append("}");
             }
+            adicionesJson.append("]");
         }
 
         BigDecimal total = precioFlores.add(precioAdiciones);
-        ramo.setPrecioRamo(total);
-        ramoRepository.save(ramo);
 
         Persona persona = null;
         if (request.getCedula() != null && !request.getCedula().isBlank()) {
@@ -142,8 +118,10 @@ public class PedidoService {
 
         DetallePedido detallePedido = new DetallePedido();
         detallePedido.setPedido(pedido);
-        detallePedido.setRamo(ramo);
-        detallePedido.setCantidad(1);
+        detallePedido.setTipoFlor(tipoFlor.getDescripcionFlor());
+        detallePedido.setColorFlor(colorFlor.getDescripcionColor());
+        detallePedido.setCantidadFlores(request.getCantidad());
+        detallePedido.setAdicionesJson(adicionesJson.length() > 0 ? adicionesJson.toString() : null);
         detallePedidoRepository.save(detallePedido);
 
         return pedido;
@@ -210,6 +188,18 @@ public class PedidoService {
         for (DetallePedido detalle : detalles) {
             detalle.setPedido(pedido);
             detallePedidoRepository.save(detalle);
+
+            if (detalle.getRamo() != null && detalle.getCantidad() != null) {
+                Ramo ramo = detalle.getRamo();
+                if (ramo.getStock() != null) {
+                    int nuevoStock = Math.max(0, ramo.getStock() - detalle.getCantidad());
+                    ramo.setStock(nuevoStock);
+                    if (nuevoStock <= 0) {
+                        ramo.setDisponible(false);
+                    }
+                    ramoRepository.save(ramo);
+                }
+            }
         }
 
         BigDecimal montoPendiente = total.subtract(montoPagado);
@@ -231,5 +221,14 @@ public class PedidoService {
         }
 
         return response;
+    }
+
+    private String escapeJson(String value) {
+        if (value == null) return "";
+        return value.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }
