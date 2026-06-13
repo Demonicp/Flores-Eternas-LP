@@ -77,6 +77,8 @@
               Siguiente →
             </button>
           </div>
+          <p v-if="!colorSeleccionado" class="text-red-500 text-sm text-center mt-2">Selecciona un color para continuar</p>
+          <p v-else-if="cantidadLocal < 1" class="text-red-500 text-sm text-center mt-2">La cantidad debe ser al menos 1</p>
         </div>
       </div>
     </main>

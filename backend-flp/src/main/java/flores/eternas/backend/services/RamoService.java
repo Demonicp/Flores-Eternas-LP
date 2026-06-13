@@ -294,7 +294,7 @@ public class RamoService {
                 ramo.getId(),
                 ramo.getNombreRamo(),
                 foto,
-                ramo.getDescripcionCorta(),
+                ramo.getDescripcionCorta() != null ? ramo.getDescripcionCorta() : (ramo.getDescripcionRamo() != null ? ramo.getDescripcionRamo().substring(0, Math.min(100, ramo.getDescripcionRamo().length())) : null),
                 ramo.getPrecioRamo(),
                 ramo.getDisponible() != null && ramo.getDisponible(),
                 ramo.getFechaCreacion()

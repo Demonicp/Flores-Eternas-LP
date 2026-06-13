@@ -39,6 +39,7 @@
         >
           Siguiente →
         </button>
+        <p v-if="!store.tipoFlor" class="text-red-500 text-sm mt-2">Selecciona un tipo de flor para continuar</p>
       </main>
 
       <footer class="absolute bottom-6 right-10 text-[#7A4E2D] text-sm flex items-center gap-1">

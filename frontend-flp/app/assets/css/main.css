@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  scrollbar-gutter: stable;
+}
+
 @theme {
   --color-bg-page: #FCF9F6;
   --color-bg-card: #FCEEE3;

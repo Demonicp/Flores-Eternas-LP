@@ -164,10 +164,28 @@ const mensajeTitulo = ref('')
 const mensajeTexto = ref('')
 
 async function realizarPedido() {
+  if (!store.tipoFlor) {
+    exito.value = false
+    mensajeTitulo.value = 'Falta la flor'
+    mensajeTexto.value = 'No has seleccionado un tipo de flor. Vuelve atrás y elige uno.'
+    mostrarModal.value = true
+    return
+  }
+  if (!store.colorFlor) {
+    exito.value = false
+    mensajeTitulo.value = 'Falta el color'
+    mensajeTexto.value = 'No has seleccionado un color para tu ramo. Vuelve atrás y elige uno.'
+    mostrarModal.value = true
+    return
+  }
   if (!cedula.value || !nombreCliente.value || !direccion.value) {
     exito.value = false
     mensajeTitulo.value = 'Campos incompletos'
-    mensajeTexto.value = 'Por favor completa cédula, nombre y dirección de entrega.'
+    const faltan = []
+    if (!cedula.value) faltan.push('cédula')
+    if (!nombreCliente.value) faltan.push('nombre')
+    if (!direccion.value) faltan.push('dirección de entrega')
+    mensajeTexto.value = 'Por favor completa: ' + faltan.join(', ') + '.'
     mostrarModal.value = true
     return
   }
