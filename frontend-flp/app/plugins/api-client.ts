@@ -1,8 +1,9 @@
-import { defineNuxtPlugin } from '#app'
-import { setApiBase, getApiBase } from '~/services/api-client'
-
 export default defineNuxtPlugin(() => {
-  const apiBase = import.meta.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
-  setApiBase(apiBase)
-  console.log('API Base configurado en:', getApiBase())
+  const apiBase = process.env.NUXT_PUBLIC_API_BASE
+  console.log("API Base configurado en:", apiBase)
+  return {
+    provide: {
+      apiBase
+    }
+  }
 })
