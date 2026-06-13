@@ -2,9 +2,16 @@ import { defineNuxtPlugin } from '#app'
 import { setApiBase } from '~/services/api-client'
 
 export default defineNuxtPlugin(() => {
-  // Usa la variable pública si existe
-  const apiBase = import.meta.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
-  setApiBase(apiBase)
+  let apiBase
 
+  if (import.meta.env.DEV) {
+    // 👉 Cuando corres npm run dev (local)
+    apiBase = 'http://localhost:8080'
+  } else {
+    // 👉 Cuando despliegas en Vercel (producción)
+    apiBase = 'https://flores-eternas-lp.onrender.com'
+  }
+
+  setApiBase(apiBase)
   console.log('API Base configurado en:', apiBase)
 })
