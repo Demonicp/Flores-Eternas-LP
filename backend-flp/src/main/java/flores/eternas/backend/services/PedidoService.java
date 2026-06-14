@@ -52,14 +52,11 @@ public class PedidoService {
 
     @Transactional
     public Pedido crearPedido(CrearPedidoRequest request) {
-        TipoFlor tipoFlor = tipoFlorRepository.findById(request.getTipoFlorId())
-                .orElseThrow(() -> new RuntimeException("Tipo de flor no encontrado"));
+        if (request.getFlores() == null || request.getFlores().isEmpty()) {
+            throw new IllegalArgumentException("Debe incluir al menos una flor en el pedido.");
+        }
 
-        ColorFlor colorFlor = colorFlorRepository.findById(request.getColorFlorId())
-                .orElseThrow(() -> new RuntimeException("Color de flor no encontrado"));
-
-        BigDecimal precioFlores = tipoFlor.getPrecioUnidad()
-                .multiply(BigDecimal.valueOf(request.getCantidad()));
+        BigDecimal precioTotalFlores = BigDecimal.ZERO;
         BigDecimal precioAdiciones = BigDecimal.ZERO;
 
         StringBuilder adicionesJson = new StringBuilder();
@@ -84,7 +81,16 @@ public class PedidoService {
             adicionesJson.append("]");
         }
 
-        BigDecimal total = precioFlores.add(precioAdiciones);
+        for (CrearPedidoRequest.ItemFlorRequest florReq : request.getFlores()) {
+            TipoFlor tipoFlor = tipoFlorRepository.findById(florReq.getTipoFlorId())
+                    .orElseThrow(() -> new RuntimeException("Tipo de flor no encontrado: " + florReq.getTipoFlorId()));
+
+            BigDecimal subtotal = tipoFlor.getPrecioUnidad()
+                    .multiply(BigDecimal.valueOf(florReq.getCantidad()));
+            precioTotalFlores = precioTotalFlores.add(subtotal);
+        }
+
+        BigDecimal total = precioTotalFlores.add(precioAdiciones);
 
         Persona persona = null;
         if (request.getCedula() != null && !request.getCedula().isBlank()) {
@@ -109,20 +115,34 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         pedido.setTotalPedido(total);
         pedido.setDireccionEntrega(request.getDireccionEntrega());
-        pedido.setFechaEntrega(LocalDate.now().plusDays(3));
+        LocalDate fechaEntrega = request.getFechaEntrega() != null
+            ? LocalDate.parse(request.getFechaEntrega())
+            : LocalDate.now().plusDays(5);
+        pedido.setFechaEntrega(fechaEntrega);
         pedido.setEstado(Estado.EN_PREPARACION);
         if (persona != null) {
             pedido.setCliente(persona);
         }
         pedido = pedidoRepository.save(pedido);
 
-        DetallePedido detallePedido = new DetallePedido();
-        detallePedido.setPedido(pedido);
-        detallePedido.setTipoFlor(tipoFlor.getDescripcionFlor());
-        detallePedido.setColorFlor(colorFlor.getDescripcionColor());
-        detallePedido.setCantidadFlores(request.getCantidad());
-        detallePedido.setAdicionesJson(adicionesJson.length() > 0 ? adicionesJson.toString() : null);
-        detallePedidoRepository.save(detallePedido);
+        for (CrearPedidoRequest.ItemFlorRequest florReq : request.getFlores()) {
+            TipoFlor tipoFlor = tipoFlorRepository.findById(florReq.getTipoFlorId())
+                    .orElseThrow(() -> new RuntimeException("Tipo de flor no encontrado: " + florReq.getTipoFlorId()));
+
+            ColorFlor colorFlor = null;
+            if (florReq.getColorFlorId() != null) {
+                colorFlor = colorFlorRepository.findById(florReq.getColorFlorId())
+                        .orElseThrow(() -> new RuntimeException("Color de flor no encontrado: " + florReq.getColorFlorId()));
+            }
+
+            DetallePedido detallePedido = new DetallePedido();
+            detallePedido.setPedido(pedido);
+            detallePedido.setTipoFlor(tipoFlor.getDescripcionFlor());
+            detallePedido.setColorFlor(colorFlor != null ? colorFlor.getDescripcionColor() : null);
+            detallePedido.setCantidadFlores(florReq.getCantidad());
+            detallePedido.setAdicionesJson(adicionesJson.length() > 0 ? adicionesJson.toString() : null);
+            detallePedidoRepository.save(detallePedido);
+        }
 
         return pedido;
     }
@@ -130,8 +150,8 @@ public class PedidoService {
     @Transactional
     public PedidoResponseDTO crearPedido(PedidoRequestDTO request) {
         LocalDate hoy = LocalDate.now();
-        if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(hoy.plusDays(5))) {
-            throw new IllegalArgumentException("La fecha de entrega debe ser al menos 5 días después de hoy.");
+        if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(hoy)) {
+            throw new IllegalArgumentException("La fecha de entrega no puede ser anterior a hoy.");
         }
 
         Persona persona = new Persona();

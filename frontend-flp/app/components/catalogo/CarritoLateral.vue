@@ -127,7 +127,7 @@
 
               <div class="space-y-3">
                 <div>
-                  <label class="text-xs text-text-primary/60 block mb-1">Nombre completo</label>
+                  <label class="text-xs text-text-primary/60 block mb-1">Nombre completo de la persona que recibe el ramo</label>
                   <input
                     v-model="form.nombre"
                     type="text"
@@ -143,7 +143,7 @@
                   />
                 </div>
                 <div>
-                  <label class="text-xs text-text-primary/60 block mb-1">Dirección de entrega</label>
+                  <label class="text-xs text-text-primary/60 block mb-1">Dirección de entrega del ramo</label>
                   <input
                     v-model="form.direccion"
                     type="text"
@@ -152,13 +152,9 @@
                 </div>
                 <div>
                   <label class="text-xs text-text-primary/60 block mb-1">Fecha de entrega</label>
-                  <input
-                    v-model="form.fechaEntrega"
-                    type="date"
-                    :min="fechaMinima"
-                    class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-btn-primary"
+                  <input type="date" v-model="form.fechaEntrega" :min="hoyStr"
+                    class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-btn-primary bg-white"
                   />
-                  <p class="text-xs text-text-primary/40 mt-1">Mínimo 5 días a partir de hoy</p>
                 </div>
                 <p v-if="errorMsg" class="text-xs text-red-500">{{ errorMsg }}</p>
               </div>
@@ -195,6 +191,9 @@ const store = useCartStore()
 type Modo = 'cart' | 'checkout' | 'confirm'
 const modo = ref<Modo>('cart')
 
+const hoy = new Date()
+const hoyStr = hoy.toISOString().split('T')[0]
+
 const form = ref({
   nombre: '',
   email: '',
@@ -208,12 +207,6 @@ const titulo = computed(() => {
   if (modo.value === 'confirm') return 'Pedido Confirmado'
   if (modo.value === 'checkout') return 'Datos de Entrega'
   return 'Tu Carrito'
-})
-
-const fechaMinima = computed(() => {
-  const d = new Date()
-  d.setDate(d.getDate() + 5)
-  return d.toISOString().split('T')[0]
 })
 
 function formatoPrecio(valor: number): string {
@@ -236,12 +229,14 @@ async function handleRealizarPedido() {
     return
   }
 
+  const fechaEntrega = form.value.fechaEntrega
+
   try {
     await store.realizarPedido({
       nombreCliente: form.value.nombre,
       emailCliente: form.value.email,
       direccionEntrega: form.value.direccion,
-      fechaEntrega: form.value.fechaEntrega,
+      fechaEntrega,
       tipoPedido: 'RAPIDO',
       tipoPago: 'COMPLETO',
       items: store.items.map(i => ({

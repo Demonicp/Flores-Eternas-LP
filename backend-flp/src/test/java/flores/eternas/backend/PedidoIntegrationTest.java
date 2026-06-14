@@ -68,9 +68,9 @@ class PedidoIntegrationTest {
     @Test
     void testCrearPedidoCompleto() {
         CrearPedidoRequest request = new CrearPedidoRequest();
-        request.setTipoFlorId(rosa.getId());
-        request.setColorFlorId(rojo.getId());
-        request.setCantidad(5);
+        request.setFlores(List.of(
+            new CrearPedidoRequest.ItemFlorRequest(rosa.getId(), rojo.getId(), 5)
+        ));
         request.setDireccionEntrega("Calle 123, Ciudad");
         request.setAdiciones(List.of(new AdicionRequest(corona.getId(), 2)));
 
@@ -91,9 +91,9 @@ class PedidoIntegrationTest {
     @Test
     void testCrearPedidoSinAdiciones() {
         CrearPedidoRequest request = new CrearPedidoRequest();
-        request.setTipoFlorId(rosa.getId());
-        request.setColorFlorId(rojo.getId());
-        request.setCantidad(3);
+        request.setFlores(List.of(
+            new CrearPedidoRequest.ItemFlorRequest(rosa.getId(), rojo.getId(), 3)
+        ));
         request.setDireccionEntrega("Av. Principal 456");
 
         Pedido pedido = pedidoService.crearPedido(request);
