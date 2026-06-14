@@ -113,8 +113,9 @@ export const useNegocioStore = defineStore('negocio', () => {
     ramoLoading.value = true
     ramoError.value = null
     try {
-      await ramoService.desactivar(id)
+      await ramoService.eliminar(id)
       await cargarRamos()
+      resetRamoForm()
     } catch (e) {
       ramoError.value = e instanceof Error ? e.message : 'Error al eliminar ramo'
     } finally {
@@ -192,7 +193,7 @@ export const useNegocioStore = defineStore('negocio', () => {
   }
 
   /* ─── Sección C: Opciones personalizadas ─── */
-  const opcionSeleccionada = ref<'color' | 'flor' | null>(null)
+  const opcionSeleccionada = ref<'color' | 'flor' | null>('flor')
 
   /* Colores */
   const colores = ref<ColorFlor[]>([])

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Poppins:wght@400;500;600;700&family=Radley:ital@0;1&display=swap');
 
 @theme {
   --color-bg-page: #FCF9F6;
@@ -8,4 +9,7 @@
   --color-btn-primary: #F0D3C1;
   --color-btn-primary-text: #8C5A3C;
   --color-border-soft: #E8D5C8;
+  --font-lora: 'Lora', serif;
+  --font-radley: 'Radley', serif;
+  --font-poppins: 'Poppins', sans-serif;
 }

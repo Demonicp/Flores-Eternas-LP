@@ -1,7 +1,7 @@
 <template>
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
-    <div v-for="seccion in secciones" :key="seccion.nombre" class="mb-10 md:mb-14">
+    <div v-for="seccion in secciones" :key="seccion.nombre" class="mb-20 md:mb-28">
       <div class="flex items-center justify-between mb-5">
         <h2 class="font-serif text-xl md:text-2xl text-text-primary">
           {{ seccion.nombre }}
@@ -10,7 +10,7 @@
 
       <div class="relative group">
         <button
-          class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
+          class="absolute -left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
           :class="{ 'opacity-100': (scrollLefts[seccion.nombre] ?? 0) > 0 }"
           @click="scrollSection(seccion.nombre, -1)"
           aria-label="Anterior"
@@ -20,7 +20,7 @@
 
         <div
           :ref="(el) => setSectionRef(seccion.nombre, el as HTMLElement | null)"
-          class="flex gap-5 overflow-x-auto scroll-smooth pb-2 scrollbar-hide"
+          class="flex gap-5 overflow-x-auto scroll-smooth pb-2 scrollbar-hide px-6"
           @scroll="onScroll(seccion.nombre)"
         >
           <ProductCard
@@ -39,7 +39,7 @@
         </div>
 
         <button
-          class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
+          class="absolute -right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
           @click="scrollSection(seccion.nombre, 1)"
           aria-label="Siguiente"
         >

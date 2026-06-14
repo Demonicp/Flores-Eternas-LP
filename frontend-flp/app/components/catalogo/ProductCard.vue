@@ -25,7 +25,7 @@
       <Icon v-else icon="mdi:flower-tulip-outline" class="text-5xl text-text-primary/30" />
     </div>
 
-    <div class="flex flex-col gap-1.5">
+    <div class="flex flex-col gap-1.5 flex-1">
       <h3 class="font-serif text-base text-text-primary font-medium truncate">
         {{ producto.nombre }}
       </h3>

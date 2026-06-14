@@ -1,21 +1,16 @@
 <template>
-  <div class="min-h-screen" style="background-color: #FCF9F6;">
-    <div class="max-w-6xl mx-auto space-y-8">
-      <!-- Sección A -->
-      <section class="bg-white rounded-xl p-6 shadow-sm border border-border-soft">
-        <CatalogoSection />
-      </section>
+  <div class="min-h-screen space-y-8">
+    <section class="bg-white rounded-xl p-6 shadow-sm border border-border-soft">
+      <CatalogoSection />
+    </section>
 
-      <!-- Sección B -->
-      <section class="bg-white rounded-xl p-6 shadow-sm border border-border-soft">
-        <EventosSection />
-      </section>
+    <section class="bg-white rounded-xl p-6 shadow-sm border border-border-soft">
+      <EventosSection />
+    </section>
 
-      <!-- Sección C -->
-      <section class="bg-white rounded-xl p-6 shadow-sm border border-border-soft">
-        <OpcionesSection />
-      </section>
-    </div>
+    <section class="bg-white rounded-xl p-6 shadow-sm border border-border-soft">
+      <OpcionesSection />
+    </section>
   </div>
 </template>
 

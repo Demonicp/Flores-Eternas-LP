@@ -11,12 +11,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CrearPedidoRequest {
 
-    private Long tipoFlorId;
-    private Long colorFlorId;
-    private Integer cantidad;
+    private List<ItemFlorRequest> flores;
     private List<AdicionRequest> adiciones;
     private String direccionEntrega;
     private String cedula;
     private String nombreCliente;
     private String telefono;
+    private String fechaEntrega;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ItemFlorRequest {
+        private Long tipoFlorId;
+        private Long colorFlorId;
+        private Integer cantidad;
+    }
 }

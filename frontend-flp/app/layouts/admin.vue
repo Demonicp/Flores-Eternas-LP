@@ -5,36 +5,48 @@
       style="background-image: url('/assets/images/FondoProvicional.png'); background-position: center 35%;"
     >
       <div class="bg-black/20">
-        <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-6">
-          <div class="flex items-center gap-6">
+        <nav class="max-w-6xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center px-4 py-6">
+          <div class="grid grid-cols-6 gap-x-6 gap-y-1 min-w-0">
             <NuxtLink
               to="/admin/pedidos"
-              class="text-white text-[17px] tracking-wide hover:underline"
-              active-class="font-bold underline"
+              class="col-span-2 text-white text-[17px] tracking-wide"
+              active-class="font-bold"
             >
               Pedidos
             </NuxtLink>
             <NuxtLink
               to="/admin/inventario"
-              class="text-white text-[17px] tracking-wide hover:underline"
-              active-class="font-bold underline"
+              class="col-span-2 text-white text-[17px] tracking-wide"
+              active-class="font-bold"
             >
               Inventario
             </NuxtLink>
             <NuxtLink
-              to="/admin/negocio"
-              class="text-white text-[17px] tracking-wide hover:underline"
-              active-class="font-bold underline"
+              to="/admin/catalogo"
+              class="col-span-2 text-white text-[17px] tracking-wide"
+              active-class="font-bold"
             >
-              Administrar Negocio
+              Catálogo
+            </NuxtLink>
+            <NuxtLink
+              to="/admin/eventos"
+              class="col-start-2 col-span-2 text-white text-[17px] tracking-wide"
+              active-class="font-bold"
+            >
+              Eventos
+            </NuxtLink>
+            <NuxtLink
+              to="/admin/personalizados"
+              class="col-start-4 col-span-2 text-white text-[17px] tracking-wide"
+              active-class="font-bold"
+            >
+              Personalizados
             </NuxtLink>
           </div>
 
-          <span class="text-white font-serif text-[29px] tracking-[0.2em] cursor-default">
-            FLORES ETERNAS
-          </span>
+          <img src="/assets/images/flplogowhite.png" alt="Flores Eternas" class="h-36 w-auto justify-self-center" width="1536" height="1024" />
 
-          <div class="flex items-center gap-6">
+          <div class="flex items-center gap-6 justify-self-end">
             <span class="text-white text-[17px] tracking-wide">Empleados</span>
             <span class="text-white text-[17px] tracking-wide">Clientes</span>
             <span class="text-white text-[17px] tracking-wide">Cierre de caja</span>
@@ -59,4 +71,9 @@
       </div>
     </main>
   </div>
+  <Toast />
 </template>
+
+<script setup lang="ts">
+import Toast from '~/components/shared/Toast.vue'
+</script>

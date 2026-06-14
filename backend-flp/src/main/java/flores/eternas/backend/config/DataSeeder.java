@@ -65,25 +65,25 @@ public class DataSeeder implements CommandLineRunner {
 
         TipoFlor rosa = new TipoFlor();
         rosa.setDescripcionFlor("Rosa");
-        rosa.setPrecioUnidad(new BigDecimal("3.50"));
+        rosa.setPrecioUnidad(new BigDecimal("5000"));
         rosa.setPorcentajePorMayor(new BigDecimal("10"));
         tipoFlorRepository.save(rosa);
 
         TipoFlor girasol = new TipoFlor();
         girasol.setDescripcionFlor("Girasol");
-        girasol.setPrecioUnidad(new BigDecimal("2.80"));
+        girasol.setPrecioUnidad(new BigDecimal("4000"));
         girasol.setPorcentajePorMayor(new BigDecimal("10"));
         tipoFlorRepository.save(girasol);
 
         TipoFlor tulipan = new TipoFlor();
         tulipan.setDescripcionFlor("Tulipán");
-        tulipan.setPrecioUnidad(new BigDecimal("4.00"));
+        tulipan.setPrecioUnidad(new BigDecimal("6000"));
         tulipan.setPorcentajePorMayor(new BigDecimal("15"));
         tipoFlorRepository.save(tulipan);
 
         TipoFlor lirio = new TipoFlor();
         lirio.setDescripcionFlor("Lirio");
-        lirio.setPrecioUnidad(new BigDecimal("3.20"));
+        lirio.setPrecioUnidad(new BigDecimal("5000"));
         lirio.setPorcentajePorMayor(new BigDecimal("10"));
         tipoFlorRepository.save(lirio);
 
@@ -107,7 +107,7 @@ public class DataSeeder implements CommandLineRunner {
         ramo1.setNombreRamo("Ramo Clásico Rosado");
         ramo1.setDescripcionCorta("Elegante ramo de rosas rosadas");
         ramo1.setDescripcionRamo("Un hermoso ramo compuesto por una docena de rosas rosadas cuidadosamente seleccionadas. Ideal para cumpleaños, aniversarios o simplemente para alegrar el día de alguien especial. Incluye envoltura decorativa y moño.");
-        ramo1.setPrecioRamo(new BigDecimal("45.00"));
+        ramo1.setPrecioRamo(new BigDecimal("45000"));
         ramo1.setFotoRamo("https://res.cloudinary.com/demo/image/upload/v1/ramos/ramo-clasico-rosado");
         ramo1.setDisponible(true);
         ramo1.setCategoriaRamo(predefinidos);
@@ -125,7 +125,7 @@ public class DataSeeder implements CommandLineRunner {
         ramo2.setNombreRamo("Ramo Primaveral");
         ramo2.setDescripcionCorta("Mezcla alegre de girasoles y tulipanes");
         ramo2.setDescripcionRamo("Un ramo vibrante que combina girasoles amarillos con tulipanes blancos, perfecto para celebrar la llegada de la primavera. Incluye follaje decorativo y cinta de yute.");
-        ramo2.setPrecioRamo(new BigDecimal("38.00"));
+        ramo2.setPrecioRamo(new BigDecimal("48000"));
         ramo2.setFotoRamo("https://res.cloudinary.com/demo/image/upload/v1/ramos/ramo-primaveral");
         ramo2.setDisponible(true);
         ramo2.setCategoriaRamo(predefinidos);
@@ -150,7 +150,7 @@ public class DataSeeder implements CommandLineRunner {
         ramo3.setNombreRamo("Ramo San Valentín");
         ramo3.setDescripcionCorta("Rosas rojas en un arreglo de corazón");
         ramo3.setDescripcionRamo("El ramo perfecto para el día del amor. Veinticuatro rosas rojas dispuestas en forma de corazón, con detalles de baby breath y lazo rojo satinado. Incluye tarjeta personalizable.");
-        ramo3.setPrecioRamo(new BigDecimal("75.00"));
+        ramo3.setPrecioRamo(new BigDecimal("85000"));
         ramo3.setFotoRamo("https://res.cloudinary.com/demo/image/upload/v1/ramos/ramo-san-valentin");
         ramo3.setDisponible(true);
         ramo3.setCategoriaRamo(temporada);
@@ -168,9 +168,9 @@ public class DataSeeder implements CommandLineRunner {
         ramo4.setNombreRamo("Lirios Elegance");
         ramo4.setDescripcionCorta("Ramo minimalista de lirios blancos");
         ramo4.setDescripcionRamo("Un ramo sofisticado de lirios blancos, ideal para eventos formales o como centro de mesa. Incluye jarrón de vidrio y base de espuma floral.");
-        ramo4.setPrecioRamo(new BigDecimal("55.00"));
+        ramo4.setPrecioRamo(new BigDecimal("62000"));
         ramo4.setFotoRamo("https://res.cloudinary.com/demo/image/upload/v1/ramos/lirios-elegance");
-        ramo4.setDisponible(false);
+        ramo4.setDisponible(true);
         ramo4.setCategoriaRamo(predefinidos);
 
         DetalleRamo detalle4 = new DetalleRamo();

@@ -45,7 +45,7 @@ public class RamoService {
                 .map(cat -> ramoRepository.findByCategoriaRamoOrderByNombreRamoAsc(cat))
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(r -> r.getDisponible() != false)
+                .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
                 .map(this::toResumenDTO)
                 .collect(Collectors.toList());
 
@@ -53,7 +53,7 @@ public class RamoService {
                 .map(cat -> ramoRepository.findByCategoriaRamoOrderByNombreRamoAsc(cat))
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(r -> r.getDisponible() != false)
+                .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
                 .map(this::toResumenDTO)
                 .collect(Collectors.toList());
 
@@ -68,7 +68,7 @@ public class RamoService {
             List<RamoResumenDTO> ramos = ramoRepository
                     .findByCategoriaRamoOrderByNombreRamoAsc(cat)
                     .stream()
-                    .filter(r -> r.getDisponible() != false)
+                    .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
                     .map(this::toResumenDTO)
                     .collect(Collectors.toList());
             if (!ramos.isEmpty()) {
@@ -158,7 +158,7 @@ public class RamoService {
     @Transactional(readOnly = true)
     public List<RamoResponseDTO> listarTodos() {
         return ramoRepository.findAll().stream()
-                .filter(r -> r.getDisponible() != false)
+                .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
                 .filter(r -> r.getCategoriaRamo() == null
                         || !"Personalizado".equalsIgnoreCase(r.getCategoriaRamo().getDescripcionCategoriaRamo()))
                 .map(this::toResponseDTO)
@@ -245,6 +245,7 @@ public class RamoService {
     public void eliminar(Long id) {
         Ramo ramo = ramoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ramo no encontrado con id: " + id));
+        ramo.getDetallesRamo().clear();
         ramo.setDisponible(false);
         ramoRepository.save(ramo);
     }
@@ -294,7 +295,7 @@ public class RamoService {
                 ramo.getId(),
                 ramo.getNombreRamo(),
                 foto,
-                ramo.getDescripcionCorta(),
+                ramo.getDescripcionCorta() != null ? ramo.getDescripcionCorta() : (ramo.getDescripcionRamo() != null ? ramo.getDescripcionRamo().substring(0, Math.min(100, ramo.getDescripcionRamo().length())) : null),
                 ramo.getPrecioRamo(),
                 ramo.getDisponible() != null && ramo.getDisponible(),
                 ramo.getFechaCreacion()
@@ -371,29 +372,29 @@ public class RamoService {
         long countTemporada = ramoRepository.countByCategoriaRamo(catTemporada.get());
 
         String[][] predefinidosData = {
-            {"Ramo Clásico Rosado", "Ramo de rosas rosadas con eucalipto", "55.00"},
-            {"Ramo Primaveral", "Girasoles y tulipanes de temporada", "48.00"},
-            {"Lirios Elegance", "Lirios blancos minimalistas", "62.00"},
-            {"Ramo Silvestre", "Flores silvestres variadas", "42.00"},
-            {"Ramo de Lavanda", "Lavanda fresca con detalles blancos", "50.00"},
-            {"Ramo Aromático", "Eucalipto y flores secas", "45.00"},
-            {"Ramo de Rosas Rojas", "Doce rosas rojas eternas", "70.00"},
-            {"Ramo Campestre", "Margaritas y flores de campo", "38.00"},
-            {"Ramo Nupcial", "Peonías y hiedra blanca", "85.00"},
-            {"Ramo Boho", "Flores silvestres en tonos pastel", "65.00"}
+            {"Ramo Clásico Rosado", "Ramo de rosas rosadas con eucalipto", "55000"},
+            {"Ramo Primaveral", "Girasoles y tulipanes de temporada", "48000"},
+            {"Lirios Elegance", "Lirios blancos minimalistas", "62000"},
+            {"Ramo Silvestre", "Flores silvestres variadas", "42000"},
+            {"Ramo de Lavanda", "Lavanda fresca con detalles blancos", "50000"},
+            {"Ramo Aromático", "Eucalipto y flores secas", "45000"},
+            {"Ramo de Rosas Rojas", "Doce rosas rojas eternas", "70000"},
+            {"Ramo Campestre", "Margaritas y flores de campo", "38000"},
+            {"Ramo Nupcial", "Peonías y hiedra blanca", "85000"},
+            {"Ramo Boho", "Flores silvestres en tonos pastel", "65000"}
         };
 
         String[][] temporadaData = {
-            {"Ramo San Valentín", "Rosas rojas en forma de corazón", "75.00"},
-            {"Ramo de Otoño", "Girasoles y flores anaranjadas", "52.00"},
-            {"Edición Primavera", "Tulipanes de colores variados", "58.00"},
-            {"Ramo de Invierno", "Flores blancas y ramas de pino", "60.00"},
-            {"Edición Verano", "Flores tropicales y hojas verdes", "55.00"},
-            {"Ramo del Mes", "Selección especial del florista", "68.00"},
-            {"Ramo Exótico", "Orquídeas y anturios", "80.00"},
-            {"Ramo Fiesta", "Globos florales multicolor", "45.00"},
-            {"Colección Vintage", "Rosas vintage y lavanda", "72.00"},
-            {"Edición Premium", "Ramo gourmet con chocolate", "95.00"}
+            {"Ramo San Valentín", "Rosas rojas en forma de corazón", "75000"},
+            {"Ramo de Otoño", "Girasoles y flores anaranjadas", "52000"},
+            {"Edición Primavera", "Tulipanes de colores variados", "58000"},
+            {"Ramo de Invierno", "Flores blancas y ramas de pino", "60000"},
+            {"Edición Verano", "Flores tropicales y hojas verdes", "55000"},
+            {"Ramo del Mes", "Selección especial del florista", "68000"},
+            {"Ramo Exótico", "Orquídeas y anturios", "80000"},
+            {"Ramo Fiesta", "Globos florales multicolor", "45000"},
+            {"Colección Vintage", "Rosas vintage y lavanda", "72000"},
+            {"Edición Premium", "Ramo gourmet con chocolate", "95000"}
         };
 
         List<Ramo> nuevos = new ArrayList<>();
