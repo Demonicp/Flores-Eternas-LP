@@ -8,7 +8,7 @@
   <div class="min-h-screen" style="background-color: #FFFCF6;">
     <header
       class="relative bg-cover bg-center h-95"
-      style="background-image: url('/assets/images/FondoProvicional.png'); background-position: center 35%;"
+      style="background-image: url('/assets/images/FondoPruebaLogin.jpeg'); background-position: center 35%;"
     >
       <div class="bg-black/30 h-full">
         <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-6 h-full">
