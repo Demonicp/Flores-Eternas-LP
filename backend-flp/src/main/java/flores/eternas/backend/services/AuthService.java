@@ -10,9 +10,16 @@ import flores.eternas.backend.model.Usuario;
 import flores.eternas.backend.model.enums.Rol;
 import flores.eternas.backend.repository.UsuarioRepository;
 import flores.eternas.backend.utils.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 /**
  * @author esteban
@@ -21,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class AuthService {
+
+    private static final Logger adminLog = LoggerFactory.getLogger("ADMIN_LOGIN");
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
@@ -42,35 +51,65 @@ public class AuthService {
      */
     @Transactional
     public LoginResponse register(RegisterRequest request) {
-        if (usuarioRepository.existsByRol(Rol.ADMIN)) {
-            throw new RegistroCerradoException("Ya existe un administrador registrado en el sistema");
-        }
-
-        if (usuarioRepository.existsByCorreoElectronico(request.getCorreo())) {
-            throw new CredencialesInvalidasException("El correo electronico ya esta registrado");
-        }
-
-        Persona persona = new Persona();
-        persona.setNombreCliente(request.getNombre());
-        persona.setTelefono(null);
-        persona.setCedula(null);
-        persona.setFechaNacimiento(null);
-
-        Usuario usuario = new Usuario();
-        usuario.setCorreoElectronico(request.getCorreo());
-        usuario.setContrasena(passwordEncoder.encode(request.getContrasena()));
-        usuario.setPersona(persona);
-        usuario.setRol(Rol.ADMIN);
-
-        Usuario usuarioGuardado = usuarioRepository.save(usuario);
-
-        String token = jwtUtil.generateToken(
-                usuarioGuardado.getId(),
-                usuarioGuardado.getCorreoElectronico(),
-                usuarioGuardado.getRol().name()
+        adminLog.info("register",
+            kv("resultado", "INTENTO"),
+            kv("email", request.getCorreo()),
+            kv("accion", "Registro de administrador"),
+            kv("ip", getClientIp()),
+            kv("userAgent", getUserAgent())
         );
 
-        return new LoginResponse(token, Rol.ADMIN.name(), request.getNombre());
+        try {
+            if (usuarioRepository.existsByRol(Rol.ADMIN)) {
+                throw new RegistroCerradoException("Ya existe un administrador registrado en el sistema");
+            }
+
+            if (usuarioRepository.existsByCorreoElectronico(request.getCorreo())) {
+                throw new CredencialesInvalidasException("El correo electronico ya esta registrado");
+            }
+
+            Persona persona = new Persona();
+            persona.setNombreCliente(request.getNombre());
+            persona.setTelefono(null);
+            persona.setCedula(null);
+            persona.setFechaNacimiento(null);
+
+            Usuario usuario = new Usuario();
+            usuario.setCorreoElectronico(request.getCorreo());
+            usuario.setContrasena(passwordEncoder.encode(request.getContrasena()));
+            usuario.setPersona(persona);
+            usuario.setRol(Rol.ADMIN);
+
+            Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+            String token = jwtUtil.generateToken(
+                    usuarioGuardado.getId(),
+                    usuarioGuardado.getCorreoElectronico(),
+                    usuarioGuardado.getRol().name()
+            );
+
+            adminLog.info("register",
+                kv("resultado", "EXITOSO"),
+                kv("email", request.getCorreo()),
+                kv("id", usuarioGuardado.getId()),
+                kv("rol", usuarioGuardado.getRol().name()),
+                kv("accion", "Registro de administrador"),
+                kv("ip", getClientIp()),
+                kv("userAgent", getUserAgent())
+            );
+
+            return new LoginResponse(token, Rol.ADMIN.name(), request.getNombre());
+        } catch (RegistroCerradoException | CredencialesInvalidasException e) {
+            adminLog.warn("register",
+                kv("resultado", "FALLIDO"),
+                kv("email", request.getCorreo()),
+                kv("razon", e.getMessage()),
+                kv("accion", "Registro de administrador"),
+                kv("ip", getClientIp()),
+                kv("userAgent", getUserAgent())
+            );
+            throw e;
+        }
     }
 
     /**
@@ -81,21 +120,73 @@ public class AuthService {
      * @throws CredencialesInvalidasException si las credenciales son invalidas o el usuario no existe.
      */
     public LoginResponse login(LoginRequest request) {
-        Usuario usuario = usuarioRepository.findByCorreoElectronico(request.getCorreo())
-                .orElseThrow(() -> new CredencialesInvalidasException("Credenciales invalidas"));
-
-        if (!passwordEncoder.matches(request.getContrasena(), usuario.getContrasena())) {
-            throw new CredencialesInvalidasException("Credenciales invalidas");
-        }
-
-        String token = jwtUtil.generateToken(
-                usuario.getId(),
-                usuario.getCorreoElectronico(),
-                usuario.getRol().name()
+        adminLog.info("login",
+            kv("resultado", "INTENTO"),
+            kv("email", request.getCorreo()),
+            kv("accion", "Inicio de sesion"),
+            kv("ip", getClientIp()),
+            kv("userAgent", getUserAgent())
         );
 
-        String nombre = usuario.getPersona() != null ? usuario.getPersona().getNombreCliente() : "";
+        try {
+            Usuario usuario = usuarioRepository.findByCorreoElectronico(request.getCorreo())
+                    .orElseThrow(() -> new CredencialesInvalidasException("Credenciales invalidas"));
 
-        return new LoginResponse(token, usuario.getRol().name(), nombre);
+            if (!passwordEncoder.matches(request.getContrasena(), usuario.getContrasena())) {
+                throw new CredencialesInvalidasException("Credenciales invalidas");
+            }
+
+            String token = jwtUtil.generateToken(
+                    usuario.getId(),
+                    usuario.getCorreoElectronico(),
+                    usuario.getRol().name()
+            );
+
+            String nombre = usuario.getPersona() != null ? usuario.getPersona().getNombreCliente() : "";
+
+            adminLog.info("login",
+                kv("resultado", "EXITOSO"),
+                kv("email", request.getCorreo()),
+                kv("id", usuario.getId()),
+                kv("rol", usuario.getRol().name()),
+                kv("accion", "Inicio de sesion"),
+                kv("ip", getClientIp()),
+                kv("userAgent", getUserAgent())
+            );
+
+            return new LoginResponse(token, usuario.getRol().name(), nombre);
+        } catch (CredencialesInvalidasException e) {
+            adminLog.warn("login",
+                kv("resultado", "FALLIDO"),
+                kv("email", request.getCorreo()),
+                kv("razon", e.getMessage()),
+                kv("accion", "Inicio de sesion"),
+                kv("ip", getClientIp()),
+                kv("userAgent", getUserAgent())
+            );
+            throw e;
+        }
+    }
+
+    private String getClientIp() {
+        HttpServletRequest request = getCurrentRequest();
+        if (request == null) return "unknown";
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty()) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+
+    private String getUserAgent() {
+        HttpServletRequest request = getCurrentRequest();
+        if (request == null) return "unknown";
+        String ua = request.getHeader("User-Agent");
+        return ua != null ? ua : "unknown";
+    }
+
+    private HttpServletRequest getCurrentRequest() {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attrs != null ? attrs.getRequest() : null;
     }
 }
