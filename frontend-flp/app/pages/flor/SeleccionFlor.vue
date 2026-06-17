@@ -1,58 +1,65 @@
 <template>
-    <div class="min-h-screen bg-[#FFFAF5] flex flex-col items-center">
-      <nav class="w-full flex justify-between items-center py-5 px-16 bg-[#FFEDE3] text-[#7A4E2D] font-medium">
-        <div class="flex gap-10">
-          <a href="#" class="hover:underline">Entrega inmediata</a>
-          <a href="#" class="font-semibold underline">Personalizado</a>
-        </div>
-      <NuxtLink to="/"><img src="/assets/images/flplogoblack.png" alt="Flores Eternas LP" class="h-14 w-auto cursor-pointer" /></NuxtLink>
-        <div class="flex gap-6 items-center">
-          <button><Icon name="ph:user" size="26" /></button>
-          <button><Icon name="ph:shopping-cart" size="26" /></button>
-        </div>
-      </nav>
+    <h2 class="text-[#7A4E2D] text-2xl font-radley mb-10">Selecciona los tipos de flor</h2>
 
-      <main class="flex flex-col items-center mt-16">
-        <h2 class="text-[#7A4E2D] text-2xl font-serif mb-10">Selecciona el tipo de flor</h2>
+    <div v-if="loading" class="text-[#7A4E2D] text-lg">Cargando flores...</div>
 
-        <div v-if="loading" class="text-[#7A4E2D] text-lg">Cargando flores...</div>
+    <div v-else class="relative group mb-16">
+      <button
+        class="absolute -left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-[#7A4E2D] opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
+        :class="{ 'opacity-100': scrollLeft > 0 }"
+        @click="scrollSection(-1)"
+        aria-label="Anterior"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
 
-        <div v-else class="grid grid-cols-4 gap-10 mb-16">
-          <div
-            v-for="flor in tiposFlor"
-            :key="flor.id"
-            @click="seleccionar(flor)"
-            class="w-64 h-96 rounded-xl shadow-md transition-all cursor-pointer flex flex-col items-center justify-center gap-4"
-            :class="store.tipoFlor?.id === flor.id ? 'bg-[#FFDCC8] ring-2 ring-[#7A4E2D] scale-105' : 'bg-[#FFEDE3] hover:scale-105'"
-          >
-            <div class="text-6xl">🌸</div>
-            <span class="text-[#7A4E2D] text-xl font-serif">{{ flor.descripcionFlor }}</span>
-            <span class="text-[#7A4E2D] text-sm">${{ flor.precioUnidad?.toFixed(2) }} c/u</span>
-          </div>
-        </div>
-
-        <button
-          @click="irSiguiente"
-          :disabled="!store.tipoFlor"
-          class="px-10 py-3 rounded-full font-serif transition text-lg"
-          :class="store.tipoFlor ? 'bg-[#FFEDE3] text-[#7A4E2D] hover:bg-[#FFDCC8]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
+      <div
+        ref="scrollContainer"
+        class="flex gap-5 overflow-x-auto scroll-smooth pt-4 pb-2 scrollbar-hide px-6"
+        @scroll="onScroll"
+      >
+        <div
+          v-for="flor in tiposFlor"
+          :key="flor.id"
+          @click="store.toggleFlor(flor)"
+          class="flex-shrink-0 w-52 rounded-xl shadow-md transition-all cursor-pointer flex flex-col items-center justify-center gap-3 p-6"
+          :class="store.isSelected(flor.id) ? 'bg-[#FFDCC8] ring-2 ring-[#7A4E2D]' : 'bg-[#FFEDE3] hover:bg-[#FFE8DD]'"
         >
-          Siguiente →
-        </button>
-      </main>
+          <div v-if="store.isSelected(flor.id)" class="w-8 h-8 rounded-full bg-[#7A4E2D] text-white flex items-center justify-center text-sm font-bold">✓</div>
+          <div v-else class="w-8 h-8 rounded-full border-2 border-[#7A4E2D]/30"></div>
+          <div class="text-4xl">🌸</div>
+          <span class="text-[#7A4E2D] text-lg font-radley">{{ flor.descripcionFlor }}</span>
+          <span class="text-[#7A4E2D] text-sm font-lora">${{ flor.precioUnidad?.toFixed(2) }} c/u</span>
+        </div>
+      </div>
 
-      <footer class="absolute bottom-6 right-10 text-[#7A4E2D] text-sm flex items-center gap-1">
-        <span>¿Necesitas ayuda?</span>
-        <Icon name="ph:question" size="18" />
-      </footer>
+      <button
+        class="absolute -right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-[#7A4E2D] opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
+        @click="scrollSection(1)"
+        aria-label="Siguiente"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
     </div>
+
+    <div class="flex items-center gap-4 justify-center">
+      <button
+        @click="irSiguiente"
+        :disabled="store.floresSeleccionadas.length === 0"
+        class="px-10 py-3 rounded-full font-serif transition text-lg"
+        :class="store.floresSeleccionadas.length > 0 ? 'bg-[#FFEDE3] text-[#7A4E2D] hover:bg-[#FFDCC8]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
+      >
+        Siguiente →
+      </button>
+    </div>
+    <p v-if="store.floresSeleccionadas.length === 0" class="text-red-500 text-sm mt-2 text-center font-radley italic">Selecciona al menos un tipo de flor para continuar</p>
 </template>
 
-<script setup>
-import { Icon } from '@iconify/vue'
+<script setup lang="ts">
+definePageMeta({ layout: 'flor' })
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
+import { floresApi } from '~/services/api-client'
 
-const config = useRuntimeConfig()
 const store = useRamoPersonalizadoStore()
 const router = useRouter()
 
@@ -61,9 +68,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const base = config.public.apiBase || 'http://localhost:8080'
-    const res = await fetch(`${base}/api/flores/tipos`)
-    tiposFlor.value = await res.json()
+    tiposFlor.value = await floresApi.getTipos()
   } catch (e) {
     console.error('Error al cargar tipos de flor:', e)
   } finally {
@@ -71,17 +76,36 @@ onMounted(async () => {
   }
 })
 
-function seleccionar(flor) {
-  store.seleccionarTipoFlor(flor)
+const scrollContainer = ref<HTMLElement | null>(null)
+const scrollLeft = ref(0)
+
+function scrollSection(direction: number) {
+  const el = scrollContainer.value
+  if (!el) return
+  const cardWidth = 224
+  el.scrollBy({ left: direction * cardWidth, behavior: 'smooth' })
+}
+
+function onScroll() {
+  const el = scrollContainer.value
+  if (el) {
+    scrollLeft.value = el.scrollLeft
+  }
 }
 
 function irSiguiente() {
-  if (store.tipoFlor) {
+  if (store.floresSeleccionadas.length > 0) {
     router.push('/flor/seleccion-apartados')
   }
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 </style>

@@ -22,6 +22,8 @@ export const useNegocioStore = defineStore('negocio', () => {
   const ramoFormDescripcion = ref('')
   const ramoFormFoto = ref('')
   const ramoFormIdCategoria = ref<number | null>(null)
+  const ramoFormDisponible = ref(true)
+  const ramoFormStock = ref<number | null>(null)
   const ramoFormDetalles = ref<DetalleLineaForm[]>([])
 
   const esEdicionRamo = computed(() => ramoEditandoId.value !== null)
@@ -33,6 +35,8 @@ export const useNegocioStore = defineStore('negocio', () => {
     ramoFormDescripcion.value = ''
     ramoFormFoto.value = ''
     ramoFormIdCategoria.value = null
+    ramoFormDisponible.value = true
+    ramoFormStock.value = null
     ramoFormDetalles.value = []
   }
 
@@ -70,6 +74,8 @@ export const useNegocioStore = defineStore('negocio', () => {
         descripcionRamo: ramoFormDescripcion.value,
         fotoRamo: ramoFormFoto.value,
         idCategoriaRamo: ramoFormIdCategoria.value!,
+        disponible: ramoFormDisponible.value,
+        stock: ramoFormStock.value,
         detallesRamo: detalles,
       }
 
@@ -94,6 +100,8 @@ export const useNegocioStore = defineStore('negocio', () => {
     ramoFormDescripcion.value = ramo.descripcionRamo
     ramoFormFoto.value = ramo.fotoRamo
     ramoFormIdCategoria.value = ramo.categoria?.id ?? null
+    ramoFormDisponible.value = ramo.disponible
+    ramoFormStock.value = ramo.stock
     ramoFormDetalles.value = ramo.detallesRamo.map(d => ({
       idTipoFlor: d.tipoFlor.id,
       idColorFlor: d.colorFlor.id,
@@ -107,6 +115,7 @@ export const useNegocioStore = defineStore('negocio', () => {
     try {
       await ramoService.eliminar(id)
       await cargarRamos()
+      resetRamoForm()
     } catch (e) {
       ramoError.value = e instanceof Error ? e.message : 'Error al eliminar ramo'
     } finally {
@@ -184,7 +193,7 @@ export const useNegocioStore = defineStore('negocio', () => {
   }
 
   /* ─── Sección C: Opciones personalizadas ─── */
-  const opcionSeleccionada = ref<'color' | 'flor' | null>(null)
+  const opcionSeleccionada = ref<'color' | 'flor' | null>('flor')
 
   /* Colores */
   const colores = ref<ColorFlor[]>([])
@@ -372,7 +381,8 @@ export const useNegocioStore = defineStore('negocio', () => {
   )
 
   const ramosVisibles = computed(() =>
-    ramos.value.filter(r => !r.categoria || !/personalizado/i.test(r.categoria.descripcionCategoriaRamo))
+    ramos.value.filter(r => r.disponible !== false)
+      .filter(r => !r.categoria || !/personalizado/i.test(r.categoria.descripcionCategoriaRamo))
   )
 
   async function cargarTodo() {
@@ -388,7 +398,7 @@ export const useNegocioStore = defineStore('negocio', () => {
   return {
     ramos, ramoLoading, ramoError,
     ramoEditandoId, ramoFormNombre, ramoFormPrecio, ramoFormDescripcion,
-    ramoFormFoto, ramoFormIdCategoria, ramoFormDetalles,
+    ramoFormFoto, ramoFormIdCategoria, ramoFormDisponible, ramoFormStock, ramoFormDetalles,
     esEdicionRamo,
     resetRamoForm, agregarLineaDetalle, eliminarLineaDetalle,
     cargarRamos, guardarRamo, editarRamo, eliminarRamo,

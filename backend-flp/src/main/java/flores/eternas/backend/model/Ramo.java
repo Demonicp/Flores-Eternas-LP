@@ -47,6 +47,9 @@ public class Ramo extends AbstractEntity {
     @Column(name = "disponible")
     private Boolean disponible = true;
 
+    @Column(name = "stock")
+    private Integer stock;
+
     @Lob
     @Column(name = "foto_ramo")
     private String fotoRamo;

@@ -36,7 +36,6 @@ export const useCartStore = defineStore('cart', () => {
     } else {
       items.value.push({ ramo, cantidad: 1 })
     }
-    abierto.value = true
   }
 
   function eliminarItem(idRamo: number) {

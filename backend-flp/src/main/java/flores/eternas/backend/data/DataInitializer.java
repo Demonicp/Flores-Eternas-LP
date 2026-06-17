@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import flores.eternas.backend.model.CategoriaObjeto;
@@ -19,6 +20,7 @@ import flores.eternas.backend.repository.InventarioRepository;
 import flores.eternas.backend.repository.TipoFlorRepository;
 
 @Component
+@Order(2)
 public class DataInitializer implements CommandLineRunner {
 
     private final TipoFlorRepository tipoFlorRepository;
@@ -42,42 +44,51 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (tipoFlorRepository.count() > 0) {
+        if (inventarioRepository.count() > 0) {
             return;
         }
 
-        CategoriaRamo catPersonalizado = new CategoriaRamo();
-        catPersonalizado.setDescripcionCategoriaRamo("Personalizado");
-        categoriaRamoRepository.save(catPersonalizado);
+        if (categoriaRamoRepository.findByDescripcionCategoriaRamoIgnoreCase("Personalizado").isEmpty()) {
+            CategoriaRamo catPersonalizado = new CategoriaRamo();
+            catPersonalizado.setDescripcionCategoriaRamo("Personalizado");
+            categoriaRamoRepository.save(catPersonalizado);
+        }
 
-        List<TipoFlor> flores = List.of(
-                crearTipoFlor("Rosa", new BigDecimal("2.50"), new BigDecimal("0.10")),
-                crearTipoFlor("Girasol", new BigDecimal("3.00"), new BigDecimal("0.10")),
-                crearTipoFlor("Tulipán", new BigDecimal("2.00"), new BigDecimal("0.10")),
-                crearTipoFlor("Clavel", new BigDecimal("1.50"), new BigDecimal("0.10")));
-        tipoFlorRepository.saveAll(flores);
+        if (tipoFlorRepository.findAll().stream().noneMatch(t -> t.getDescripcionFlor().equalsIgnoreCase("Clavel"))) {
+            TipoFlor clavel = new TipoFlor();
+            clavel.setDescripcionFlor("Clavel");
+            clavel.setPrecioUnidad(new BigDecimal("3000"));
+            clavel.setPorcentajePorMayor(new BigDecimal("0.10"));
+            tipoFlorRepository.save(clavel);
+        }
 
-        List<ColorFlor> colores = List.of(
-                crearColor("Rojo"),
-                crearColor("Blanco"),
-                crearColor("Amarillo"),
-                crearColor("Rosa"),
-                crearColor("Morado"),
-                crearColor("Naranja"));
-        colorFlorRepository.saveAll(colores);
+        for (String nombreColor : List.of("Rosa", "Morado", "Naranja")) {
+            if (colorFlorRepository.findAll().stream().noneMatch(c -> c.getDescripcionColor().equalsIgnoreCase(nombreColor))) {
+                ColorFlor color = new ColorFlor();
+                color.setDescripcionColor(nombreColor);
+                colorFlorRepository.save(color);
+            }
+        }
 
-        CategoriaObjeto catAccesorio = new CategoriaObjeto();
-        catAccesorio.setDescripcionCategoria("Accesorio");
-        categoriaObjetoRepository.save(catAccesorio);
+        CategoriaObjeto catAccesorio;
+        if (categoriaObjetoRepository.findAll().stream().noneMatch(c -> c.getDescripcionCategoria().equalsIgnoreCase("Accesorio"))) {
+            catAccesorio = new CategoriaObjeto();
+            catAccesorio.setDescripcionCategoria("Accesorio");
+            catAccesorio = categoriaObjetoRepository.save(catAccesorio);
+        } else {
+            catAccesorio = categoriaObjetoRepository.findAll().stream()
+                    .filter(c -> c.getDescripcionCategoria().equalsIgnoreCase("Accesorio"))
+                    .findFirst().orElseThrow();
+        }
 
         List<Inventario> adiciones = List.of(
-                crearInventario("Corona", "Corona decorativa para ramo", 20, new BigDecimal("5.00"), Estado.DISPONIBLE,
+                crearInventario("Corona", "Corona decorativa para ramo", 20, new BigDecimal("12000"), Estado.DISPONIBLE,
                         catAccesorio),
-                crearInventario("Moño", "Moño de tela para ramo", 50, new BigDecimal("1.50"), Estado.DISPONIBLE,
+                crearInventario("Moño", "Moño de tela para ramo", 50, new BigDecimal("3000"), Estado.DISPONIBLE,
                         catAccesorio),
-                crearInventario("Tarjeta", "Tarjeta personalizada", 100, new BigDecimal("2.00"), Estado.DISPONIBLE,
+                crearInventario("Tarjeta", "Tarjeta personalizada", 100, new BigDecimal("5000"), Estado.DISPONIBLE,
                         catAccesorio),
-                crearInventario("Papel de regalo", "Papel decorativo para envolver", 30, new BigDecimal("3.00"),
+                crearInventario("Papel de regalo", "Papel decorativo para envolver", 30, new BigDecimal("7000"),
                         Estado.DISPONIBLE, catAccesorio));
         inventarioRepository.saveAll(adiciones);
     }

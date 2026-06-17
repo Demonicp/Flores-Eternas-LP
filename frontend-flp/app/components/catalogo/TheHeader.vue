@@ -2,7 +2,7 @@
   <header class="relative w-full bg-bg-page overflow-hidden">
     <div class="absolute inset-0">
       <img
-        src="/assets/images/FondoProvicional.png"
+        src="/assets/images/FondoPruebaHeader.png"
         alt=""
         class="w-full h-full object-cover"
       />
@@ -10,48 +10,51 @@
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-40 md:h-48">
+      <div class="grid grid-cols-[1fr_auto_1fr] items-center min-h-[200px]">
 
-        <nav class="flex items-center gap-6 flex-1">
-          <a
-            href="#"
-            class="text-sm text-text-primary/80 hover:text-text-primary transition-colors duration-200 hidden sm:block font-medium"
+        <nav class="flex items-center gap-6">
+          <NuxtLink
+            to="/"
+            class="text-[17px] tracking-wide text-black hover:text-black/80 transition-colors duration-200 hidden sm:block font-poppins"
+            exact-active-class="font-bold"
+            active-class=""
           >
             Entrega inmediata
-          </a>
+          </NuxtLink>
           <NuxtLink
             to="/flor/SeleccionFlor"
-            class="text-sm text-text-primary/80 hover:text-text-primary transition-colors duration-200 hidden sm:block font-medium"
+            class="text-[17px] tracking-wide text-black hover:text-black/80 transition-colors duration-200 hidden sm:block font-poppins"
+            :class="{ 'font-bold': esPersonalizado }"
           >
             Personalizado
           </NuxtLink>
+          <a
+            href="#"
+            class="text-[17px] tracking-wide text-black hover:text-black/80 transition-colors duration-200 hidden sm:block font-poppins"
+          >
+            Conócenos
+          </a>
         </nav>
 
-        <div class="flex-shrink-0">
+        <div class="flex-shrink-0 justify-self-center">
           <NuxtLink to="/">
             <img
               src="/assets/images/flplogoblack.png"
               alt="Flores Eternas LP"
-              class="h-16 md:h-20 w-auto object-contain cursor-pointer"
+              class="h-36 w-auto object-contain cursor-pointer"
             />
           </NuxtLink>
         </div>
 
-        <nav class="flex items-center gap-4 flex-1 justify-end">
-          <a
-            href="#"
-            class="text-sm text-text-primary/80 hover:text-text-primary transition-colors duration-200 hidden sm:block font-medium"
-          >
-            Conócenos
-          </a>
-          <button class="text-text-primary hover:text-text-primary/70 transition-colors duration-200 p-1" aria-label="Buscar">
-            <Icon icon="mdi:magnify" class="text-xl" />
+        <nav class="flex items-center gap-6 justify-self-end">
+          <button class="text-black hover:text-black/70 transition-colors duration-200 p-1" aria-label="Buscar">
+            <Icon icon="mdi:magnify" class="text-2xl" />
           </button>
-          <button class="text-text-primary hover:text-text-primary/70 transition-colors duration-200 p-1" aria-label="Perfil">
-            <Icon icon="mdi:account-outline" class="text-xl" />
+          <button class="text-black hover:text-black/70 transition-colors duration-200 p-1" aria-label="Perfil">
+            <Icon icon="mdi:account-outline" class="text-2xl" />
           </button>
-          <button class="text-text-primary hover:text-text-primary/70 transition-colors duration-200 p-1 relative" aria-label="Carrito" @click="cartStore.toggleCarrito()">
-            <Icon icon="mdi:cart-outline" class="text-xl" />
+          <button class="text-black hover:text-black/70 transition-colors duration-200 p-1 relative" aria-label="Carrito" @click="cartStore.toggleCarrito()">
+            <Icon icon="mdi:cart-outline" class="text-2xl" />
             <span v-if="cartStore.totalItems > 0" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-btn-primary text-btn-primary-text text-[10px] flex items-center justify-center font-bold leading-none">
               {{ cartStore.totalItems > 9 ? '9+' : cartStore.totalItems }}
             </span>
@@ -67,4 +70,6 @@
 import { useCartStore } from '../../stores/cart.store'
 
 const cartStore = useCartStore()
+const route = useRoute()
+const esPersonalizado = computed(() => route.path.startsWith('/flor'))
 </script>

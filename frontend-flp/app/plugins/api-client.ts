@@ -1,8 +1,10 @@
 import { defineNuxtPlugin } from '#app'
-import { setApiBase, getApiBase } from '~/services/api-client'
+import { setApiBase } from '~/services/api-client'
 
 export default defineNuxtPlugin(() => {
-  const apiBase = import.meta.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+  const config = useRuntimeConfig()
+  const apiBase = config.public.apiBase
+  if (!apiBase) throw new Error('❌ Falta NUXT_PUBLIC_API_BASE en .env')
   setApiBase(apiBase)
-  console.log('API Base configurado en:', getApiBase())
+  console.log('API Base configurado en:', apiBase)
 })

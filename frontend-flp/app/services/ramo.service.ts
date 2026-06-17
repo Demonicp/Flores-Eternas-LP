@@ -17,4 +17,7 @@ export const ramoService = {
   eliminar(id: number): Promise<void> {
     return apiClient.del(`/api/ramos/${id}`)
   },
+  desactivar(id: number): Promise<RamoResponse> {
+    return apiClient.put(`/api/ramos/${id}`, { disponible: false })
+  },
 }

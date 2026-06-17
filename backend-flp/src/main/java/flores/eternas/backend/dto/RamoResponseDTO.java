@@ -20,6 +20,8 @@ public class RamoResponseDTO {
     private BigDecimal precioRamo;
     private String descripcionRamo;
     private String fotoRamo;
+    private Boolean disponible;
+    private Integer stock;
     private CategoriaRamoDTO categoria;
     private List<DetalleRamoResponseDTO> detallesRamo;
 
