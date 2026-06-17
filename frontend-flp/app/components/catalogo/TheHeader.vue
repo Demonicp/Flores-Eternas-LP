@@ -2,7 +2,7 @@
   <header class="relative w-full bg-bg-page overflow-hidden">
     <div class="absolute inset-0">
       <img
-        src="/assets/images/FondoProvicional.png"
+        src="/assets/images/FondoPruebaHeader.png"
         alt=""
         class="w-full h-full object-cover"
       />

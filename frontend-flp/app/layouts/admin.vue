@@ -2,7 +2,7 @@
   <div class="min-h-screen" style="background-color: #FFFCF6;">
     <header
       class="relative bg-cover bg-center min-h-[340px]"
-      style="background-image: url('/assets/images/FondoProvicional.png'); background-position: center 35%;"
+      style="background-image: url('/assets/images/FondoPruebaHeader.png'); background-position: center 35%;"
     >
       <div class="bg-black/20">
         <nav class="max-w-6xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center px-4 py-6">
