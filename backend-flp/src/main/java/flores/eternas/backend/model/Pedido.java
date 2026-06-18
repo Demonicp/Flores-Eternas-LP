@@ -10,13 +10,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
+@Data
 @Entity
 @Table(name = "pedido")
 @Getter
@@ -35,11 +36,11 @@ public class Pedido extends AbstractEntity {
     @Column(name = "fecha_entrega")
     private LocalDate fechaEntrega;
 
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_cliente")
     private Persona cliente;
 
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_pago")
     private MetodoPago metodoPago;
 

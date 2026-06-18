@@ -29,7 +29,7 @@ public class Usuario extends AbstractEntity {
 
     private String contrasena;
 
-    @ManyToOne(cascade = CascadeType.ALL) // @author esteban - cascade para guardar Persona junto con Usuario
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY, cascade = CascadeType.ALL) // @author esteban - cascade para guardar Persona junto con Usuario
     @JoinColumn(name = "id_persona")
     private Persona persona;
 

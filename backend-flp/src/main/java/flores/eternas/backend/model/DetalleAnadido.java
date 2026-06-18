@@ -22,12 +22,12 @@ import lombok.Setter;
 public class DetalleAnadido {
 
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_ramo")
     private Ramo ramo;
 
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_inventario")
     private Inventario inventario;
 

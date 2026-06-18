@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/catalogo")
@@ -54,5 +55,10 @@ public class CatalogoController {
     public ResponseEntity<String> seedCatalogo() {
         ramoService.seedCatalogo();
         return ResponseEntity.ok("Catálogo poblado con 10 ramos por sección");
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, String>> health() {
+        return ResponseEntity.ok(Map.of("status", "OK"));
     }
 }

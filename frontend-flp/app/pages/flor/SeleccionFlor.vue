@@ -1,7 +1,9 @@
 <template>
     <h2 class="text-[#7A4E2D] text-2xl font-radley mb-10">Selecciona los tipos de flor</h2>
 
-    <div v-if="loading" class="text-[#7A4E2D] text-lg">Cargando flores...</div>
+    <div v-if="loading" class="flex gap-5 px-6">
+      <div v-for="i in 4" :key="i" class="flex-shrink-0 w-52 h-64 rounded-xl bg-[#FFEDE3] animate-pulse" />
+    </div>
 
     <div v-else class="relative group mb-16">
       <button

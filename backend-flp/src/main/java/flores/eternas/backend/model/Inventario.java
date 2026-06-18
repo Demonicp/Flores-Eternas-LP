@@ -39,7 +39,7 @@ public class Inventario extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private Estado estado;
 
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_categoria")
     private CategoriaObjeto categoria;
 }

@@ -160,10 +160,8 @@ export const useNegocioStore = defineStore('negocio', () => {
         await categoriaRamoService.crear({ descripcionCategoriaRamo: catFormNombre.value })
       }
       resetCatForm()
-      await Promise.all([
-        cargarCategorias(),
-        cargarCategoriasDisponibles(),
-      ])
+      await cargarCategorias()
+      categoriasDisponibles.value = categorias.value
     } catch (e) {
       catError.value = e instanceof Error ? e.message : 'Error al guardar categoría'
     } finally {
@@ -181,10 +179,8 @@ export const useNegocioStore = defineStore('negocio', () => {
     catError.value = null
     try {
       await categoriaRamoService.eliminar(id)
-      await Promise.all([
-        cargarCategorias(),
-        cargarCategoriasDisponibles(),
-      ])
+      await cargarCategorias()
+      categoriasDisponibles.value = categorias.value
     } catch (e) {
       catError.value = e instanceof Error ? e.message : 'Error al eliminar categoría'
     } finally {
@@ -232,10 +228,8 @@ export const useNegocioStore = defineStore('negocio', () => {
         await colorFlorService.crear({ descripcionColor: colFormNombre.value })
       }
       resetColForm()
-      await Promise.all([
-        cargarColores(),
-        cargarColoresDisponibles(),
-      ])
+      await cargarColores()
+      coloresDisponibles.value = colores.value
     } catch (e) {
       colError.value = e instanceof Error ? e.message : 'Error al guardar color'
     } finally {
@@ -253,10 +247,8 @@ export const useNegocioStore = defineStore('negocio', () => {
     colError.value = null
     try {
       await colorFlorService.eliminar(id)
-      await Promise.all([
-        cargarColores(),
-        cargarColoresDisponibles(),
-      ])
+      await cargarColores()
+      coloresDisponibles.value = colores.value
     } catch (e) {
       colError.value = e instanceof Error ? e.message : 'Error al eliminar color'
     } finally {
@@ -310,10 +302,8 @@ export const useNegocioStore = defineStore('negocio', () => {
         await tipoFlorService.crear(payload)
       }
       resetFlorForm()
-      await Promise.all([
-        cargarFlores(),
-        cargarTiposFlorDisponibles(),
-      ])
+      await cargarFlores()
+      tiposFlorDisponibles.value = flores.value
     } catch (e) {
       florError.value = e instanceof Error ? e.message : 'Error al guardar flor'
     } finally {
@@ -333,10 +323,8 @@ export const useNegocioStore = defineStore('negocio', () => {
     florError.value = null
     try {
       await tipoFlorService.eliminar(id)
-      await Promise.all([
-        cargarFlores(),
-        cargarTiposFlorDisponibles(),
-      ])
+      await cargarFlores()
+      tiposFlorDisponibles.value = flores.value
     } catch (e) {
       florError.value = e instanceof Error ? e.message : 'Error al eliminar flor'
     } finally {
