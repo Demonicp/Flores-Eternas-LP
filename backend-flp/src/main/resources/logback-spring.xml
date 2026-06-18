@@ -19,6 +19,7 @@
 
     <logger name="ADMIN_LOGIN" level="INFO" additivity="false">
         <appender-ref ref="ADMIN_FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <root level="INFO">

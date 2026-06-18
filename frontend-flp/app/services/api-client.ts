@@ -1,5 +1,6 @@
 const TOKEN_KEY = 'flp_admin_token'
 
+const cache = new Map<string, { data: any; expiry: number }>()
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -29,26 +30,58 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
-  const options: RequestInit = {
-    method,
-    headers,
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const controller = new AbortController()
+      if (attempt > 0) {
+        setTimeout(() => controller.abort(), 20000)
+      }
+
+      const options: RequestInit = {
+        method,
+        headers,
+        signal: controller.signal,
+      }
+      if (body !== undefined) {
+        options.body = JSON.stringify(body)
+      }
+
+      const res = await fetch(url, options)
+      controller.signal.addEventListener('abort', () => {})
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new ApiError(res.status, text || `Error ${res.status}`)
+      }
+      if (res.status === 204) return undefined as T
+      return res.json()
+    } catch (e) {
+      if (attempt === 0 && method === 'GET' && !(e instanceof DOMException && e.name === 'AbortError')) {
+        await new Promise(r => setTimeout(r, 3000))
+        continue
+      }
+      throw e
+    }
   }
-  if (body !== undefined) {
-    options.body = JSON.stringify(body)
+  throw new Error('Unexpected error')
+}
+
+export function getCached<T>(key: string, ttlMs: number, fetcher: () => Promise<T>): Promise<T> {
+  const cached = cache.get(key)
+  if (cached && cached.expiry > Date.now()) {
+    return Promise.resolve(cached.data)
   }
-  const res = await fetch(url, options)
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new ApiError(res.status, text || `Error ${res.status}`)
-  }
-  if (res.status === 204) return undefined as T
-  return res.json()
+  return fetcher().then(data => {
+    cache.set(key, { data, expiry: Date.now() + ttlMs })
+    return data
+  })
 }
 
 export const floresApi = {
-  getTipos: () => apiClient.get<any[]>('/api/flores/tipos'),
-  getColores: () => apiClient.get<any[]>('/api/flores/colores'),
-  getAdiciones: () => apiClient.get<any[]>('/api/flores/adiciones'),
+  getTipos: () => getCached('tipos', 300000, () => apiClient.get<any[]>('/api/flores/tipos')),
+  getColores: () => getCached('colores', 300000, () => apiClient.get<any[]>('/api/flores/colores')),
+  getAdiciones: () => getCached('adiciones', 300000, () => apiClient.get<any[]>('/api/flores/adiciones')),
   crearPedido: (data: any) => apiClient.post<any>('/api/pedidos/crear', data),
 }
 

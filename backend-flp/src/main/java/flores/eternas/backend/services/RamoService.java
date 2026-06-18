@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class RamoService {
                 .findByDescripcionCategoriaRamoIgnoreCase("Temporada");
 
         List<RamoResumenDTO> predefinidos = catPredefinidos
-                .map(cat -> ramoRepository.findByCategoriaRamoOrderByNombreRamoAsc(cat))
+                .map(cat -> ramoRepository.findByCategoriaWithDetails(cat))
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
@@ -50,7 +51,7 @@ public class RamoService {
                 .collect(Collectors.toList());
 
         List<RamoResumenDTO> temporada = catTemporada
-                .map(cat -> ramoRepository.findByCategoriaRamoOrderByNombreRamoAsc(cat))
+                .map(cat -> ramoRepository.findByCategoriaWithDetails(cat))
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
@@ -60,20 +61,23 @@ public class RamoService {
         response.setPredefinidos(predefinidos);
         response.setTemporada(temporada);
 
-        List<CategoriaRamo> todasLasCategorias = categoriaRamoRepository.findAll().stream()
-                .filter(cat -> !"Personalizado".equalsIgnoreCase(cat.getDescripcionCategoriaRamo()))
-                .collect(Collectors.toList());
+        // Una sola query JOIN FETCH en vez de N+1
+        List<Ramo> todosLosRamos = ramoRepository.findAllDisponiblesWithCategoria();
+        Map<String, List<RamoResumenDTO>> agrupados = todosLosRamos.stream()
+                .filter(r -> r.getCategoriaRamo() == null
+                        || !"Personalizado".equalsIgnoreCase(r.getCategoriaRamo().getDescripcionCategoriaRamo()))
+                .collect(Collectors.groupingBy(
+                        r -> r.getCategoriaRamo() != null
+                                ? r.getCategoriaRamo().getDescripcionCategoriaRamo()
+                                : "Sin categoría",
+                        Collectors.mapping(this::toResumenDTO, Collectors.toList())
+                ));
+
         List<CategoriaSeccionDTO> secciones = new ArrayList<>();
-        for (CategoriaRamo cat : todasLasCategorias) {
-            List<RamoResumenDTO> ramos = ramoRepository
-                    .findByCategoriaRamoOrderByNombreRamoAsc(cat)
-                    .stream()
-                    .filter(r -> Boolean.TRUE.equals(r.getDisponible()))
-                    .map(this::toResumenDTO)
-                    .collect(Collectors.toList());
-            if (!ramos.isEmpty()) {
-                String badge = determinarBadge(cat.getDescripcionCategoriaRamo());
-                secciones.add(new CategoriaSeccionDTO(cat.getDescripcionCategoriaRamo(), ramos, badge));
+        for (Map.Entry<String, List<RamoResumenDTO>> entry : agrupados.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                String badge = determinarBadge(entry.getKey());
+                secciones.add(new CategoriaSeccionDTO(entry.getKey(), entry.getValue(), badge));
             }
         }
         response.setSecciones(secciones);
