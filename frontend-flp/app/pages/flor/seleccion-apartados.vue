@@ -3,7 +3,20 @@
       <h2 class="text-[#7A4E2D] text-2xl font-radley mb-2">Configura tu ramo</h2>
       <p class="text-[#7A4E2D] text-sm mb-8 font-radley italic">{{ store.totalFlores }} flor(es) seleccionadas</p>
 
-      <div class="space-y-6">
+      <div v-if="loading" class="space-y-4">
+        <div v-for="i in 2" :key="i" class="bg-white rounded-2xl shadow-lg p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-full bg-[#FFEDE3] animate-pulse" />
+            <div class="space-y-2 flex-1">
+              <div class="h-5 w-40 bg-[#FFEDE3] animate-pulse rounded" />
+              <div class="h-4 w-24 bg-[#FFEDE3] animate-pulse rounded" />
+            </div>
+          </div>
+          <div class="h-16 bg-[#FFEDE3] animate-pulse rounded-lg" />
+        </div>
+      </div>
+
+      <div v-else class="space-y-6">
         <div v-for="grupo in gruposFlores" :key="grupo.tipoFlor.id" class="bg-white rounded-2xl shadow-lg p-6">
           <div class="flex items-center gap-3 mb-4">
             <div class="text-3xl">🌸</div>
@@ -107,12 +120,15 @@ if (store.floresSeleccionadas.length === 0) {
 }
 
 const colores = ref([])
+const loading = ref(true)
 
 onMounted(async () => {
   try {
     colores.value = await floresApi.getColores()
   } catch (e) {
     console.error('Error al cargar colores:', e)
+  } finally {
+    loading.value = false
   }
 })
 

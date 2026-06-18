@@ -57,7 +57,7 @@ public class Ramo extends AbstractEntity {
     @OneToMany(mappedBy = "ramo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleRamo> detallesRamo;
 
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_categoria_ramo")
     private CategoriaRamo categoriaRamo;
 }

@@ -19,7 +19,9 @@
         </div>
       </div>
 
-      <div v-if="loading" class="flex-1 text-[#7A4E2D] text-lg text-center py-20">Cargando adiciones...</div>
+        <div v-if="loading" class="flex-1 space-y-4 py-10">
+          <div v-for="i in 3" :key="i" class="h-16 bg-[#FFEDE3] animate-pulse rounded-xl" />
+        </div>
 
       <div v-else class="bg-white rounded-2xl shadow-lg p-8 flex-1">
         <div v-if="adicionesDisponibles.length === 0" class="text-center text-gray-400 text-lg py-8">

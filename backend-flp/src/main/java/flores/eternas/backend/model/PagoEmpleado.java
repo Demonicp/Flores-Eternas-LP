@@ -30,7 +30,7 @@ public class PagoEmpleado extends AbstractEntity {
 
     private String descripcion;
 
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_empleado")
     private Usuario empleado;
 }

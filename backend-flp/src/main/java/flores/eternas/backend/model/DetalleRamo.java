@@ -22,15 +22,15 @@ public class DetalleRamo extends AbstractEntity {
 
     private Integer cantidad;
 
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_tipo_flor")
     private TipoFlor tipoFlor;
 
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_color_flor")
     private ColorFlor colorFlor;
 
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_ramo")
     private Ramo ramo;
 }
