@@ -37,8 +37,4 @@ jobs:
           chmod +x mvnw
           ./mvnw test
 
-      # Despliegue automático a Render
-      - name: Deploy to Render
-        if: success()
-        run: |
-          curl -X POST "$RENDER_DEPLOY_HOOK"
+      
