@@ -27,12 +27,14 @@ jobs:
       - name: Build with Maven
         run: |
           cd backend-flp
+          chmod +x mvnw
           ./mvnw clean package -DskipTests
 
       # Ejecuta los tests
       - name: Run tests
         run: |
           cd backend-flp
+          chmod +x mvnw
           ./mvnw test
 
       # Despliegue automático a Render
