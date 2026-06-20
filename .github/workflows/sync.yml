@@ -1,0 +1,23 @@
+name: Sync Upstream Testing
+on:
+  schedule:
+    - cron: '0 * * * *'   # cada hora
+  workflow_dispatch:       # también lo puedes correr manualmente
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git remote add upstream https://github.com/ladyjvs2054/Flores-Eternas-LP.git
+          git fetch upstream
+          git checkout testing
+          git merge upstream/testing
+          git push origin testing
