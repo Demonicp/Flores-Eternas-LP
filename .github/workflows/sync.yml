@@ -1,7 +1,7 @@
 name: Sync Upstream Testing to Fork
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 * * * *'   # cada hora
   workflow_dispatch:
 
 jobs:
@@ -21,7 +21,6 @@ jobs:
 
           # 1️⃣ Actualizar testing en tu fork con el último commit de upstream/testing
           git checkout -B testing origin/testing
-          # Cherry-pick ignorando los workflows
           git cherry-pick $(git rev-parse upstream/testing) --ignore-paths=.github/workflows || git cherry-pick --skip
           git push origin testing
 
