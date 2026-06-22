@@ -19,12 +19,12 @@ jobs:
           git remote add upstream https://github.com/ladyjvs2054/Flores-Eternas-LP.git
           git fetch upstream
           
-          # Actualizar testing con upstream/testing
+          # Actualizar testing con solo el último commit de upstream/testing
           git checkout -B testing origin/testing
-          git merge upstream/testing
+          git cherry-pick upstream/testing
           git push origin testing
           
-          # Aplicar solo el último commit de testing a master
+          # Actualizar master con solo el último commit de testing
           git checkout -B master origin/master
           git cherry-pick testing
           git push origin master
