@@ -21,10 +21,11 @@ jobs:
 
           # 1️⃣ Actualizar testing en tu fork con el último commit de upstream/testing
           git checkout -B testing origin/testing
-          git cherry-pick $(git rev-parse upstream/testing) -X theirs || git cherry-pick --skip
+          # Cherry-pick ignorando los workflows
+          git cherry-pick $(git rev-parse upstream/testing) --ignore-paths=.github/workflows || git cherry-pick --skip
           git push origin testing
 
           # 2️⃣ Promover ese commit a master en tu fork
           git checkout -B master origin/master
-          git cherry-pick $(git rev-parse testing) -X theirs || git cherry-pick --skip
+          git cherry-pick $(git rev-parse testing) --ignore-paths=.github/workflows || git cherry-pick --skip
           git push origin master
