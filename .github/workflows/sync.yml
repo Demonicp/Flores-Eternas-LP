@@ -24,7 +24,7 @@ jobs:
           git merge upstream/testing
           git push origin testing
           
-          # Actualizar master con testing
+          # Aplicar solo el último commit de testing a master
           git checkout -B master origin/master
-          git merge testing
+          git cherry-pick testing
           git push origin master
