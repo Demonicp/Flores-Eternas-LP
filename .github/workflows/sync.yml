@@ -1,7 +1,7 @@
 name: Sync Upstream Testing to Fork
 on:
   schedule:
-    - cron: '0 *'   # cada hora
+     - cron: '0 * * * *'   # cada hora
   workflow_dispatch:
 
 jobs:
