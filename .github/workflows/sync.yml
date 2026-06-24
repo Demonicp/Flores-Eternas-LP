@@ -4,6 +4,10 @@ on:
     - cron: '0 * * * *'   # cada hora
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -36,3 +40,4 @@ jobs:
           body: |
             Este PR sincroniza la rama `master` con los últimos cambios validados en `testing`.
             Generado automáticamente por GitHub Actions.
+          always-create: true
