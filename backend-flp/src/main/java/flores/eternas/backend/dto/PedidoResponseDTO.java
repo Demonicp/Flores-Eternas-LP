@@ -14,6 +14,9 @@ public class PedidoResponseDTO {
     private String tipoPedido;
     private LocalDate fechaEntrega;
     private String mensaje;
+    private String nombreCliente;
+    private String emailCliente;
+    private String direccionEntrega;
     private List<ItemPedidoDTO> items;
 
     public Long getId() { return id; }
@@ -32,6 +35,12 @@ public class PedidoResponseDTO {
     public void setFechaEntrega(LocalDate fechaEntrega) { this.fechaEntrega = fechaEntrega; }
     public String getMensaje() { return mensaje; }
     public void setMensaje(String mensaje) { this.mensaje = mensaje; }
+    public String getNombreCliente() { return nombreCliente; }
+    public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
+    public String getEmailCliente() { return emailCliente; }
+    public void setEmailCliente(String emailCliente) { this.emailCliente = emailCliente; }
+    public String getDireccionEntrega() { return direccionEntrega; }
+    public void setDireccionEntrega(String direccionEntrega) { this.direccionEntrega = direccionEntrega; }
     public List<ItemPedidoDTO> getItems() { return items; }
     public void setItems(List<ItemPedidoDTO> items) { this.items = items; }
 

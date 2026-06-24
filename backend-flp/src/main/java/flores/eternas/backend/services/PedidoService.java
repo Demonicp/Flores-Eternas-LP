@@ -316,6 +316,55 @@ public class PedidoService {
         return response;
     }
 
+    @Transactional(readOnly = true)
+    public List<PedidoResponseDTO> listarPedidos() {
+        List<Pedido> pedidos = pedidoRepository.findAll();
+        return pedidos.stream().map(this::toResponseDTO).collect(java.util.stream.Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PedidoResponseDTO obtenerPedido(Long id) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado: " + id));
+        return toResponseDTO(pedido);
+    }
+
+    @Transactional
+    public PedidoResponseDTO actualizarEstadoPedido(Long id, String nuevoEstado) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado: " + id));
+
+        Estado estado;
+        try {
+            estado = Estado.valueOf(nuevoEstado.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Estado invalido: " + nuevoEstado);
+        }
+
+        pedido.setEstado(estado);
+        pedido = pedidoRepository.save(pedido);
+        return toResponseDTO(pedido);
+    }
+
+    private PedidoResponseDTO toResponseDTO(Pedido pedido) {
+        PedidoResponseDTO dto = new PedidoResponseDTO();
+        dto.setId(pedido.getId());
+        dto.setTotal(pedido.getTotalPedido());
+        dto.setMontoPagado(pedido.getMontoPagado());
+        dto.setMontoPendiente(pedido.getTotalPedido() != null && pedido.getMontoPagado() != null
+                ? pedido.getTotalPedido().subtract(pedido.getMontoPagado())
+                : BigDecimal.ZERO);
+        dto.setEstado(pedido.getEstado() != null ? pedido.getEstado().name() : null);
+        dto.setTipoPedido(pedido.getTipoPedido());
+        dto.setFechaEntrega(pedido.getFechaEntrega());
+        dto.setNombreCliente(pedido.getCliente() != null ? pedido.getCliente().getNombreCliente() : null);
+        dto.setEmailCliente(pedido.getEmailCliente());
+        dto.setDireccionEntrega(pedido.getDireccionEntrega());
+        dto.setMensaje(null);
+        dto.setItems(new ArrayList<>());
+        return dto;
+    }
+
     private String escapeJson(String value) {
         if (value == null) return "";
         return value.replace("\\", "\\\\")
