@@ -154,35 +154,108 @@ public class PedidoService {
             throw new IllegalArgumentException("La fecha de entrega no puede ser anterior a hoy.");
         }
 
-        Persona persona = new Persona();
-        persona.setNombreCliente(request.getNombreCliente());
-        persona.setTelefono(null);
-        persona.setCedula(null);
-        persona.setFechaNacimiento(null);
-        persona = personaRepository.save(persona);
+        Persona persona;
+        boolean tienePersonalizados = request.getFloresPersonalizadas() != null && !request.getFloresPersonalizadas().isEmpty();
+
+        if (tienePersonalizados && request.getCedulaCliente() != null && !request.getCedulaCliente().isBlank()) {
+            persona = personaRepository.findByCedula(request.getCedulaCliente()).orElse(null);
+            if (persona == null) {
+                persona = new Persona();
+                persona.setCedula(request.getCedulaCliente());
+                persona.setNombreCliente(request.getNombreCliente());
+                persona.setTelefono(request.getTelefonoCliente());
+                persona = personaRepository.save(persona);
+            } else {
+                persona.setNombreCliente(request.getNombreCliente());
+                if (request.getTelefonoCliente() != null) {
+                    persona.setTelefono(request.getTelefonoCliente());
+                }
+                persona = personaRepository.save(persona);
+            }
+        } else {
+            persona = new Persona();
+            persona.setNombreCliente(request.getNombreCliente());
+            persona.setTelefono(null);
+            persona.setCedula(null);
+            persona.setFechaNacimiento(null);
+            persona = personaRepository.save(persona);
+        }
 
         List<PedidoResponseDTO.ItemPedidoDTO> itemsResponse = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
         List<DetallePedido> detalles = new ArrayList<>();
-        for (PedidoRequestDTO.ItemPedidoDTO itemReq : request.getItems()) {
-            Ramo ramo = ramoRepository.findById(itemReq.getIdRamo())
-                    .orElseThrow(() -> new EntityNotFoundException("Ramo no encontrado: " + itemReq.getIdRamo()));
 
-            BigDecimal subtotal = ramo.getPrecioRamo().multiply(BigDecimal.valueOf(itemReq.getCantidad()));
-            total = total.add(subtotal);
+        // Procesar items predefinidos (ramos)
+        if (request.getItems() != null) {
+            for (PedidoRequestDTO.ItemPedidoDTO itemReq : request.getItems()) {
+                Ramo ramo = ramoRepository.findById(itemReq.getIdRamo())
+                        .orElseThrow(() -> new EntityNotFoundException("Ramo no encontrado: " + itemReq.getIdRamo()));
 
-            DetallePedido detalle = new DetallePedido();
-            detalle.setRamo(ramo);
-            detalle.setCantidad(itemReq.getCantidad());
-            detalle.setPedido(null);
-            detalles.add(detalle);
+                BigDecimal subtotal = ramo.getPrecioRamo().multiply(BigDecimal.valueOf(itemReq.getCantidad()));
+                total = total.add(subtotal);
 
-            PedidoResponseDTO.ItemPedidoDTO itemRes = new PedidoResponseDTO.ItemPedidoDTO();
-            itemRes.setNombreRamo(ramo.getNombreRamo());
-            itemRes.setCantidad(itemReq.getCantidad());
-            itemRes.setPrecioUnitario(ramo.getPrecioRamo());
-            itemsResponse.add(itemRes);
+                DetallePedido detalle = new DetallePedido();
+                detalle.setRamo(ramo);
+                detalle.setCantidad(itemReq.getCantidad());
+                detalle.setPedido(null);
+                detalles.add(detalle);
+
+                PedidoResponseDTO.ItemPedidoDTO itemRes = new PedidoResponseDTO.ItemPedidoDTO();
+                itemRes.setNombreRamo(ramo.getNombreRamo());
+                itemRes.setCantidad(itemReq.getCantidad());
+                itemRes.setPrecioUnitario(ramo.getPrecioRamo());
+                itemsResponse.add(itemRes);
+            }
+        }
+
+        // Procesar flores personalizadas
+        StringBuilder adicionesJson = new StringBuilder();
+        if (tienePersonalizados) {
+            if (request.getAdicionesPersonalizadas() != null && !request.getAdicionesPersonalizadas().isEmpty()) {
+                adicionesJson.append("[");
+                for (int i = 0; i < request.getAdicionesPersonalizadas().size(); i++) {
+                    var adicionReq = request.getAdicionesPersonalizadas().get(i);
+                    Inventario inventario = inventarioRepository.findById(adicionReq.getInventarioId())
+                            .orElseThrow(() -> new RuntimeException("Adicion no encontrada"));
+
+                    BigDecimal subtotal = inventario.getPrecioCosto()
+                            .multiply(BigDecimal.valueOf(adicionReq.getCantidad()));
+                    total = total.add(subtotal);
+
+                    if (i > 0) adicionesJson.append(",");
+                    adicionesJson.append("{")
+                            .append("\"nombre\":\"").append(escapeJson(inventario.getNombreInventario())).append("\",")
+                            .append("\"cantidad\":").append(adicionReq.getCantidad()).append(",")
+                            .append("\"precio\":").append(inventario.getPrecioCosto())
+                            .append("}");
+                }
+                adicionesJson.append("]");
+            }
+
+            String adicionesStr = adicionesJson.length() > 0 ? adicionesJson.toString() : null;
+            for (CrearPedidoRequest.ItemFlorRequest florReq : request.getFloresPersonalizadas()) {
+                TipoFlor tipoFlor = tipoFlorRepository.findById(florReq.getTipoFlorId())
+                        .orElseThrow(() -> new RuntimeException("Tipo de flor no encontrado: " + florReq.getTipoFlorId()));
+
+                BigDecimal subtotal = tipoFlor.getPrecioUnidad()
+                        .multiply(BigDecimal.valueOf(florReq.getCantidad()));
+                total = total.add(subtotal);
+
+                ColorFlor colorFlor = null;
+                if (florReq.getColorFlorId() != null) {
+                    colorFlor = colorFlorRepository.findById(florReq.getColorFlorId())
+                            .orElseThrow(() -> new RuntimeException("Color de flor no encontrado: " + florReq.getColorFlorId()));
+                }
+
+                DetallePedido detalle = new DetallePedido();
+                detalle.setPedido(null);
+                detalle.setTipoFlor(tipoFlor.getDescripcionFlor());
+                detalle.setColorFlor(colorFlor != null ? colorFlor.getDescripcionColor() : null);
+                detalle.setCantidadFlores(florReq.getCantidad());
+                detalle.setAdicionesJson(adicionesStr);
+                detalles.add(detalle);
+            }
         }
 
         BigDecimal montoPagado;
