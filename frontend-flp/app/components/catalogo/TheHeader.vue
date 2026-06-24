@@ -1,6 +1,6 @@
 <template>
   <header
-    class="relative bg-cover bg-center min-h-[200px]"
+    class="relative bg-cover bg-center min-h-[200px] w-full"
     style="background-image: url('/assets/images/FondoPruebaHeader.png'); background-position: center 35%; background-color: #5a3a2a;"
   >
     <div class="bg-black/30">

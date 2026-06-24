@@ -1,9 +1,6 @@
 <template>
-  <div class="min-h-screen" style="background-color: #FFFCF6;">
-    <header
-      class="relative bg-cover bg-center min-h-[340px]"
-      style="background-image: url('/assets/images/FondoPruebaHeader.png'); background-position: center 35%;"
-    >
+  <div class="min-h-screen bg-cover bg-center bg-fixed" style="background-image: url('/assets/images/fondoAdmin.jpeg'); background-color: #FFFCF6;">
+    <header class="relative">
       <div class="bg-black/20">
         <nav class="max-w-6xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center px-4 py-6">
           <div class="grid grid-cols-6 gap-x-6 gap-y-1 min-w-0">
@@ -44,7 +41,9 @@
             </NuxtLink>
           </div>
 
-          <img src="/assets/images/flplogowhite.png" alt="Flores Eternas" class="h-36 w-auto justify-self-center" width="1536" height="1024" />
+          <NuxtLink to="/admin/pedidos">
+            <img src="/assets/images/flplogowhite.png" alt="Flores Eternas" class="h-36 w-auto justify-self-center" width="1536" height="1024" />
+          </NuxtLink>
 
           <div class="flex items-center gap-6 justify-self-end">
             <span class="text-white text-[17px] tracking-wide">Empleados</span>
