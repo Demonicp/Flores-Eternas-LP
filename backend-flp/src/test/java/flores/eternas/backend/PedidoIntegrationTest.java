@@ -2,6 +2,8 @@ package flores.eternas.backend;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -104,5 +106,29 @@ class PedidoIntegrationTest {
         BigDecimal precioEsperado = new BigDecimal("2.50").multiply(BigDecimal.valueOf(3));
         assertEquals(0, precioEsperado.compareTo(pedido.getTotalPedido()),
                 "El total debe ser 2.50*3 = 7.50");
+    }
+
+    @Test
+    void testCrearPedidoSinFlores_LanzaExcepcion() {
+        CrearPedidoRequest request = new CrearPedidoRequest();
+        request.setFlores(List.of());
+        request.setDireccionEntrega("Calle sin flores");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> pedidoService.crearPedido(request));
+        assertEquals("Debe incluir al menos una flor en el pedido.", ex.getMessage());
+    }
+
+    @Test
+    void testCrearPedidoFlorInexistente_LanzaExcepcion() {
+        CrearPedidoRequest request = new CrearPedidoRequest();
+        request.setFlores(List.of(
+            new CrearPedidoRequest.ItemFlorRequest(99999L, rojo.getId(), 2)
+        ));
+        request.setDireccionEntrega("Calle 123");
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> pedidoService.crearPedido(request));
+        assertTrue(ex.getMessage().contains("Tipo de flor no encontrado"));
     }
 }

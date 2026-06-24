@@ -13,6 +13,10 @@ public class PedidoRequestDTO {
     private String tipoPedido;
     private String tipoPago;
     private List<ItemPedidoDTO> items;
+    private List<CrearPedidoRequest.ItemFlorRequest> floresPersonalizadas;
+    private List<AdicionRequest> adicionesPersonalizadas;
+    private String cedulaCliente;
+    private String telefonoCliente;
 
     public String getNombreCliente() { return nombreCliente; }
     public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
@@ -28,6 +32,14 @@ public class PedidoRequestDTO {
     public void setTipoPago(String tipoPago) { this.tipoPago = tipoPago; }
     public List<ItemPedidoDTO> getItems() { return items; }
     public void setItems(List<ItemPedidoDTO> items) { this.items = items; }
+    public List<CrearPedidoRequest.ItemFlorRequest> getFloresPersonalizadas() { return floresPersonalizadas; }
+    public void setFloresPersonalizadas(List<CrearPedidoRequest.ItemFlorRequest> floresPersonalizadas) { this.floresPersonalizadas = floresPersonalizadas; }
+    public List<AdicionRequest> getAdicionesPersonalizadas() { return adicionesPersonalizadas; }
+    public void setAdicionesPersonalizadas(List<AdicionRequest> adicionesPersonalizadas) { this.adicionesPersonalizadas = adicionesPersonalizadas; }
+    public String getCedulaCliente() { return cedulaCliente; }
+    public void setCedulaCliente(String cedulaCliente) { this.cedulaCliente = cedulaCliente; }
+    public String getTelefonoCliente() { return telefonoCliente; }
+    public void setTelefonoCliente(String telefonoCliente) { this.telefonoCliente = telefonoCliente; }
 
     public static class ItemPedidoDTO {
         private Long idRamo;
