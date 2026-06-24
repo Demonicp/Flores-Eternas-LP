@@ -8,6 +8,30 @@ export type ItemCarrito = {
   cantidad: number
 }
 
+export type FlorPersonalizada = {
+  tipoFlorId: number
+  colorFlorId: number | null
+  cantidad: number
+  descripcionFlor: string
+  descripcionColor: string | null
+}
+
+export type AdicionPersonalizada = {
+  inventarioId: number
+  nombre: string
+  cantidad: number
+  precioCosto: number
+}
+
+export type PersonalizadoCarrito = {
+  id: string
+  nombre: string
+  foto: string
+  precio: number
+  flores: FlorPersonalizada[]
+  adiciones: AdicionPersonalizada[]
+}
+
 export type PedidoRequest = {
   nombreCliente: string
   emailCliente: string
@@ -19,6 +43,17 @@ export type PedidoRequest = {
     idRamo: number
     cantidad: number
   }>
+  floresPersonalizadas?: Array<{
+    tipoFlorId: number
+    colorFlorId: number | null
+    cantidad: number
+  }>
+  adicionesPersonalizadas?: Array<{
+    inventarioId: number
+    cantidad: number
+  }>
+  cedulaCliente?: string
+  telefonoCliente?: string
 }
 
 export type PedidoResponse = {

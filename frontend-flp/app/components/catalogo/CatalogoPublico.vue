@@ -39,6 +39,7 @@
               :producto="item"
               :badge="seccion.badge || undefined"
               @add-to-cart="onAddToCart"
+              @click="abrirDetalle(item.id)"
             />
             <div
               v-if="seccion.ramos.length === 0"
@@ -63,6 +64,7 @@
       </p>
     </template>
   </section>
+  <ProductDetailModal :producto-id="selectedProductId" @close="selectedProductId = null" />
 </template>
 
 <script setup lang="ts">
@@ -70,6 +72,7 @@ import { ref, reactive, onMounted } from 'vue'
 import type { CategoriaSeccion } from '../../models/catalogo.model'
 import { catalogoService } from '../../services/catalogo.service'
 import ProductCard from './ProductCard.vue'
+import ProductDetailModal from './ProductDetailModal.vue'
 
 const secciones = ref<CategoriaSeccion[]>([])
 const mensaje = ref('')
@@ -99,6 +102,12 @@ function onScroll(nombre: string) {
 import { useCartStore } from '../../stores/cart.store'
 
 const cartStore = useCartStore()
+
+const selectedProductId = ref<number | null>(null)
+
+function abrirDetalle(id: number) {
+  selectedProductId.value = id
+}
 
 function onAddToCart(producto: { id: number; nombre: string; foto: string; precio: number }) {
   cartStore.agregarItem(producto)

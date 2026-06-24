@@ -25,13 +25,14 @@
       <Icon v-else icon="mdi:flower-tulip-outline" class="text-5xl text-text-primary/30" />
     </div>
 
-    <div class="flex flex-col gap-1.5 flex-1">
+    <div class="flex flex-col gap-1.5 flex-1 min-h-[90px]">
       <h3 class="font-serif text-base text-text-primary font-medium truncate">
         {{ producto.nombre }}
       </h3>
-      <p v-if="producto.descripcionCorta" class="text-xs text-text-primary/60 line-clamp-2 leading-relaxed">
+      <p v-if="producto.descripcionCorta" class="text-xs text-text-primary/60 line-clamp-2 leading-relaxed flex-1">
         {{ producto.descripcionCorta }}
       </p>
+      <p v-else class="text-xs text-text-primary/60 flex-1">&nbsp;</p>
       <p class="text-sm text-text-primary/70 font-medium">
         {{ formatoPrecio(producto.precio) }} COP
       </p>
@@ -39,7 +40,7 @@
 
     <button
       class="w-full flex items-center justify-center gap-2 bg-btn-primary text-btn-primary-text px-4 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition-opacity duration-200"
-      @click="$emit('add-to-cart', producto)"
+      @click.stop="$emit('add-to-cart', producto)"
     >
       <Icon icon="mdi:cart-outline" class="text-lg" />
       añadir al carrito
