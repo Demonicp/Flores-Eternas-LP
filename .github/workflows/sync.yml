@@ -1,7 +1,7 @@
 name: Sync Upstream Testing to Fork
 on:
   schedule:
-     - cron: '0 * * * *'   # cada hora
+    - cron: '0 * * * *'   # cada hora
   workflow_dispatch:
 
 jobs:
@@ -19,12 +19,20 @@ jobs:
           git remote add upstream https://github.com/Flores-Eternas-org/Flores-Eternas-org.git
           git fetch upstream
 
-          # 1️⃣ Actualizar testing
+          # 1️⃣ Actualizar testing con upstream/testing
           git checkout -B testing origin/testing
-          git merge --ff-only upstream/testing
-          git push origin testing
+          git reset --hard upstream/testing
 
-          # 2️⃣ Promover a master
-          git checkout -B master origin/master  
-          git merge --ff-only testing
-          git push origin master
+          # 2️⃣ Promover a master desde testing (solo local)
+          git checkout -B master origin/master
+          git reset --hard testing
+
+      - name: Create Pull Request to master
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: sync-testing-to-master
+          base: master
+          title: "Sync testing → master"
+          body: |
+            Este PR sincroniza la rama `master` con los últimos cambios validados en `testing`.
+            Generado automáticamente por GitHub Actions.
