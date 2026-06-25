@@ -3,4 +3,5 @@ export type TipoFlor = {
   descripcionFlor: string
   precioUnidad: number
   porcentajePorMayor: number
+  icono?: string | null
 }

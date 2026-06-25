@@ -88,3 +88,16 @@ backend-flp/src/main/java/flores/eternas/backend/
 ### Dialect y DDL
 - **Dialect Hibernate**: PostgreSQLDialect configurado en `application.properties`
 - **DDL auto**: `update` — Hibernate crea/actualiza tablas automáticamente
+
+## Session Summary (2026-06-25)
+
+### Goal
+- Add flower icon management: `icono` field on `TipoFlor` entity, dropdown in admin `OpcionesSection.vue`, `<Icon>` in personalization flow replacing 🌸 emoji.
+
+### Changes
+- **Backend**: +`icono` (String, nullable) column in `TipoFlor.java`; added to `TipoFlorDTO` constructor (5th param); mapped in `TipoFlorService.java` (crear, actualizar, toDTO); updated callsites in `FlorService.java` and `RamoService.java`.
+- **Frontend model**: `tipo-flor.model.ts` + `icono?: string | null`.
+- **Frontend store**: `negocio.store.ts` +`florFormIcono` state, included in `guardarFlor` (as nullable payload field), `editarFlor`, `resetFlorForm`.
+- **Admin UI**: `OpcionesSection.vue` — 4-column grid with icon dropdown (19 `mdi:` icon options) + live preview; icon column in table.
+- **Personalization flow**: 🌸 → `<Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" />` in `SeleccionFlor.vue`, `seleccion-apartados.vue`, `adiciones.vue`, `resumen-pedido.vue`.
+- **Build**: `pnpm build` passes. Backend requires JAVA_HOME to verify.
