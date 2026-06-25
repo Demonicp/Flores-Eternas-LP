@@ -40,7 +40,6 @@ public class CrearPedidoRequest {
     @Pattern(regexp = "^(\\+57\\s?)?(3\\d{9}|60\\d{8})$", message = "Teléfono: +57 3001234567 o 6012345678")
     private String telefono;
 
-    @FutureOrPresent(message = "Fecha no puede ser anterior a hoy")
     private String fechaEntrega;
 
     @NotBlank(message = "Email obligatorio")
