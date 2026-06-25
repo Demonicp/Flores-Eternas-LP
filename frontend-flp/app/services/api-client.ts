@@ -51,8 +51,19 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
       controller.signal.addEventListener('abort', () => {})
 
       if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new ApiError(res.status, text || `Error ${res.status}`)
+        let msg = `Error ${res.status}`
+        try {
+          const data = await res.json()
+          msg = data.message || data.error || msg
+        } catch {
+          const text = await res.text().catch(() => '')
+          if (text) msg = text
+        }
+        if (typeof window !== 'undefined') {
+          const { error } = await import('~/composables/useToast')
+          error(msg)
+        }
+        throw new ApiError(res.status, msg)
       }
       if (res.status === 204) return undefined as T
       return res.json()

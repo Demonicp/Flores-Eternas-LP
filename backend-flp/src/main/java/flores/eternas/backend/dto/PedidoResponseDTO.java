@@ -2,6 +2,7 @@ package flores.eternas.backend.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class PedidoResponseDTO {
@@ -13,6 +14,7 @@ public class PedidoResponseDTO {
     private String estado;
     private String tipoPedido;
     private LocalDate fechaEntrega;
+    private LocalDateTime fechaCreacion;
     private String mensaje;
     private String nombreCliente;
     private String emailCliente;
@@ -44,6 +46,8 @@ public class PedidoResponseDTO {
     public void setDireccionEntrega(String direccionEntrega) { this.direccionEntrega = direccionEntrega; }
     public String getPagoToken() { return pagoToken; }
     public void setPagoToken(String pagoToken) { this.pagoToken = pagoToken; }
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
     public List<ItemPedidoDTO> getItems() { return items; }
     public void setItems(List<ItemPedidoDTO> items) { this.items = items; }
 
@@ -51,6 +55,9 @@ public class PedidoResponseDTO {
         private String nombreRamo;
         private Integer cantidad;
         private BigDecimal precioUnitario;
+        private String tipoFlor;
+        private String colorFlor;
+        private String adicionesJson;
 
         public String getNombreRamo() { return nombreRamo; }
         public void setNombreRamo(String nombreRamo) { this.nombreRamo = nombreRamo; }
@@ -58,5 +65,11 @@ public class PedidoResponseDTO {
         public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
         public BigDecimal getPrecioUnitario() { return precioUnitario; }
         public void setPrecioUnitario(BigDecimal precioUnitario) { this.precioUnitario = precioUnitario; }
+        public String getTipoFlor() { return tipoFlor; }
+        public void setTipoFlor(String tipoFlor) { this.tipoFlor = tipoFlor; }
+        public String getColorFlor() { return colorFlor; }
+        public void setColorFlor(String colorFlor) { this.colorFlor = colorFlor; }
+        public String getAdicionesJson() { return adicionesJson; }
+        public void setAdicionesJson(String adicionesJson) { this.adicionesJson = adicionesJson; }
     }
 }

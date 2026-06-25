@@ -3,10 +3,12 @@ package flores.eternas.backend.services;
 import flores.eternas.backend.dto.CrearPedidoRequest;
 import flores.eternas.backend.dto.PedidoRequestDTO;
 import flores.eternas.backend.dto.PedidoResponseDTO;
+import flores.eternas.backend.exception.ValidacionException;
 import flores.eternas.backend.model.*;
 import flores.eternas.backend.model.enums.Estado;
 import flores.eternas.backend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,10 +61,28 @@ public class PedidoService {
         this.emailService = emailService;
     }
 
+    @Transactional(readOnly = true)
+    public List<PedidoResponseDTO> listarPedidos() {
+        List<Pedido> pedidos = pedidoRepository.findAllByOrderByFechaCreacionDesc();
+        return pedidos.stream().map(this::toResponseDTO).collect(java.util.stream.Collectors.toList());
+    }
+
     @Transactional
     public Pedido crearPedido(CrearPedidoRequest request) {
         if (request.getFlores() == null || request.getFlores().isEmpty()) {
-            throw new IllegalArgumentException("Debe incluir al menos una flor en el pedido.");
+            throw new ValidacionException("Debe incluir al menos una flor en el pedido.");
+        }
+
+        if (request.getFechaEntrega() != null) {
+            try {
+                LocalDate fechaEntrega = LocalDate.parse(request.getFechaEntrega());
+                if (fechaEntrega.isBefore(LocalDate.now())) {
+                    throw new ValidacionException("La fecha de entrega no puede ser anterior a hoy.");
+                }
+            } catch (Exception e) {
+                if (e instanceof ValidacionException) throw e;
+                throw new ValidacionException("Fecha de entrega inválida.");
+            }
         }
 
         BigDecimal precioTotalFlores = BigDecimal.ZERO;
@@ -128,6 +149,7 @@ public class PedidoService {
             : LocalDate.now().plusDays(5);
         pedido.setFechaEntrega(fechaEntrega);
         pedido.setEstado(Estado.EN_PREPARACION);
+        pedido.setFechaCreacion(LocalDateTime.now());
         if (persona != null) {
             pedido.setCliente(persona);
         }
@@ -158,7 +180,7 @@ public class PedidoService {
     @Transactional
     public Pedido crearPedidoPersonalizadoPendiente(CrearPedidoRequest request) {
         if (request.getFlores() == null || request.getFlores().isEmpty()) {
-            throw new IllegalArgumentException("Debe incluir al menos una flor en el pedido.");
+            throw new ValidacionException("Debe incluir al menos una flor en el pedido.");
         }
 
         BigDecimal precioTotalFlores = BigDecimal.ZERO;
@@ -198,18 +220,18 @@ public class PedidoService {
         BigDecimal total = precioTotalFlores.add(precioAdiciones);
 
         Persona persona = null;
-        if (request.getCedula() != null && !request.getCedula().isBlank()) {
-            persona = personaRepository.findByCedula(request.getCedula()).orElse(null);
+        if (request.getNombreCliente() != null && !request.getNombreCliente().isBlank()) {
+            if (request.getCedula() != null && !request.getCedula().isBlank()) {
+                persona = personaRepository.findByCedula(request.getCedula()).orElse(null);
+            }
             if (persona == null) {
                 persona = new Persona();
-                persona.setCedula(request.getCedula());
                 persona.setNombreCliente(request.getNombreCliente());
-                persona.setTelefono(request.getTelefono());
+                if (request.getCedula() != null) persona.setCedula(request.getCedula());
+                if (request.getTelefono() != null) persona.setTelefono(request.getTelefono());
                 persona = personaRepository.save(persona);
             } else {
-                if (request.getNombreCliente() != null) {
-                    persona.setNombreCliente(request.getNombreCliente());
-                }
+                persona.setNombreCliente(request.getNombreCliente());
                 if (request.getTelefono() != null) {
                     persona.setTelefono(request.getTelefono());
                 }
@@ -220,9 +242,14 @@ public class PedidoService {
         LocalDate hoy = LocalDate.now();
         LocalDate fechaEntrega;
         if (request.getFechaEntrega() != null) {
-            fechaEntrega = LocalDate.parse(request.getFechaEntrega());
-            if (fechaEntrega.isBefore(hoy)) {
-                throw new IllegalArgumentException("La fecha de entrega no puede ser anterior a hoy.");
+            try {
+                fechaEntrega = LocalDate.parse(request.getFechaEntrega());
+                if (fechaEntrega.isBefore(hoy)) {
+                    throw new ValidacionException("La fecha de entrega no puede ser anterior a hoy.");
+                }
+            } catch (Exception e) {
+                if (e instanceof ValidacionException) throw e;
+                throw new ValidacionException("Fecha de entrega inválida.");
             }
         } else {
             fechaEntrega = hoy.plusDays(5);
@@ -275,7 +302,7 @@ public class PedidoService {
     public PedidoResponseDTO crearPedido(PedidoRequestDTO request) {
         LocalDate hoy = LocalDate.now();
         if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(hoy)) {
-            throw new IllegalArgumentException("La fecha de entrega no puede ser anterior a hoy.");
+            throw new ValidacionException("La fecha de entrega no puede ser anterior a hoy.");
         }
 
         Persona persona;
@@ -441,12 +468,6 @@ public class PedidoService {
     }
 
     @Transactional(readOnly = true)
-    public List<PedidoResponseDTO> listarPedidos() {
-        List<Pedido> pedidos = pedidoRepository.findAll();
-        return pedidos.stream().map(this::toResponseDTO).collect(java.util.stream.Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
     public PedidoResponseDTO obtenerPedido(Long id) {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado: " + id));
@@ -512,13 +533,41 @@ public class PedidoService {
         dto.setEstado(pedido.getEstado() != null ? pedido.getEstado().name() : null);
         dto.setTipoPedido(pedido.getTipoPedido());
         dto.setFechaEntrega(pedido.getFechaEntrega());
+        dto.setFechaCreacion(pedido.getFechaCreacion());
         dto.setNombreCliente(pedido.getCliente() != null ? pedido.getCliente().getNombreCliente() : null);
         dto.setEmailCliente(pedido.getEmailCliente());
         dto.setDireccionEntrega(pedido.getDireccionEntrega());
         dto.setPagoToken(pedido.getPagoToken());
         dto.setMensaje(null);
-        dto.setItems(new ArrayList<>());
+        dto.setItems(populateItems(pedido.getId()));
         return dto;
+    }
+
+    private List<PedidoResponseDTO.ItemPedidoDTO> populateItems(Long pedidoId) {
+        List<PedidoResponseDTO.ItemPedidoDTO> items = new ArrayList<>();
+        List<DetallePedido> detallesPedido = detallePedidoRepository.findByPedidoId(pedidoId);
+        for (DetallePedido detalle : detallesPedido) {
+            PedidoResponseDTO.ItemPedidoDTO item = new PedidoResponseDTO.ItemPedidoDTO();
+            item.setNombreRamo(calcularNombreRamo(detalle));
+            item.setCantidad(detalle.getCantidadFlores());
+            item.setPrecioUnitario(calcularPrecioUnitario(detalle.getTipoFlor()));
+            item.setTipoFlor(detalle.getTipoFlor());
+            item.setColorFlor(detalle.getColorFlor());
+            item.setAdicionesJson(detalle.getAdicionesJson());
+            items.add(item);
+        }
+        return items;
+    }
+
+    private String calcularNombreRamo(DetallePedido detalle) {
+        return "Ramo Personalizado";
+    }
+
+    private BigDecimal calcularPrecioUnitario(String tipoFlor) {
+        if (tipoFlor == null || tipoFlor.isBlank()) return BigDecimal.ZERO;
+        return tipoFlorRepository.findFirstByDescripcionFlor(tipoFlor)
+                .map(TipoFlor::getPrecioUnidad)
+                .orElse(BigDecimal.ZERO);
     }
 
     private String escapeJson(String value) {

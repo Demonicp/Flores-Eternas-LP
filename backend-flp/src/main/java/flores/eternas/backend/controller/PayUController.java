@@ -5,6 +5,7 @@ import flores.eternas.backend.dto.PayUIniciarResponse;
 import flores.eternas.backend.model.Pedido;
 import flores.eternas.backend.services.PayUService;
 import flores.eternas.backend.services.PedidoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class PayUController {
     }
 
     @PostMapping("/iniciar")
-    public ResponseEntity<?> iniciarPago(@RequestBody CrearPedidoRequest request) {
+    public ResponseEntity<?> iniciarPago(@Valid @RequestBody CrearPedidoRequest request) {
         try {
             Pedido pedido = pedidoService.crearPedidoPersonalizadoPendiente(request);
             PayUIniciarResponse response = payUService.iniciarPago(
