@@ -143,16 +143,51 @@
         </div>
         <div>
           <label class="block text-sm text-text-primary font-medium mb-1">Icono</label>
-          <div class="flex gap-2 items-center">
-            <select
-              v-model="store.florFormIcono"
-              class="flex-1 rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+          <button
+            type="button"
+            @click="store.florFormIcono = null"
+            class="text-xs text-text-primary/60 hover:text-text-primary mb-1"
+            :class="!store.florFormIcono ? 'font-semibold text-btn-primary' : ''"
+          >Sin icono</button>
+          <div class="grid grid-cols-5 gap-1">
+            <button
+              v-for="ico in iconosDisponibles"
+              :key="ico"
+              type="button"
+              @click="store.florFormIcono = ico"
+              class="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+              :class="store.florFormIcono === ico ? 'ring-2 ring-btn-primary bg-btn-primary/10' : 'hover:bg-bg-input border border-border-soft'"
             >
-              <option :value="null">Sin icono</option>
-              <option v-for="ico in iconosDisponibles" :key="ico" :value="ico">{{ ico }}</option>
-            </select>
-            <Icon v-if="store.florFormIcono" :icon="store.florFormIcono" class="text-2xl text-text-primary" />
+              <Icon :icon="ico" class="text-lg" :style="iconoStyleVivo" />
+            </button>
           </div>
+        </div>
+      </div>
+
+      <div class="flex items-end gap-3 mt-2">
+        <div>
+          <label class="block text-sm text-text-primary font-medium mb-1">Color del icono</label>
+          <button
+            type="button"
+            @click="store.florFormIconoColor = null"
+            class="text-xs text-text-primary/60 hover:text-text-primary mb-1"
+            :class="!store.florFormIconoColor ? 'font-semibold text-btn-primary' : ''"
+          >Por defecto</button>
+          <div class="flex flex-wrap gap-1.5">
+            <button
+              v-for="c in coloresPastel"
+              :key="c"
+              type="button"
+              @click="store.florFormIconoColor = c"
+              class="w-7 h-7 rounded-full transition-all"
+              :style="{ backgroundColor: c }"
+              :class="store.florFormIconoColor === c ? 'ring-2 ring-btn-primary ring-offset-1' : 'hover:scale-110'"
+            />
+          </div>
+        </div>
+        <div v-if="store.florFormIcono" class="flex items-center gap-2 pb-1">
+          <Icon :icon="store.florFormIcono" class="text-3xl" :style="iconoStyleVivo" />
+          <span class="text-xs text-text-primary/50">Vista previa</span>
         </div>
       </div>
 
@@ -453,8 +488,8 @@ async function ejecutarEliminarColor() {
 const iconosDisponibles = [
   'mdi:flower-tulip',
   'mdi:flower-tulip-outline',
-  'mdi:rose',
-  'mdi:rose-outline',
+  'mdi:nature',
+  'mdi:nature-outline',
   'mdi:flower',
   'mdi:flower-outline',
   'mdi:flower-poppy',
@@ -464,13 +499,29 @@ const iconosDisponibles = [
   'mdi:sprout-outline',
   'mdi:leaf',
   'mdi:leaf-maple',
-  'mdi:shrub',
-  'mdi:shrub-outline',
+  'mdi:plant',
+  'mdi:plant-outline',
   'mdi:cactus',
-  'mdi:bamboo',
+  'mdi:grass',
   'mdi:flower-pollen',
   'mdi:flower-pollen-outline',
 ]
+
+const coloresPastel = [
+  '#FF0000', '#FF4500', '#FF8C00', '#FFD700',
+  '#ADFF2F', '#00FF00', '#00CED1', '#0000FF',
+  '#4B0082', '#8B008B', '#FF1493', '#FF69B4',
+  '#FFA07A', '#F0E68C', '#98FB98', '#87CEEB',
+  '#DDA0DD', '#FFB6C1', '#C0C0C0', '#808080',
+  '#8B4513', '#2F4F4F', '#191970', '#800000',
+]
+
+const iconoStyleVivo = computed(() => {
+  if (store.florFormIconoColor) {
+    return { color: store.florFormIconoColor }
+  }
+  return {}
+})
 
 const florSearch = ref('')
 type OrdenPrecio = 'asc' | 'desc' | null

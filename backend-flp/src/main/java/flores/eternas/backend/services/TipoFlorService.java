@@ -45,6 +45,7 @@ public class TipoFlorService {
         entity.setPrecioUnidad(dto.getPrecioUnidad());
         entity.setPorcentajePorMayor(dto.getPorcentajePorMayor());
         entity.setIcono(dto.getIcono());
+        entity.setIconoColor(dto.getIconoColor());
         TipoFlor guardado = repository.save(entity);
         return toDTO(guardado);
     }
@@ -57,6 +58,7 @@ public class TipoFlorService {
         entity.setPrecioUnidad(dto.getPrecioUnidad());
         entity.setPorcentajePorMayor(dto.getPorcentajePorMayor());
         entity.setIcono(dto.getIcono());
+        entity.setIconoColor(dto.getIconoColor());
         TipoFlor guardado = repository.save(entity);
         return toDTO(guardado);
     }
@@ -75,7 +77,8 @@ public class TipoFlorService {
                 entity.getDescripcionFlor(),
                 entity.getPrecioUnidad(),
                 entity.getPorcentajePorMayor(),
-                entity.getIcono()
+                entity.getIcono(),
+                entity.getIconoColor()
         );
     }
 }

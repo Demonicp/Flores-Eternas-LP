@@ -4,4 +4,5 @@ export type TipoFlor = {
   precioUnidad: number
   porcentajePorMayor: number
   icono?: string | null
+  iconoColor?: string | null
 }

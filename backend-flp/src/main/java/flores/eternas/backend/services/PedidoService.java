@@ -463,6 +463,8 @@ public class PedidoService {
         response.setEstado(pedido.getEstado().name());
         response.setTipoPedido(request.getTipoPedido());
         response.setFechaEntrega(request.getFechaEntrega());
+        response.setNombreCliente(persona.getNombreCliente());
+        response.setEmailCliente(request.getEmailCliente());
         response.setItems(itemsResponse);
 
         if (montoPendiente.compareTo(BigDecimal.ZERO) > 0) {

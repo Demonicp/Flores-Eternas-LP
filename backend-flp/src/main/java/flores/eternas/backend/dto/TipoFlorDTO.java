@@ -16,12 +16,14 @@ public class TipoFlorDTO {
     private BigDecimal precioUnidad;
     private BigDecimal porcentajePorMayor;
     private String icono;
+    private String iconoColor;
 
-    public TipoFlorDTO(Long id, String descripcionFlor, BigDecimal precioUnidad, BigDecimal porcentajePorMayor, String icono) {
+    public TipoFlorDTO(Long id, String descripcionFlor, BigDecimal precioUnidad, BigDecimal porcentajePorMayor, String icono, String iconoColor) {
         this.id = id;
         this.descripcionFlor = descripcionFlor;
         this.precioUnidad = precioUnidad;
         this.porcentajePorMayor = porcentajePorMayor;
         this.icono = icono;
+        this.iconoColor = iconoColor;
     }
 }
