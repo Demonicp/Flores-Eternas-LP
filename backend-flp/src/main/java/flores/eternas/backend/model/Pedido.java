@@ -55,4 +55,16 @@ public class Pedido extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     private Estado estado;
+
+    @Column(name = "pago_token", unique = true)
+    private String pagoToken;
+
+    @Column(name = "payu_reference_code")
+    private String payuReferenceCode;
+
+    @Column(name = "payu_transaction_id")
+    private String payuTransactionId;
+
+    @Column(name = "payu_estado")
+    private String payuEstado;
 }

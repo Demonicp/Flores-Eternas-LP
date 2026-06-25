@@ -68,6 +68,7 @@ export type PedidoResponse = {
   nombreCliente?: string
   emailCliente?: string
   direccionEntrega?: string
+  pagoToken?: string
   items: Array<{
     nombreRamo: string
     cantidad: number
