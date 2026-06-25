@@ -8,7 +8,7 @@
           class="flex items-center justify-between py-2 border-b border-[#FFEDE3] last:border-0"
         >
           <div class="flex items-center gap-2">
-            <span class="text-lg">🌸</span>
+            <Icon :icon="item.tipoFlor.icono || 'mdi:flower-tulip-outline'" class="text-lg text-[#7A4E2D]" />
             <span class="text-[#7A4E2D] text-sm font-radley">{{ item.tipoFlor.descripcionFlor }}</span>
           </div>
           <span class="text-[#7A4E2D] text-sm">×{{ item.cantidad }}</span>

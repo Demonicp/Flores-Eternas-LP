@@ -259,6 +259,7 @@ onMounted(() => {
                         <div class="flex justify-between"><span class="text-text-primary/60">Tipo</span><span>{{ pedido.tipoPedido || '—' }}</span></div>
                         <div class="flex justify-between"><span class="text-text-primary/60">Creado</span><span>{{ formatearFechaHora(pedido.fechaCreacion) }}</span></div>
                         <div class="flex justify-between"><span class="text-text-primary/60">Entrega</span><span>{{ pedido.fechaEntrega ? formatearFecha(pedido.fechaEntrega) : '—' }}</span></div>
+                        <div class="flex justify-between"><span class="text-text-primary/60">Mensaje</span><span>{{ pedido.mensaje || '—' }}</span></div>
                       </div>
                     </div>
                     <div class="space-y-2">
@@ -279,11 +280,11 @@ onMounted(() => {
                     </div>
                     <div class="bg-bg-card rounded-lg p-3 border border-border-soft text-center">
                       <p class="text-xs text-text-primary/60">Pagado</p>
-                      <p class="text-base font-bold" :class="pedido.montoPagado >= pedido.total ? 'text-green-600' : 'text-amber-600'">${{ formatoPrecio(pedido.montoPagado) }}</p>
+                      <p class="text-base font-bold text-text-primary">${{ formatoPrecio(pedido.montoPagado) }}</p>
                     </div>
                     <div class="bg-bg-card rounded-lg p-3 border border-border-soft text-center">
                       <p class="text-xs text-text-primary/60">Pendiente</p>
-                      <p class="text-base font-bold" :class="pedido.montoPendiente > 0 ? 'text-red-600' : 'text-green-600'">${{ formatoPrecio(pedido.montoPendiente) }}</p>
+                      <p class="text-base font-bold text-text-primary">${{ formatoPrecio(pedido.montoPendiente) }}</p>
                     </div>
                   </div>
 
@@ -303,14 +304,21 @@ onMounted(() => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="(item, idx) in pedido.items" :key="idx" class="border-b border-border-soft/50">
-                            <td class="p-2">{{ item.nombreRamo || '—' }}</td>
-                            <td class="p-2">{{ item.tipoFlor || '—' }}</td>
-                            <td class="p-2">{{ item.colorFlor || '—' }}</td>
-                            <td class="p-2 text-center">{{ item.cantidad || '—' }}</td>
-                            <td class="p-2 text-right">${{ formatoPrecio(item.precioUnitario) }}</td>
-                            <td class="p-2 text-right font-medium">${{ formatoPrecio((item.precioUnitario || 0) * (item.cantidad || 0)) }}</td>
-                          </tr>
+                           <tr v-for="(item, idx) in pedido.items" :key="idx" class="border-b border-border-soft/50">
+                             <td class="p-2">
+                               <div>{{ item.nombreRamo || '—' }}</div>
+                               <div v-if="item.flores && item.flores.length > 0" class="mt-1 space-y-0.5">
+                                 <div v-for="(flor, fidx) in item.flores" :key="fidx" class="text-xs text-text-primary/60 pl-2">
+                                   └ {{ flor.cantidad }}x {{ flor.tipoFlor }}<span v-if="flor.color"> ({{ flor.color }})</span>
+                                 </div>
+                               </div>
+                             </td>
+                             <td class="p-2">{{ item.tipoFlor || '—' }}</td>
+                             <td class="p-2">{{ item.colorFlor || '—' }}</td>
+                             <td class="p-2 text-center">{{ item.cantidad || '—' }}</td>
+                             <td class="p-2 text-right">${{ formatoPrecio(item.precioUnitario) }}</td>
+                             <td class="p-2 text-right font-medium">${{ formatoPrecio((item.precioUnitario || 0) * (item.cantidad || 0)) }}</td>
+                           </tr>
                         </tbody>
                       </table>
                       <p v-else class="text-xs text-text-primary/60 text-center py-4">No hay productos registrados.</p>

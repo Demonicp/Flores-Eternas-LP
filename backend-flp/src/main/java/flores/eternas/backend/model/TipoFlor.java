@@ -28,4 +28,7 @@ public class TipoFlor extends AbstractEntity {
 
     @Column(name = "porcentaje_por_mayor")
     private BigDecimal porcentajePorMayor;
+
+    @Column(name = "icono")
+    private String icono;
 }

@@ -1,5 +1,6 @@
 package flores.eternas.backend.services;
 
+import flores.eternas.backend.dto.ComposicionRamoDTO;
 import flores.eternas.backend.dto.CrearPedidoRequest;
 import flores.eternas.backend.dto.PedidoRequestDTO;
 import flores.eternas.backend.dto.PedidoResponseDTO;
@@ -11,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,9 @@ public class PedidoService {
     private final DetallePedidoRepository detallePedidoRepository;
     private final PersonaRepository personaRepository;
     private final EmailService emailService;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public PedidoService(
             TipoFlorRepository tipoFlorRepository,
@@ -504,11 +509,46 @@ public class PedidoService {
         String cuerpo;
 
         switch (estado) {
+            case EN_PROCESO:
+                asunto = "Pedido #" + pedido.getId() + " en proceso";
+                cuerpo = "<h2>Tu pedido #" + pedido.getId() + " está en proceso</h2>"
+                        + "<p>Hola, tu pedido ha sido recibido y se encuentra en proceso.</p>"
+                        + "<p>Te notificaremos cuando avance a preparación.</p>"
+                        + "<p>¡Gracias por preferirnos!</p>";
+                break;
+            case EN_PREPARACION:
+                asunto = "Pedido #" + pedido.getId() + " en preparación";
+                cuerpo = "<h2>Tu pedido #" + pedido.getId() + " está en preparación</h2>"
+                        + "<p>Hola, tu pedido está siendo preparado con los mejores materiales.</p>"
+                        + "<p>Pronto estará listo para entrega.</p>";
+                break;
             case PENDIENTE_DE_ENTREGA:
+                StringBuilder cuerpoBuilder = new StringBuilder();
+                cuerpoBuilder.append("<h2>Tu pedido #").append(pedido.getId()).append(" está listo para entrega</h2>")
+                        .append("<p>Hola, tu pedido ya está listo para ser entregado.</p>");
+
+                BigDecimal pendiente = pedido.getTotalPedido().subtract(pedido.getMontoPagado());
+                if (pendiente.compareTo(BigDecimal.ZERO) > 0) {
+                    cuerpoBuilder.append("<p>Tienes un saldo pendiente de <strong>$")
+                            .append(pendiente.setScale(0, RoundingMode.HALF_UP))
+                            .append(" COP</strong>.</p>");
+
+                    if (frontendUrl != null && !frontendUrl.isBlank() && pedido.getPagoToken() != null) {
+                        String linkPago = frontendUrl + "/pago/personalizado/" + pedido.getPagoToken();
+                        cuerpoBuilder.append("<p>Para pagar tu saldo pendiente, haz clic en el siguiente enlace:</p>")
+                                .append("<p><a href=\"").append(linkPago)
+                                .append("\" style=\"display:inline-block;padding:12px 24px;background-color:#8C5A3C;color:white;text-decoration:none;border-radius:8px;\">Pagar ahora</a></p>")
+                                .append("<p>O copia este enlace en tu navegador:<br>")
+                                .append(linkPago).append("</p>");
+                    } else if (pedido.getPagoToken() != null) {
+                        cuerpoBuilder.append("<p>Usa este código de pago en nuestra web: <strong>")
+                                .append(pedido.getPagoToken()).append("</strong></p>");
+                    }
+                }
+
+                cuerpoBuilder.append("<p>¡Gracias por preferirnos!</p>");
                 asunto = "Pedido #" + pedido.getId() + " listo para entrega";
-                cuerpo = "<h2>Tu pedido está listo</h2>"
-                        + "<p>Hola, tu pedido #" + pedido.getId() + " ya está listo para ser entregado.</p>"
-                        + "<p>Pronto recibirás tu arreglo floral. ¡Gracias por preferirnos!</p>";
+                cuerpo = cuerpoBuilder.toString();
                 break;
             case ENTREGADO:
                 asunto = "Pedido #" + pedido.getId() + " entregado";
@@ -516,12 +556,18 @@ public class PedidoService {
                         + "<p>Tu pedido #" + pedido.getId() + " ha sido entregado con éxito.</p>"
                         + "<p>Esperamos que disfrutes tu arreglo floral. ¡Vuelve pronto!</p>";
                 break;
+            case CANCELADO:
+                asunto = "Pedido #" + pedido.getId() + " cancelado";
+                cuerpo = "<h2>Pedido cancelado</h2>"
+                        + "<p>Tu pedido #" + pedido.getId() + " ha sido cancelado.</p>"
+                        + "<p>Si tienes dudas, contáctanos para más información.</p>";
+                break;
             default:
                 return;
         }
 
         emailService.enviarEmail(email, asunto, cuerpo);
-        log.info("Notificacion enviada a {} por estado {}", email, estado);
+        log.info("Notificación enviada a {} por estado {}", email, estado);
     }
 
     private PedidoResponseDTO toResponseDTO(Pedido pedido) {
@@ -555,6 +601,18 @@ public class PedidoService {
                 item.setNombreRamo(ramo.getNombreRamo());
                 item.setCantidad(detalle.getCantidad());
                 item.setPrecioUnitario(ramo.getPrecioRamo());
+                if (ramo.getDetallesRamo() != null) {
+                    List<ComposicionRamoDTO> flores = ramo.getDetallesRamo().stream()
+                            .filter(dr -> dr.getTipoFlor() != null)
+                            .map(dr -> new ComposicionRamoDTO(
+                                    dr.getTipoFlor().getDescripcionFlor(),
+                                    dr.getColorFlor() != null ? dr.getColorFlor().getDescripcionColor() : null,
+                                    dr.getCantidad() != null ? dr.getCantidad() : 0,
+                                    null
+                            ))
+                            .collect(java.util.stream.Collectors.toList());
+                    item.setFlores(flores);
+                }
             } else {
                 item.setNombreRamo("Ramo Personalizado");
                 item.setCantidad(detalle.getCantidadFlores());

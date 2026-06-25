@@ -107,7 +107,7 @@
 
     <!-- Modo Flores -->
     <div v-if="store.opcionSeleccionada === 'flor'">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div>
           <label class="block text-sm text-text-primary font-medium mb-1">Nombre de la flor</label>
           <input
@@ -130,7 +130,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm text-text-primary font-medium mb-1">Porcentaje por mayor</label>
+          <label class="block text-sm text-text-primary font-medium mb-1">% por mayor</label>
           <input
             v-model.number="store.florFormPorcentaje"
             type="number"
@@ -140,6 +140,19 @@
             :class="campoInvalidoFlor('porcentaje')"
             placeholder="0"
           />
+        </div>
+        <div>
+          <label class="block text-sm text-text-primary font-medium mb-1">Icono</label>
+          <div class="flex gap-2 items-center">
+            <select
+              v-model="store.florFormIcono"
+              class="flex-1 rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+            >
+              <option :value="null">Sin icono</option>
+              <option v-for="ico in iconosDisponibles" :key="ico" :value="ico">{{ ico }}</option>
+            </select>
+            <Icon v-if="store.florFormIcono" :icon="store.florFormIcono" class="text-2xl text-text-primary" />
+          </div>
         </div>
       </div>
 
@@ -202,6 +215,7 @@
           <table v-if="filteredFlores.length > 0" class="w-full text-sm text-text-primary">
             <thead>
               <tr class="text-left border-b border-border-soft bg-bg-card/80">
+                <th class="p-3 font-medium">Icono</th>
                 <th class="p-3 font-medium">Nombre</th>
                 <th class="p-3 font-medium cursor-pointer select-none" @click="toggleOrdenPrecio">
                   Precio ud.
@@ -214,6 +228,9 @@
             </thead>
             <tbody>
               <tr v-for="flor in filteredFlores" :key="flor.id" class="border-b border-border-soft/50 hover:bg-bg-input/50 transition-colors" :class="store.florEditandoId === flor.id ? 'bg-btn-primary/50' : ''">
+                <td class="p-3">
+                  <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-xl text-text-primary" />
+                </td>
                 <td class="p-3">{{ flor.descripcionFlor }}</td>
                 <td class="p-3">${{ formatoPrecio(flor.precioUnidad) }}</td>
                 <td class="p-3">{{ Number(flor.porcentajePorMayor).toFixed(1) }}%</td>
@@ -433,6 +450,28 @@ async function ejecutarEliminarColor() {
 }
 
 /* ========= Flor ========= */
+const iconosDisponibles = [
+  'mdi:flower-tulip',
+  'mdi:flower-tulip-outline',
+  'mdi:rose',
+  'mdi:rose-outline',
+  'mdi:flower',
+  'mdi:flower-outline',
+  'mdi:flower-poppy',
+  'mdi:flower-lotus',
+  'mdi:flower-lotus-outline',
+  'mdi:sprout',
+  'mdi:sprout-outline',
+  'mdi:leaf',
+  'mdi:leaf-maple',
+  'mdi:shrub',
+  'mdi:shrub-outline',
+  'mdi:cactus',
+  'mdi:bamboo',
+  'mdi:flower-pollen',
+  'mdi:flower-pollen-outline',
+]
+
 const florSearch = ref('')
 type OrdenPrecio = 'asc' | 'desc' | null
 const ordenPrecio = ref<OrdenPrecio>(null)

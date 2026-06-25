@@ -58,6 +58,7 @@ public class PedidoResponseDTO {
         private String tipoFlor;
         private String colorFlor;
         private String adicionesJson;
+        private List<ComposicionRamoDTO> flores;
 
         public String getNombreRamo() { return nombreRamo; }
         public void setNombreRamo(String nombreRamo) { this.nombreRamo = nombreRamo; }
@@ -71,5 +72,7 @@ public class PedidoResponseDTO {
         public void setColorFlor(String colorFlor) { this.colorFlor = colorFlor; }
         public String getAdicionesJson() { return adicionesJson; }
         public void setAdicionesJson(String adicionesJson) { this.adicionesJson = adicionesJson; }
+        public List<ComposicionRamoDTO> getFlores() { return flores; }
+        public void setFlores(List<ComposicionRamoDTO> flores) { this.flores = flores; }
     }
 }
