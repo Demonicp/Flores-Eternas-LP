@@ -17,6 +17,7 @@ public class PedidoResponseDTO {
     private String nombreCliente;
     private String emailCliente;
     private String direccionEntrega;
+    private String pagoToken;
     private List<ItemPedidoDTO> items;
 
     public Long getId() { return id; }
@@ -41,6 +42,8 @@ public class PedidoResponseDTO {
     public void setEmailCliente(String emailCliente) { this.emailCliente = emailCliente; }
     public String getDireccionEntrega() { return direccionEntrega; }
     public void setDireccionEntrega(String direccionEntrega) { this.direccionEntrega = direccionEntrega; }
+    public String getPagoToken() { return pagoToken; }
+    public void setPagoToken(String pagoToken) { this.pagoToken = pagoToken; }
     public List<ItemPedidoDTO> getItems() { return items; }
     public void setItems(List<ItemPedidoDTO> items) { this.items = items; }
 

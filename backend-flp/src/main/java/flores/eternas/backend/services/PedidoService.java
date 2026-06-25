@@ -7,6 +7,8 @@ import flores.eternas.backend.model.*;
 import flores.eternas.backend.model.enums.Estado;
 import flores.eternas.backend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +17,12 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PedidoService {
+
+    private static final Logger log = LoggerFactory.getLogger(PedidoService.class);
 
     private final TipoFlorRepository tipoFlorRepository;
     private final ColorFlorRepository colorFlorRepository;
@@ -28,6 +33,7 @@ public class PedidoService {
     private final DetalleAnadidoRepository detalleAnadidoRepository;
     private final DetallePedidoRepository detallePedidoRepository;
     private final PersonaRepository personaRepository;
+    private final EmailService emailService;
 
     public PedidoService(
             TipoFlorRepository tipoFlorRepository,
@@ -38,7 +44,8 @@ public class PedidoService {
             CategoriaRamoRepository categoriaRamoRepository,
             DetalleAnadidoRepository detalleAnadidoRepository,
             DetallePedidoRepository detallePedidoRepository,
-            PersonaRepository personaRepository) {
+            PersonaRepository personaRepository,
+            EmailService emailService) {
         this.tipoFlorRepository = tipoFlorRepository;
         this.colorFlorRepository = colorFlorRepository;
         this.inventarioRepository = inventarioRepository;
@@ -48,6 +55,7 @@ public class PedidoService {
         this.detalleAnadidoRepository = detalleAnadidoRepository;
         this.detallePedidoRepository = detallePedidoRepository;
         this.personaRepository = personaRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -145,6 +153,122 @@ public class PedidoService {
         }
 
         return pedido;
+    }
+
+    @Transactional
+    public Pedido crearPedidoPersonalizadoPendiente(CrearPedidoRequest request) {
+        if (request.getFlores() == null || request.getFlores().isEmpty()) {
+            throw new IllegalArgumentException("Debe incluir al menos una flor en el pedido.");
+        }
+
+        BigDecimal precioTotalFlores = BigDecimal.ZERO;
+        BigDecimal precioAdiciones = BigDecimal.ZERO;
+
+        StringBuilder adicionesJson = new StringBuilder();
+        if (request.getAdiciones() != null && !request.getAdiciones().isEmpty()) {
+            adicionesJson.append("[");
+            for (int i = 0; i < request.getAdiciones().size(); i++) {
+                var adicionReq = request.getAdiciones().get(i);
+                Inventario inventario = inventarioRepository.findById(adicionReq.getInventarioId())
+                        .orElseThrow(() -> new RuntimeException("Adicion no encontrada"));
+
+                BigDecimal subtotal = inventario.getPrecioCosto()
+                        .multiply(BigDecimal.valueOf(adicionReq.getCantidad()));
+                precioAdiciones = precioAdiciones.add(subtotal);
+
+                if (i > 0) adicionesJson.append(",");
+                adicionesJson.append("{")
+                        .append("\"nombre\":\"").append(escapeJson(inventario.getNombreInventario())).append("\",")
+                        .append("\"cantidad\":").append(adicionReq.getCantidad()).append(",")
+                        .append("\"precio\":").append(inventario.getPrecioCosto())
+                        .append("}");
+            }
+            adicionesJson.append("]");
+        }
+
+        for (CrearPedidoRequest.ItemFlorRequest florReq : request.getFlores()) {
+            TipoFlor tipoFlor = tipoFlorRepository.findById(florReq.getTipoFlorId())
+                    .orElseThrow(() -> new RuntimeException("Tipo de flor no encontrado: " + florReq.getTipoFlorId()));
+
+            BigDecimal subtotal = tipoFlor.getPrecioUnidad()
+                    .multiply(BigDecimal.valueOf(florReq.getCantidad()));
+            precioTotalFlores = precioTotalFlores.add(subtotal);
+        }
+
+        BigDecimal total = precioTotalFlores.add(precioAdiciones);
+
+        Persona persona = null;
+        if (request.getCedula() != null && !request.getCedula().isBlank()) {
+            persona = personaRepository.findByCedula(request.getCedula()).orElse(null);
+            if (persona == null) {
+                persona = new Persona();
+                persona.setCedula(request.getCedula());
+                persona.setNombreCliente(request.getNombreCliente());
+                persona.setTelefono(request.getTelefono());
+                persona = personaRepository.save(persona);
+            } else {
+                if (request.getNombreCliente() != null) {
+                    persona.setNombreCliente(request.getNombreCliente());
+                }
+                if (request.getTelefono() != null) {
+                    persona.setTelefono(request.getTelefono());
+                }
+                persona = personaRepository.save(persona);
+            }
+        }
+
+        LocalDate hoy = LocalDate.now();
+        LocalDate fechaEntrega;
+        if (request.getFechaEntrega() != null) {
+            fechaEntrega = LocalDate.parse(request.getFechaEntrega());
+            if (fechaEntrega.isBefore(hoy)) {
+                throw new IllegalArgumentException("La fecha de entrega no puede ser anterior a hoy.");
+            }
+        } else {
+            fechaEntrega = hoy.plusDays(5);
+        }
+
+        Pedido pedido = new Pedido();
+        pedido.setTotalPedido(total);
+        pedido.setDireccionEntrega(request.getDireccionEntrega());
+        pedido.setFechaEntrega(fechaEntrega);
+        pedido.setEstado(Estado.EN_PROCESO);
+        pedido.setMontoPagado(BigDecimal.ZERO);
+        pedido.setEmailCliente(request.getEmailCliente());
+        pedido.setPagoToken(UUID.randomUUID().toString());
+        pedido.setTipoPedido("PERSONALIZADO");
+        if (persona != null) {
+            pedido.setCliente(persona);
+        }
+        pedido = pedidoRepository.save(pedido);
+
+        for (CrearPedidoRequest.ItemFlorRequest florReq : request.getFlores()) {
+            TipoFlor tipoFlor = tipoFlorRepository.findById(florReq.getTipoFlorId())
+                    .orElseThrow(() -> new RuntimeException("Tipo de flor no encontrado: " + florReq.getTipoFlorId()));
+
+            ColorFlor colorFlor = null;
+            if (florReq.getColorFlorId() != null) {
+                colorFlor = colorFlorRepository.findById(florReq.getColorFlorId())
+                        .orElseThrow(() -> new RuntimeException("Color de flor no encontrado: " + florReq.getColorFlorId()));
+            }
+
+            DetallePedido detallePedido = new DetallePedido();
+            detallePedido.setPedido(pedido);
+            detallePedido.setTipoFlor(tipoFlor.getDescripcionFlor());
+            detallePedido.setColorFlor(colorFlor != null ? colorFlor.getDescripcionColor() : null);
+            detallePedido.setCantidadFlores(florReq.getCantidad());
+            detallePedido.setAdicionesJson(adicionesJson.length() > 0 ? adicionesJson.toString() : null);
+            detallePedidoRepository.save(detallePedido);
+        }
+
+        return pedido;
+    }
+
+    @Transactional(readOnly = true)
+    public PedidoResponseDTO obtenerPedidoPorToken(String token) {
+        Pedido pedido = pedidoRepository.findByPagoToken(token)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado para el token: " + token));
+        return toResponseDTO(pedido);
     }
 
     @Transactional
@@ -343,7 +467,38 @@ public class PedidoService {
 
         pedido.setEstado(estado);
         pedido = pedidoRepository.save(pedido);
+
+        enviarNotificacionEstado(pedido, estado);
+
         return toResponseDTO(pedido);
+    }
+
+    private void enviarNotificacionEstado(Pedido pedido, Estado estado) {
+        String email = pedido.getEmailCliente();
+        if (email == null || email.isBlank()) return;
+
+        String asunto;
+        String cuerpo;
+
+        switch (estado) {
+            case PENDIENTE_DE_ENTREGA:
+                asunto = "Pedido #" + pedido.getId() + " listo para entrega";
+                cuerpo = "<h2>Tu pedido está listo</h2>"
+                        + "<p>Hola, tu pedido #" + pedido.getId() + " ya está listo para ser entregado.</p>"
+                        + "<p>Pronto recibirás tu arreglo floral. ¡Gracias por preferirnos!</p>";
+                break;
+            case ENTREGADO:
+                asunto = "Pedido #" + pedido.getId() + " entregado";
+                cuerpo = "<h2>Pedido entregado</h2>"
+                        + "<p>Tu pedido #" + pedido.getId() + " ha sido entregado con éxito.</p>"
+                        + "<p>Esperamos que disfrutes tu arreglo floral. ¡Vuelve pronto!</p>";
+                break;
+            default:
+                return;
+        }
+
+        emailService.enviarEmail(email, asunto, cuerpo);
+        log.info("Notificacion enviada a {} por estado {}", email, estado);
     }
 
     private PedidoResponseDTO toResponseDTO(Pedido pedido) {
@@ -360,6 +515,7 @@ public class PedidoService {
         dto.setNombreCliente(pedido.getCliente() != null ? pedido.getCliente().getNombreCliente() : null);
         dto.setEmailCliente(pedido.getEmailCliente());
         dto.setDireccionEntrega(pedido.getDireccionEntrega());
+        dto.setPagoToken(pedido.getPagoToken());
         dto.setMensaje(null);
         dto.setItems(new ArrayList<>());
         return dto;
