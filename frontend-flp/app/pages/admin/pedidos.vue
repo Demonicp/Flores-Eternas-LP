@@ -186,9 +186,8 @@ onMounted(() => {
             </tr>
           </thead>
           <tbody>
+            <template v-for="pedido in pedidosFiltrados" :key="pedido.id">
             <tr
-              v-for="pedido in pedidosFiltrados"
-              :key="pedido.id"
               class="border-b border-border-soft/50 hover:bg-bg-input/50 transition-colors"
             >
               <td class="p-3 font-mono text-xs">#{{ pedido.id }}</td>
@@ -353,6 +352,7 @@ onMounted(() => {
                 </div>
               </td>
             </tr>
+            </template>
           </tbody>
         </table>
 
