@@ -3,7 +3,7 @@ name: Sync Upstream Testing to Fork
 on:
   repository_dispatch:
     types: [sync-testing]   # se activa cuando el repo original envía el evento
-  workflow_dispatch:        # permite ejecución manual
+  workflow_dispatch:        # ejecución manual opcional
 
 permissions:
   contents: write
@@ -45,9 +45,9 @@ jobs:
             Este PR sincroniza la rama `master` con los últimos cambios validados en `testing`.
             Generado automáticamente por GitHub Actions.
 
-      - name: Auto-merge PR if possible
+      - name: Enable auto-merge
         if: ${{ steps.create-pr.outputs.pull-request-number }}
-        uses: peter-evans/merge-pull-request@v3
+        uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.PAT_TOKEN }}
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
