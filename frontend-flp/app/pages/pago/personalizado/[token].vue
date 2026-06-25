@@ -76,9 +76,8 @@ async function pagarSaldo() {
   if (!pedido.value) return
   pagando.value = true
   try {
-    const res: any = await apiClient.post('/api/pagos/payu/iniciar', {
-      idPedido: pedido.value.id,
-      tipoPago: 'SEGUNDO_PAGO',
+    const res: any = await apiClient.post(`/api/pagos/personalizado/${token}/pagar`, {
+      responseUrl: window.location.origin + '/pago/resultado',
     })
     if (res.urlPago && res.parametrosForm) {
       const form = document.createElement('form')

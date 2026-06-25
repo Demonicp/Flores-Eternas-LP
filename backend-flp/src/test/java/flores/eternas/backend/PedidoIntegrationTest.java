@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import flores.eternas.backend.dto.AdicionRequest;
 import flores.eternas.backend.dto.CrearPedidoRequest;
+import flores.eternas.backend.exception.ValidacionException;
 import flores.eternas.backend.model.ColorFlor;
 import flores.eternas.backend.model.Inventario;
 import flores.eternas.backend.model.Pedido;
@@ -74,7 +74,7 @@ class PedidoIntegrationTest {
             new CrearPedidoRequest.ItemFlorRequest(rosa.getId(), rojo.getId(), 5)
         ));
         request.setDireccionEntrega("Calle 123, Ciudad");
-        request.setAdiciones(List.of(new AdicionRequest(corona.getId(), 2)));
+        request.setAdiciones(List.of(new CrearPedidoRequest.AdicionRequest(corona.getId(), 2)));
 
         Pedido pedido = pedidoService.crearPedido(request);
 
@@ -114,7 +114,7 @@ class PedidoIntegrationTest {
         request.setFlores(List.of());
         request.setDireccionEntrega("Calle sin flores");
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        ValidacionException ex = assertThrows(ValidacionException.class,
                 () -> pedidoService.crearPedido(request));
         assertEquals("Debe incluir al menos una flor en el pedido.", ex.getMessage());
     }

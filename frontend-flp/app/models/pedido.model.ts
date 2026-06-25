@@ -64,6 +64,7 @@ export type PedidoResponse = {
   estado: string
   tipoPedido: string
   fechaEntrega: string
+  fechaCreacion: string
   mensaje: string
   nombreCliente?: string
   emailCliente?: string
@@ -73,5 +74,8 @@ export type PedidoResponse = {
     nombreRamo: string
     cantidad: number
     precioUnitario: number
+    tipoFlor?: string
+    colorFlor?: string
+    adicionesJson?: string
   }>
 }

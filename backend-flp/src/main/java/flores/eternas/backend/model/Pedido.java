@@ -17,6 +17,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "pedido")
@@ -35,6 +36,9 @@ public class Pedido extends AbstractEntity {
 
     @Column(name = "fecha_entrega")
     private LocalDate fechaEntrega;
+
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
 
     @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "id_cliente")

@@ -45,7 +45,7 @@
       <div class="space-y-4 mb-6">
         <div>
           <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Nombre completo</label>
-          <input v-model="form.nombre" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Tu nombre" />
+          <input v-model="form.nombre" @input="filtrarNombre" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Tu nombre" />
         </div>
         <div>
           <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Email</label>
@@ -89,9 +89,11 @@ import { computed, reactive, ref } from 'vue'
 const hoyStr = computed(() => new Date().toISOString().split('T')[0])
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
 import { apiClient } from '~/services/api-client'
+import { useToast } from '~/composables/useToast'
 
 const store = useRamoPersonalizadoStore()
 const router = useRouter()
+const toast = useToast()
 
 if (store.floresSeleccionadas.length === 0) {
   router.replace('/flor/SeleccionFlor')
@@ -122,8 +124,39 @@ const totalGeneral = computed(() =>
   subtotalFlores.value + totalAdiciones.value
 )
 
+const direccionRegex = /^(calle|carrera|av\.?|avenida|transversal|diagonal|circular)\s+\d{1,3}\s*#\s*\d{1,3}-\d{1,3}$/i
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const telefonoRegex = /^(\+57\s?)?(3\d{9}|60\d{8})$/
+const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
+
+const validarFormulario = () => {
+  if (!nombreRegex.test(form.nombre)) {
+    toast.error('Nombre solo admite letras y espacios')
+    return false
+  }
+  if (!emailRegex.test(form.email)) {
+    toast.error('Email inválido')
+    return false
+  }
+  if (!direccionRegex.test(form.direccion)) {
+    toast.error('Dirección debe ser: calle 28 #25-38')
+    return false
+  }
+  if (!form.fechaEntrega) {
+    toast.error('Fecha de entrega obligatoria')
+    return false
+  }
+  return true
+}
+
+const filtrarNombre = (event) => {
+  const input = event.target
+  input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')
+  form.nombre = input.value
+}
+
 async function pagarAhora() {
-  if (!formValido.value) return
+  if (!validarFormulario()) return
   pagando.value = true
   errorMsg.value = ''
 
