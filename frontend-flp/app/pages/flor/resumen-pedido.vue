@@ -57,7 +57,8 @@
         </div>
         <div>
           <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Fecha de entrega</label>
-          <input v-model="form.fechaEntrega" type="date" :min="hoyStr" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" />
+          <input v-model="form.fechaEntrega" type="date" :min="minFechaStr" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" />
+          <p class="text-xs text-gray-400 mt-1">* La fecha de entrega debe ser al menos 5 días hábiles después de hoy</p>
         </div>
       </div>
 
@@ -100,7 +101,17 @@
 definePageMeta({ layout: 'flor' })
 import { computed, reactive, ref } from 'vue'
 
-const hoyStr = computed(() => new Date().toISOString().split('T')[0])
+function sumarDiasHabiles(desde, dias) {
+  const fecha = new Date(desde)
+  let agregados = 0
+  while (agregados < dias) {
+    fecha.setDate(fecha.getDate() + 1)
+    const dia = fecha.getDay()
+    if (dia !== 0 && dia !== 6) agregados++
+  }
+  return fecha.toISOString().split('T')[0]
+}
+const minFechaStr = computed(() => sumarDiasHabiles(new Date(), 5))
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
 import { apiClient } from '~/services/api-client'
 import { useToast } from '~/composables/useToast'
@@ -159,6 +170,10 @@ const validarFormulario = () => {
   }
   if (!form.fechaEntrega) {
     toast.error('Fecha de entrega obligatoria')
+    return false
+  }
+  if (form.fechaEntrega < minFechaStr.value) {
+    toast.error('La fecha de entrega debe ser al menos 5 días hábiles después de hoy')
     return false
   }
   return true

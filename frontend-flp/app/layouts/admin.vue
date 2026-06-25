@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-cover bg-center bg-fixed" style="background-image: url('/assets/images/fondoAdmin.jpeg'); background-color: #FFFCF6;">
     <header class="relative">
-      <div class="bg-black/20">
+      <div class="bg-transparent">
         <nav class="max-w-6xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center px-4 py-6">
           <div class="grid grid-cols-6 gap-x-6 gap-y-1 min-w-0">
             <NuxtLink

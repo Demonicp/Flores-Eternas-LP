@@ -169,7 +169,7 @@ class PedidoIntegrationTest {
         request.setNombreCliente("Juan Pérez");
         request.setEmailCliente("juan@test.com");
         request.setDireccionEntrega("calle 12 #34-56");
-        request.setFechaEntrega(LocalDate.now().plusDays(3).toString());
+        request.setFechaEntrega(LocalDate.now().plusDays(8).toString());
         request.setAdiciones(List.of(new CrearPedidoRequest.AdicionRequest(corona.getId(), 2)));
 
         Pedido pedido = pedidoService.crearPedidoPersonalizadoPendiente(request);
@@ -249,7 +249,7 @@ class PedidoIntegrationTest {
         request.setNombreCliente("Ana Martínez");
         request.setEmailCliente("ana@test.com");
         request.setDireccionEntrega("calle 8 #12-34");
-        request.setFechaEntrega(LocalDate.now().plusDays(4).toString());
+        request.setFechaEntrega(LocalDate.now().plusDays(8).toString());
 
         Pedido pedido = pedidoService.crearPedidoPersonalizadoPendiente(request);
         PedidoResponseDTO detalle = pedidoService.obtenerPedido(pedido.getId());
@@ -276,6 +276,6 @@ class PedidoIntegrationTest {
 
         ValidacionException ex = assertThrows(ValidacionException.class,
                 () -> pedidoService.crearPedidoPersonalizadoPendiente(request));
-        assertEquals("La fecha de entrega no puede ser anterior a hoy.", ex.getMessage());
+        assertEquals("La fecha de entrega debe ser al menos 5 días hábiles después de hoy.", ex.getMessage());
     }
 }
