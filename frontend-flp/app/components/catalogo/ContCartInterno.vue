@@ -111,10 +111,21 @@
           </p>
         </div>
 
-        <p v-if="store.errorMsg && !Object.keys(fieldErrors).length" class="text-sm text-red-500 flex items-center gap-1.5 bg-red-50 rounded-lg px-3 py-2">
-          <Icon icon="mdi:alert-circle-outline" class="text-base" />
-          {{ store.errorMsg }}
-        </p>
+        <!-- Modal error -->
+        <div v-if="showError" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="cerrarError">
+          <div class="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-xl">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <Icon icon="mdi:alert-circle" class="text-xl text-red-500" />
+              </div>
+              <p class="text-lg font-semibold text-text-primary">Error</p>
+            </div>
+            <p class="text-text-primary/80 mb-4">{{ store.errorMsg }}</p>
+            <button @click="cerrarError" class="w-full bg-btn-primary text-btn-primary-text px-4 py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition">
+              Aceptar
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -140,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useCartStore } from '../../stores/cart.store'
 
 const store = useCartStore()
@@ -153,6 +164,18 @@ const emit = defineEmits<{
 const hoyStr = computed(() => new Date().toISOString().split('T')[0])
 const fieldFocus = ref<string | null>(null)
 const fieldErrors = ref<Record<string, string>>({})
+const showError = ref(false)
+
+function cerrarError() {
+  showError.value = false
+  store.errorMsg = ''
+}
+
+watch(() => store.errorMsg, (val) => {
+  if (val && !Object.keys(fieldErrors.value).length) {
+    showError.value = true
+  }
+})
 
 type CampoKey = 'nombre' | 'email' | 'cedula' | 'telefono' | 'direccion' | 'fechaEntrega'
 

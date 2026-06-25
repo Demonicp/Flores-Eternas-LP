@@ -104,14 +104,22 @@ onMounted(cargarPedido)
       </div>
 
       <div v-else-if="error" class="text-center py-12">
-        <p class="text-red-500">{{ error }}</p>
-        <button @click="router.push('/admin/pedidos')"
-          class="mt-4 text-btn-primary hover:underline text-sm">
-          Volver a pedidos
-        </button>
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+            <Icon icon="mdi:alert-circle" class="text-2xl text-red-500" />
+          </div>
+          <p class="text-red-500 font-medium">{{ error }}</p>
+          <button @click="cargarPedido" class="text-btn-primary hover:underline text-sm">
+            Reintentar
+          </button>
+          <button @click="router.push('/admin/pedidos')"
+            class="text-text-primary/60 hover:text-text-primary text-sm">
+            Volver a pedidos
+          </button>
+        </div>
       </div>
 
-      <template v-else-if="pedido">
+      <template v-if="pedido">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div class="space-y-3">
             <h2 class="text-lg font-medium text-text-primary border-b border-border-soft pb-2">
@@ -197,16 +205,16 @@ onMounted(cargarPedido)
           <h2 class="text-lg font-medium text-text-primary border-b border-border-soft pb-2 mb-4">
             Productos
           </h2>
-          <div class="bg-bg-card rounded-xl overflow-hidden">
-            <table class="w-full text-sm text-text-primary">
+          <div class="bg-bg-card rounded-xl overflow-x-auto overflow-y-auto max-h-[500px]">
+            <table class="w-full text-sm text-text-primary min-w-[600px]">
               <thead>
                 <tr class="text-left border-b border-border-soft bg-bg-card/80">
-                  <th class="p-3 font-medium">Producto</th>
-                  <th class="p-3 font-medium">Tipo flor</th>
-                  <th class="p-3 font-medium">Color</th>
-                  <th class="p-3 font-medium text-center">Cantidad</th>
-                  <th class="p-3 font-medium text-right">Precio unitario</th>
-                  <th class="p-3 font-medium text-right">Subtotal</th>
+                  <th class="p-3 font-medium sticky top-0 bg-bg-card">Producto</th>
+                  <th class="p-3 font-medium sticky top-0 bg-bg-card">Tipo flor</th>
+                  <th class="p-3 font-medium sticky top-0 bg-bg-card">Color</th>
+                  <th class="p-3 font-medium text-center sticky top-0 bg-bg-card">Cantidad</th>
+                  <th class="p-3 font-medium text-right sticky top-0 bg-bg-card">Precio unitario</th>
+                  <th class="p-3 font-medium text-right sticky top-0 bg-bg-card">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
@@ -223,10 +231,12 @@ onMounted(cargarPedido)
                 </tr>
               </tbody>
             </table>
-            <p v-if="!pedido.items || pedido.items.length === 0"
-              class="text-sm text-text-primary/60 text-center py-6">
-              No hay items registrados.
-            </p>
+            <div v-if="!pedido.items || pedido.items.length === 0"
+              class="text-sm text-text-primary/60 text-center py-8 flex flex-col items-center gap-2">
+              <Icon icon="mdi:package-variant-closed" class="text-3xl text-text-primary/30" />
+              <p>Este pedido no tiene productos registrados.</p>
+              <p class="text-xs text-text-primary/40">Puede que haya sido creado antes de una actualización del sistema.</p>
+            </div>
           </div>
         </div>
 
@@ -272,6 +282,22 @@ onMounted(cargarPedido)
           </button>
         </div>
       </template>
+
+      <div v-else class="text-center py-12">
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+            <Icon icon="mdi:help-circle" class="text-2xl text-gray-400" />
+          </div>
+          <p class="text-text-primary/60">No se encontró el pedido #{{ id }}</p>
+          <button @click="cargarPedido" class="text-btn-primary hover:underline text-sm">
+            Reintentar
+          </button>
+          <button @click="router.push('/admin/pedidos')"
+            class="text-text-primary/60 hover:text-text-primary text-sm">
+            Volver a pedidos
+          </button>
+        </div>
+      </div>
     </section>
   </div>
 </template>
