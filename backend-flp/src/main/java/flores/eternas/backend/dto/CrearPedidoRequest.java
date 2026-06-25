@@ -24,7 +24,7 @@ public class CrearPedidoRequest {
     private List<AdicionRequest> adiciones;
 
     @NotBlank(message = "Dirección obligatoria")
-    @Pattern(regexp = "^(calle|carrera|av\\.?|avenida|transversal|diagonal|circular)\\s+\\d{1,3}\\s*#\\s*\\d{1,3}-\\d{1,3}$",
+    @Pattern(regexp = "^(calle|carrera|av\\.?|avenida|transversal|diagonal|circular|cra|kr|cl|cll|tv|tr|dg|cq)\\s+\\d{1,3}[a-zA-Z]?\\s*#?\\s*\\d{1,3}[a-zA-Z]?[-–]\\d{1,3}[a-zA-Z]?$",
              flags = Pattern.Flag.CASE_INSENSITIVE,
              message = "Dirección debe ser: calle 28 #25-38")
     private String direccionEntrega;

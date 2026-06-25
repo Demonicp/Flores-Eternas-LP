@@ -61,7 +61,21 @@
         </div>
       </div>
 
-      <p v-if="errorMsg" class="text-red-500 text-sm mb-4 text-center">{{ errorMsg }}</p>
+      <!-- Modal error -->
+      <div v-if="showError" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showError = false">
+        <div class="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-xl">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+              <Icon icon="mdi:alert-circle" class="text-xl text-red-500" />
+            </div>
+            <p class="text-lg font-semibold text-[#7A4E2D]">Error</p>
+          </div>
+          <p class="text-[#7A4E2D]/80 mb-4">{{ errorMsg }}</p>
+          <button @click="showError = false" class="w-full bg-[#7A4E2D] text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#5E3A1F] transition">
+            Aceptar
+          </button>
+        </div>
+      </div>
 
       <div class="flex gap-4 justify-center mt-8">
         <button
@@ -107,6 +121,7 @@ const form = reactive({
 })
 const pagando = ref(false)
 const errorMsg = ref('')
+const showError = ref(false)
 
 const formValido = computed(() =>
   form.nombre.trim() && form.email.trim() && form.direccion.trim() && form.fechaEntrega
@@ -124,7 +139,7 @@ const totalGeneral = computed(() =>
   subtotalFlores.value + totalAdiciones.value
 )
 
-const direccionRegex = /^(calle|carrera|av\.?|avenida|transversal|diagonal|circular)\s+\d{1,3}\s*#\s*\d{1,3}-\d{1,3}$/i
+const direccionRegex = /^(calle|carrera|av\.?|avenida|transversal|diagonal|circular|cra|kr|cl|cll|tv|tr|dg|cq)\s+\d{1,3}[a-zA-Z]?\s*#?\s*\d{1,3}[a-zA-Z]?[-–]\d{1,3}[a-zA-Z]?$/i
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const telefonoRegex = /^(\+57\s?)?(3\d{9}|60\d{8})$/
 const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
@@ -201,7 +216,8 @@ async function pagarAhora() {
       router.push('/pago/resultado?statePol=4&referenceSale=' + res.pedidoId)
     }
   } catch (e) {
-    errorMsg.value = 'Error al procesar el pago. Intenta nuevamente.'
+    errorMsg.value = e instanceof Error ? e.message : 'Error al procesar el pago. Intenta nuevamente.'
+    showError.value = true
   } finally {
     pagando.value = false
   }

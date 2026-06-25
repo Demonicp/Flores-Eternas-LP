@@ -165,8 +165,8 @@ onMounted(() => {
       </div>
 
       <!-- Orders table -->
-      <div v-else class="bg-bg-card rounded-xl overflow-hidden">
-        <table v-if="pedidosFiltrados.length > 0" class="w-full text-sm text-text-primary">
+      <div v-else class="bg-bg-card rounded-xl overflow-x-auto overflow-y-auto max-h-[600px]">
+        <table v-if="pedidosFiltrados.length > 0" class="w-full text-sm text-text-primary min-w-[800px]">
           <thead>
             <tr class="text-left border-b border-border-soft bg-bg-card/80">
               <th class="p-3 font-medium">ID</th>
