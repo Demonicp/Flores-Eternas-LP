@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -78,16 +79,20 @@ public class PedidoService {
             throw new ValidacionException("Debe incluir al menos una flor en el pedido.");
         }
 
+        LocalDate hoy = LocalDate.now();
+        LocalDate fechaMinima = sumarDiasHabiles(hoy, 5);
         if (request.getFechaEntrega() != null) {
             try {
                 LocalDate fechaEntrega = LocalDate.parse(request.getFechaEntrega());
-                if (fechaEntrega.isBefore(LocalDate.now())) {
-                    throw new ValidacionException("La fecha de entrega no puede ser anterior a hoy.");
+                if (fechaEntrega.isBefore(fechaMinima)) {
+                    throw new ValidacionException("La fecha de entrega debe ser al menos 5 días hábiles después de hoy.");
                 }
             } catch (Exception e) {
                 if (e instanceof ValidacionException) throw e;
                 throw new ValidacionException("Fecha de entrega inválida.");
             }
+        } else {
+            request.setFechaEntrega(fechaMinima.toString());
         }
 
         BigDecimal precioTotalFlores = BigDecimal.ZERO;
@@ -245,19 +250,20 @@ public class PedidoService {
         }
 
         LocalDate hoy = LocalDate.now();
+        LocalDate fechaMinima = sumarDiasHabiles(hoy, 5);
         LocalDate fechaEntrega;
         if (request.getFechaEntrega() != null) {
             try {
                 fechaEntrega = LocalDate.parse(request.getFechaEntrega());
-                if (fechaEntrega.isBefore(hoy)) {
-                    throw new ValidacionException("La fecha de entrega no puede ser anterior a hoy.");
+                if (fechaEntrega.isBefore(fechaMinima)) {
+                    throw new ValidacionException("La fecha de entrega debe ser al menos 5 días hábiles después de hoy.");
                 }
             } catch (Exception e) {
                 if (e instanceof ValidacionException) throw e;
                 throw new ValidacionException("Fecha de entrega inválida.");
             }
         } else {
-            fechaEntrega = hoy.plusDays(5);
+            fechaEntrega = fechaMinima;
         }
 
         Pedido pedido = new Pedido();
@@ -307,12 +313,20 @@ public class PedidoService {
     @Transactional
     public PedidoResponseDTO crearPedido(PedidoRequestDTO request) {
         LocalDate hoy = LocalDate.now();
-        if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(hoy)) {
-            throw new ValidacionException("La fecha de entrega no puede ser anterior a hoy.");
+        boolean tienePersonalizados = request.getFloresPersonalizadas() != null && !request.getFloresPersonalizadas().isEmpty();
+
+        if (tienePersonalizados) {
+            LocalDate fechaMinima = sumarDiasHabiles(hoy, 5);
+            if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(fechaMinima)) {
+                throw new ValidacionException("La fecha de entrega debe ser al menos 5 días hábiles después de hoy.");
+            }
+        } else {
+            if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(hoy)) {
+                throw new ValidacionException("La fecha de entrega no puede ser anterior a hoy.");
+            }
         }
 
         Persona persona;
-        boolean tienePersonalizados = request.getFloresPersonalizadas() != null && !request.getFloresPersonalizadas().isEmpty();
 
         if (tienePersonalizados && request.getCedulaCliente() != null && !request.getCedulaCliente().isBlank()) {
             persona = personaRepository.findByCedula(request.getCedulaCliente()).orElse(null);
@@ -570,6 +584,18 @@ public class PedidoService {
 
         emailService.enviarEmail(email, asunto, cuerpo);
         log.info("Notificación enviada a {} por estado {}", email, estado);
+    }
+
+    private LocalDate sumarDiasHabiles(LocalDate desde, int dias) {
+        LocalDate resultado = desde;
+        int agregados = 0;
+        while (agregados < dias) {
+            resultado = resultado.plusDays(1);
+            if (resultado.getDayOfWeek() != DayOfWeek.SATURDAY && resultado.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                agregados++;
+            }
+        }
+        return resultado;
     }
 
     private PedidoResponseDTO toResponseDTO(Pedido pedido) {
