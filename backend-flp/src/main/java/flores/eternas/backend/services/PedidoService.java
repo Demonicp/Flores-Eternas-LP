@@ -67,7 +67,6 @@ public class PedidoService {
     }
 
     @Transactional(readOnly = true)
-    @Transactional(readOnly = true)
     public List<PedidoResponseDTO> listarPedidos() {
         List<Pedido> pedidos = pedidoRepository.findAllByOrderByFechaCreacionDesc();
         return pedidos.stream().map(this::toResponseDTO).collect(java.util.stream.Collectors.toList());
