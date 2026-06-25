@@ -31,4 +31,7 @@ public class TipoFlor extends AbstractEntity {
 
     @Column(name = "icono")
     private String icono;
+
+    @Column(name = "icono_color")
+    private String iconoColor;
 }

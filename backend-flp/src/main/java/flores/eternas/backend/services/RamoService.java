@@ -494,7 +494,8 @@ public class RamoService {
                             det.getTipoFlor().getDescripcionFlor(),
                             det.getTipoFlor().getPrecioUnidad(),
                             det.getTipoFlor().getPorcentajePorMayor(),
-                            det.getTipoFlor().getIcono()
+                            det.getTipoFlor().getIcono(),
+                            det.getTipoFlor().getIconoColor()
                     ));
                 }
 

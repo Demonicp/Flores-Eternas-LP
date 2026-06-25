@@ -195,9 +195,7 @@ onMounted(() => {
               <td class="p-3 hidden md:table-cell">{{ pedido.emailCliente || '—' }}</td>
               <td class="p-3">${{ formatoPrecio(pedido.total) }}</td>
               <td class="p-3 hidden md:table-cell">
-                <span
-                  :class="pedido.montoPagado >= pedido.total ? 'text-green-600' : 'text-amber-600'"
-                >
+                <span class="text-text-primary">
                   ${{ formatoPrecio(pedido.montoPagado) }}
                 </span>
               </td>

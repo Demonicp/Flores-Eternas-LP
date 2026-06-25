@@ -29,7 +29,7 @@
         >
           <div v-if="store.isSelected(flor.id)" class="w-8 h-8 rounded-full bg-[#7A4E2D] text-white flex items-center justify-center text-sm font-bold">✓</div>
           <div v-else class="w-8 h-8 rounded-full border-2 border-[#7A4E2D]/30"></div>
-          <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-4xl text-[#7A4E2D]" />
+          <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-4xl" :style="flor.iconoColor ? { color: flor.iconoColor } : {}" />
           <span class="text-[#7A4E2D] text-lg font-radley">{{ flor.descripcionFlor }}</span>
           <span class="text-[#7A4E2D] text-sm font-lora">${{ flor.precioUnidad?.toFixed(2) }} c/u</span>
         </div>
