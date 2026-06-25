@@ -1,7 +1,7 @@
 <template>
     <h2 class="text-[#7A4E2D] text-2xl font-radley mb-8">Resumen de tu ramo personalizado</h2>
 
-    <div class="bg-white rounded-2xl shadow-lg p-8">
+    <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg">
       <div class="space-y-4 mb-6">
         <div v-for="(item, idx) in store.floresSeleccionadas" :key="idx"
           class="flex items-center justify-between py-3 border-b border-[#FFEDE3] last:border-0"
@@ -36,7 +36,32 @@
           <span>Total</span>
           <span>${{ totalGeneral.toFixed(2) }}</span>
         </div>
+        <div class="flex justify-between text-sm text-[#7A4E2D] mt-1">
+          <span>Pago inicial (50%)</span>
+          <span class="font-semibold">${{ (totalGeneral * 0.5).toFixed(2) }}</span>
+        </div>
       </div>
+
+      <div class="space-y-4 mb-6">
+        <div>
+          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Nombre completo</label>
+          <input v-model="form.nombre" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Tu nombre" />
+        </div>
+        <div>
+          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Email</label>
+          <input v-model="form.email" type="email" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="correo@ejemplo.com" />
+        </div>
+        <div>
+          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Dirección de entrega</label>
+          <input v-model="form.direccion" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Dirección" />
+        </div>
+        <div>
+          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Fecha de entrega</label>
+          <input v-model="form.fechaEntrega" type="date" :min="hoyStr" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" />
+        </div>
+      </div>
+
+      <p v-if="errorMsg" class="text-red-500 text-sm mb-4 text-center">{{ errorMsg }}</p>
 
       <div class="flex gap-4 justify-center mt-8">
         <button
@@ -46,32 +71,44 @@
           Volver
         </button>
         <button
-          @click="agregarAlCarrito"
-          class="bg-[#7A4E2D] text-white font-radley px-8 py-3 rounded-full hover:bg-[#5E3A1F] transition flex items-center gap-2"
+          @click="pagarAhora"
+          :disabled="pagando || !formValido"
+          class="bg-[#7A4E2D] text-white font-radley px-8 py-3 rounded-full hover:bg-[#5E3A1F] transition flex items-center gap-2 disabled:opacity-50"
         >
-          <Icon icon="mdi:cart-plus" class="text-lg" />
-          Agregar al carrito
+          <Icon icon="mdi:credit-card-outline" class="text-lg" />
+          {{ pagando ? 'Procesando...' : 'Pagar 50% con PayU' }}
         </button>
       </div>
-      <p class="text-center text-xs text-gray-500 mt-4 font-radley italic">
-        Luego podrás seguir agregando productos del catálogo y pagar todo junto en el carrito.
-      </p>
     </div>
 </template>
 
 <script setup>
 definePageMeta({ layout: 'flor' })
-import { computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
+
+const hoyStr = computed(() => new Date().toISOString().split('T')[0])
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
-import { useCartStore } from '~/stores/cart.store'
+import { apiClient } from '~/services/api-client'
 
 const store = useRamoPersonalizadoStore()
-const cartStore = useCartStore()
 const router = useRouter()
 
 if (store.floresSeleccionadas.length === 0) {
   router.replace('/flor/SeleccionFlor')
 }
+
+const form = reactive({
+  nombre: '',
+  email: '',
+  direccion: '',
+  fechaEntrega: '',
+})
+const pagando = ref(false)
+const errorMsg = ref('')
+
+const formValido = computed(() =>
+  form.nombre.trim() && form.email.trim() && form.direccion.trim() && form.fechaEntrega
+)
 
 const subtotalFlores = computed(() =>
   store.floresSeleccionadas.reduce((sum, f) => sum + (f.tipoFlor.precioUnidad || 0) * f.cantidad, 0)
@@ -85,32 +122,55 @@ const totalGeneral = computed(() =>
   subtotalFlores.value + totalAdiciones.value
 )
 
-function agregarAlCarrito() {
+async function pagarAhora() {
+  if (!formValido.value) return
+  pagando.value = true
+  errorMsg.value = ''
+
   const flores = store.floresSeleccionadas.map(f => ({
     tipoFlorId: f.tipoFlor.id,
     colorFlorId: f.colorFlor?.id || null,
     cantidad: f.cantidad,
-    descripcionFlor: f.tipoFlor.descripcionFlor,
-    descripcionColor: f.colorFlor?.descripcionColor || null,
   }))
 
   const adiciones = store.adiciones.map(a => ({
     inventarioId: a.id,
-    nombre: a.nombre,
     cantidad: a.cantidad,
-    precioCosto: a.precioCosto,
   }))
 
-  cartStore.agregarPersonalizado({
-    id: crypto.randomUUID(),
-    nombre: 'Ramo personalizado',
-    foto: '',
-    precio: totalGeneral.value,
-    flores,
-    adiciones,
-  })
+  try {
+    const res = await apiClient.post('/api/pagos/payu/iniciar', {
+      nombreCliente: form.nombre,
+      emailCliente: form.email,
+      direccionEntrega: form.direccion,
+      fechaEntrega: form.fechaEntrega,
+      flores,
+      adiciones,
+      responseUrl: window.location.origin + '/pago/resultado',
+    })
 
-  store.resetear()
-  router.push('/')
+    store.resetear()
+
+    if (res.urlPago && res.parametrosForm?.merchantId) {
+      const formEl = document.createElement('form')
+      formEl.method = 'POST'
+      formEl.action = res.urlPago
+      for (const [key, val] of Object.entries(res.parametrosForm)) {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = key
+        input.value = val
+        formEl.appendChild(input)
+      }
+      document.body.appendChild(formEl)
+      formEl.submit()
+    } else {
+      router.push('/pago/resultado?statePol=4&referenceSale=' + res.pedidoId)
+    }
+  } catch (e) {
+    errorMsg.value = 'Error al procesar el pago. Intenta nuevamente.'
+  } finally {
+    pagando.value = false
+  }
 }
 </script>

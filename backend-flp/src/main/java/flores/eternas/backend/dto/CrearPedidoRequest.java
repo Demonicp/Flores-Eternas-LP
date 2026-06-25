@@ -18,6 +18,8 @@ public class CrearPedidoRequest {
     private String nombreCliente;
     private String telefono;
     private String fechaEntrega;
+    private String emailCliente;
+    private String responseUrl;
 
     @Data
     @NoArgsConstructor

@@ -85,6 +85,7 @@ public CorsConfigurationSource corsConfigurationSource() {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/flores/**").permitAll()
                         .requestMatchers("/api/pedidos/**").permitAll()
+                        .requestMatchers("/api/pagos/**").permitAll()
                         .requestMatchers("/api/catalogo/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categorias-ramo/**", "/api/colores-flor/**", "/api/ramos/**", "/api/tipos-flor/**", "/api/inventario/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
