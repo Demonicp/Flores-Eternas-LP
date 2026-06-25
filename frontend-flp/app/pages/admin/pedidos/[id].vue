@@ -119,23 +119,7 @@ onMounted(cargarPedido)
         </div>
       </div>
 
-      <div v-else class="text-center py-12">
-        <div class="flex flex-col items-center gap-3">
-          <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-            <Icon icon="mdi:help-circle" class="text-2xl text-gray-400" />
-          </div>
-          <p class="text-text-primary/60">No se encontró el pedido #{{ id }}</p>
-          <button @click="cargarPedido" class="text-btn-primary hover:underline text-sm">
-            Reintentar
-          </button>
-          <button @click="router.push('/admin/pedidos')"
-            class="text-text-primary/60 hover:text-text-primary text-sm">
-            Volver a pedidos
-          </button>
-        </div>
-      </div>
-
-      <template v-else-if="pedido">
+      <template v-if="pedido">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div class="space-y-3">
             <h2 class="text-lg font-medium text-text-primary border-b border-border-soft pb-2">
@@ -298,6 +282,22 @@ onMounted(cargarPedido)
           </button>
         </div>
       </template>
+
+      <div v-else class="text-center py-12">
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+            <Icon icon="mdi:help-circle" class="text-2xl text-gray-400" />
+          </div>
+          <p class="text-text-primary/60">No se encontró el pedido #{{ id }}</p>
+          <button @click="cargarPedido" class="text-btn-primary hover:underline text-sm">
+            Reintentar
+          </button>
+          <button @click="router.push('/admin/pedidos')"
+            class="text-text-primary/60 hover:text-text-primary text-sm">
+            Volver a pedidos
+          </button>
+        </div>
+      </div>
     </section>
   </div>
 </template>
