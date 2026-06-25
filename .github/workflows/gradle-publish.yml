@@ -1,0 +1,62 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
+
+name: CI/CD Fork
+on:
+  push:
+    branches:
+      - testing
+      - master
+
+jobs:
+  test-build:
+    if: github.ref == 'refs/heads/testing'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Run tests on testing branch
+        run: |
+          cd backend-flp
+          chmod +x mvnw
+          ./mvnw test
+
+  promote-to-master:
+    needs: test-build
+    if: github.ref == 'refs/heads/testing'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge testing → master
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git checkout master
+          git merge testing
+          git push origin master
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build with Maven
+        run: |
+          cd backend-flp
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+      - name: Run tests
+        run: |
+          cd backend-flp
+          chmod +x mvnw
+          ./mvnw test
+      # Render detecta el push en master y hace auto-deploy
+
+      
