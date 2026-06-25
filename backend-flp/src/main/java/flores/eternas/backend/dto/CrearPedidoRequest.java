@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CrearPedidoRequest {
 
-    @NotBlank(message = "Debe incluir al menos una flor")
+    @NotEmpty(message = "Debe incluir al menos una flor")
     private List<ItemFlorRequest> flores;
 
     private List<AdicionRequest> adiciones;

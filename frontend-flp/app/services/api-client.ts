@@ -60,8 +60,8 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
           if (text) msg = text
         }
         if (typeof window !== 'undefined') {
-          const { error } = await import('~/composables/useToast')
-          error(msg)
+          const { useToast } = await import('~/composables/useToast')
+          useToast().error(msg)
         }
         throw new ApiError(res.status, msg)
       }
