@@ -265,6 +265,7 @@ export const useNegocioStore = defineStore('negocio', () => {
   const florFormPrecio = ref<number | null>(null)
   const florFormPorcentaje = ref<number | null>(null)
   const florFormIcono = ref<string | null>(null)
+  const florFormIconoColor = ref<string | null>(null)
   const florEditandoId = ref<number | null>(null)
 
   const esEdicionFlor = computed(() => florEditandoId.value !== null)
@@ -275,6 +276,7 @@ export const useNegocioStore = defineStore('negocio', () => {
     florFormPrecio.value = null
     florFormPorcentaje.value = null
     florFormIcono.value = null
+    florFormIconoColor.value = null
   }
 
   async function cargarFlores() {
@@ -301,6 +303,9 @@ export const useNegocioStore = defineStore('negocio', () => {
       if (florFormIcono.value) {
         payload.icono = florFormIcono.value
       }
+      if (florFormIconoColor.value) {
+        payload.iconoColor = florFormIconoColor.value
+      }
       if (florEditandoId.value) {
         await tipoFlorService.actualizar(florEditandoId.value, payload)
       } else {
@@ -322,6 +327,7 @@ export const useNegocioStore = defineStore('negocio', () => {
     florFormPrecio.value = flor.precioUnidad
     florFormPorcentaje.value = flor.porcentajePorMayor
     florFormIcono.value = flor.icono ?? null
+    florFormIconoColor.value = flor.iconoColor ?? null
   }
 
   async function eliminarFlor(id: number) {
@@ -408,7 +414,7 @@ export const useNegocioStore = defineStore('negocio', () => {
     resetColForm,
     cargarColores, guardarColor, editarColor, eliminarColor,
     flores, florLoading, florError,
-    florFormDescripcion, florFormPrecio, florFormPorcentaje, florFormIcono,
+    florFormDescripcion, florFormPrecio, florFormPorcentaje, florFormIcono, florFormIconoColor,
     florEditandoId, esEdicionFlor,
     resetFlorForm,
     cargarFlores, guardarFlor, editarFlor, eliminarFlor,

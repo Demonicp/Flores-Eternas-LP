@@ -7,7 +7,7 @@
           class="flex items-center justify-between py-3 border-b border-[#FFEDE3] last:border-0"
         >
           <div class="flex items-center gap-3">
-            <Icon :icon="item.tipoFlor.icono || 'mdi:flower-tulip-outline'" class="text-3xl text-[#7A4E2D]" />
+            <Icon :icon="item.tipoFlor.icono || 'mdi:flower-tulip-outline'" class="text-3xl" :style="item.tipoFlor.iconoColor ? { color: item.tipoFlor.iconoColor } : {}" />
             <div>
               <p class="text-[#7A4E2D] font-radley">{{ item.tipoFlor.descripcionFlor }}</p>
               <p class="text-xs text-gray-500">

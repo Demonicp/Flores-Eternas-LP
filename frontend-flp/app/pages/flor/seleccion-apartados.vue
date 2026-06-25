@@ -19,7 +19,7 @@
       <div v-else class="space-y-6">
         <div v-for="grupo in gruposFlores" :key="grupo.tipoFlor.id" class="bg-white rounded-2xl shadow-lg p-6">
           <div class="flex items-center gap-3 mb-4">
-            <Icon :icon="grupo.tipoFlor.icono || 'mdi:flower-tulip-outline'" class="text-3xl text-[#7A4E2D]" />
+            <Icon :icon="grupo.tipoFlor.icono || 'mdi:flower-tulip-outline'" class="text-3xl" :style="grupo.tipoFlor.iconoColor ? { color: grupo.tipoFlor.iconoColor } : {}" />
             <div>
               <h3 class="text-[#7A4E2D] text-lg font-radley">{{ grupo.tipoFlor.descripcionFlor }}</h3>
               <p class="text-[#7A4E2D] text-sm font-lora">${{ grupo.tipoFlor.precioUnidad?.toFixed(2) }} c/u</p>

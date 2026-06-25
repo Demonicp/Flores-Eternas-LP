@@ -67,6 +67,7 @@ public class PedidoService {
     }
 
     @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public List<PedidoResponseDTO> listarPedidos() {
         List<Pedido> pedidos = pedidoRepository.findAllByOrderByFechaCreacionDesc();
         return pedidos.stream().map(this::toResponseDTO).collect(java.util.stream.Collectors.toList());
@@ -463,6 +464,8 @@ public class PedidoService {
         response.setEstado(pedido.getEstado().name());
         response.setTipoPedido(request.getTipoPedido());
         response.setFechaEntrega(request.getFechaEntrega());
+        response.setNombreCliente(persona.getNombreCliente());
+        response.setEmailCliente(request.getEmailCliente());
         response.setItems(itemsResponse);
 
         if (montoPendiente.compareTo(BigDecimal.ZERO) > 0) {
