@@ -1,9 +1,9 @@
 name: Sync Upstream Testing to Fork
 
 on:
-  schedule:
-    - cron: '0 * * * *'   # cada hora
-  workflow_dispatch:
+  repository_dispatch:
+    types: [sync-testing]   # se activa cuando el repo original envía el evento
+  workflow_dispatch:        # permite ejecución manual
 
 permissions:
   contents: write
@@ -34,6 +34,7 @@ jobs:
           git reset --hard testing
 
       - name: Create Pull Request to master
+        id: create-pr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.PAT_TOKEN }}
@@ -45,9 +46,9 @@ jobs:
             Generado automáticamente por GitHub Actions.
 
       - name: Auto-merge PR if possible
-        uses: peter-evans/enable-pull-request-automerge@v3
+        if: ${{ steps.create-pr.outputs.pull-request-number }}
+        uses: peter-evans/merge-pull-request@v3
         with:
           token: ${{ secrets.PAT_TOKEN }}
-          pull-request-number: ${{ steps.create-pull-request.outputs.pull-request-number }}
+          pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
           merge-method: squash
-
