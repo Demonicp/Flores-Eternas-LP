@@ -31,7 +31,7 @@ public class FlorService {
 
     public List<TipoFlorDTO> obtenerTiposFlor() {
         return tipoFlorRepository.findAll().stream()
-                .map(flor -> new TipoFlorDTO(flor.getId(), flor.getDescripcionFlor(), flor.getPrecioUnidad(), flor.getPorcentajePorMayor()))
+                .map(flor -> new TipoFlorDTO(flor.getId(), flor.getDescripcionFlor(), flor.getPrecioUnidad(), flor.getPorcentajePorMayor(), flor.getIcono()))
                 .collect(Collectors.toList());
     }
 

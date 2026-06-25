@@ -77,5 +77,6 @@ export type PedidoResponse = {
     tipoFlor?: string
     colorFlor?: string
     adicionesJson?: string
+    flores?: Array<{ tipoFlor: string; color: string; cantidad: number }>
   }>
 }
