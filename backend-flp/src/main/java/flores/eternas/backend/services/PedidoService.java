@@ -264,6 +264,7 @@ public class PedidoService {
         pedido.setEmailCliente(request.getEmailCliente());
         pedido.setPagoToken(UUID.randomUUID().toString());
         pedido.setTipoPedido("PERSONALIZADO");
+        pedido.setFechaCreacion(LocalDateTime.now());
         if (persona != null) {
             pedido.setCliente(persona);
         }
@@ -421,6 +422,7 @@ public class PedidoService {
         pedido.setTotalPedido(total);
         pedido.setDireccionEntrega(request.getDireccionEntrega());
         pedido.setFechaEntrega(request.getFechaEntrega());
+        pedido.setFechaCreacion(LocalDateTime.now());
         pedido.setCliente(persona);
         pedido.setMetodoPago(null);
         pedido.setMontoPagado(montoPagado);
@@ -548,19 +550,22 @@ public class PedidoService {
         List<DetallePedido> detallesPedido = detallePedidoRepository.findByPedidoId(pedidoId);
         for (DetallePedido detalle : detallesPedido) {
             PedidoResponseDTO.ItemPedidoDTO item = new PedidoResponseDTO.ItemPedidoDTO();
-            item.setNombreRamo(calcularNombreRamo(detalle));
-            item.setCantidad(detalle.getCantidadFlores());
-            item.setPrecioUnitario(calcularPrecioUnitario(detalle.getTipoFlor()));
+            if (detalle.getRamo() != null) {
+                Ramo ramo = detalle.getRamo();
+                item.setNombreRamo(ramo.getNombreRamo());
+                item.setCantidad(detalle.getCantidad());
+                item.setPrecioUnitario(ramo.getPrecioRamo());
+            } else {
+                item.setNombreRamo("Ramo Personalizado");
+                item.setCantidad(detalle.getCantidadFlores());
+                item.setPrecioUnitario(calcularPrecioUnitario(detalle.getTipoFlor()));
+            }
             item.setTipoFlor(detalle.getTipoFlor());
             item.setColorFlor(detalle.getColorFlor());
             item.setAdicionesJson(detalle.getAdicionesJson());
             items.add(item);
         }
         return items;
-    }
-
-    private String calcularNombreRamo(DetallePedido detalle) {
-        return "Ramo Personalizado";
     }
 
     private BigDecimal calcularPrecioUnitario(String tipoFlor) {

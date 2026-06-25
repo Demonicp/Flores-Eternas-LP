@@ -1,6 +1,6 @@
 <template>
   <div
-    class="product-card min-w-[260px] max-w-[260px] bg-white rounded-2xl p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+    class="product-card min-w-[260px] max-w-[260px] bg-white rounded-2xl p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer hover:-translate-y-0.5 group"
   >
     <div class="relative">
       <span
@@ -13,20 +13,21 @@
     </div>
 
     <div
-      class="w-full aspect-[4/3] rounded-xl bg-bg-card flex items-center justify-center overflow-hidden"
+      class="w-full aspect-[4/3] rounded-xl bg-bg-card flex items-center justify-center overflow-hidden relative"
     >
       <img
         v-if="producto.foto && !imgError"
         :src="producto.foto"
         :alt="producto.nombre"
-        class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         @error="imgError = true"
       />
       <Icon v-else icon="mdi:flower-tulip-outline" class="text-5xl text-text-primary/30" />
+      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 rounded-xl" />
     </div>
 
     <div class="flex flex-col gap-1.5 flex-1 min-h-[90px]">
-      <h3 class="font-serif text-base text-text-primary font-medium truncate">
+      <h3 class="font-serif text-base text-text-primary font-medium truncate group-hover:text-btn-primary transition-colors">
         {{ producto.nombre }}
       </h3>
       <p v-if="producto.descripcionCorta" class="text-xs text-text-primary/60 line-clamp-2 leading-relaxed flex-1">
