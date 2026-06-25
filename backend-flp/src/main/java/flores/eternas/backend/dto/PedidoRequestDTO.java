@@ -4,18 +4,42 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 public class PedidoRequestDTO {
 
+    @NotBlank(message = "Nombre obligatorio")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "Nombre solo admite letras y espacios")
+    @Size(max = 100, message = "Nombre demasiado largo")
     private String nombreCliente;
+
+    @NotBlank(message = "Email obligatorio")
+    @Email(message = "Email inválido")
     private String emailCliente;
+
+    @NotBlank(message = "Dirección obligatoria")
+    @Pattern(regexp = "^(calle|carrera|av\\.?|avenida|transversal|diagonal|circular)\\s+\\d{1,3}\\s*#\\s*\\d{1,3}-\\d{1,3}$",
+             flags = Pattern.Flag.CASE_INSENSITIVE,
+             message = "Dirección debe ser: calle 28 #25-38")
     private String direccionEntrega;
+
+    @FutureOrPresent(message = "Fecha no puede ser anterior a hoy")
     private LocalDate fechaEntrega;
+
     private String tipoPedido;
     private String tipoPago;
     private List<ItemPedidoDTO> items;
     private List<CrearPedidoRequest.ItemFlorRequest> floresPersonalizadas;
     private List<AdicionRequest> adicionesPersonalizadas;
+
+    @Pattern(regexp = "^\\d{6,10}$", message = "Cédula: solo números (6-10 dígitos)")
     private String cedulaCliente;
+
+    @Pattern(regexp = "^(\\+57\\s?)?(3\\d{9}|60\\d{8})$", message = "Teléfono: +57 3001234567 o 6012345678")
     private String telefonoCliente;
 
     public String getNombreCliente() { return nombreCliente; }
@@ -47,6 +71,16 @@ public class PedidoRequestDTO {
 
         public Long getIdRamo() { return idRamo; }
         public void setIdRamo(Long idRamo) { this.idRamo = idRamo; }
+        public Integer getCantidad() { return cantidad; }
+        public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
+    }
+
+    public static class AdicionRequest {
+        private Long inventarioId;
+        private Integer cantidad;
+
+        public Long getInventarioId() { return inventarioId; }
+        public void setInventarioId(Long inventarioId) { this.inventarioId = inventarioId; }
         public Integer getCantidad() { return cantidad; }
         public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
     }

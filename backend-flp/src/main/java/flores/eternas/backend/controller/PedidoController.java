@@ -3,8 +3,10 @@ package flores.eternas.backend.controller;
 import flores.eternas.backend.dto.CrearPedidoRequest;
 import flores.eternas.backend.dto.PedidoRequestDTO;
 import flores.eternas.backend.dto.PedidoResponseDTO;
+import flores.eternas.backend.exception.ValidacionException;
 import flores.eternas.backend.model.Pedido;
 import flores.eternas.backend.services.PedidoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,7 @@ public class PedidoController {
     }
 
     @PostMapping("/crear")
-    public ResponseEntity<Pedido> crearPedidoPersonalizado(@RequestBody CrearPedidoRequest request) {
+    public ResponseEntity<Pedido> crearPedidoPersonalizado(@Valid @RequestBody CrearPedidoRequest request) {
         try {
             Pedido pedido = pedidoService.crearPedido(request);
             return ResponseEntity.ok(pedido);
@@ -32,11 +34,11 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<?> crearPedido(@RequestBody PedidoRequestDTO request) {
+    public ResponseEntity<?> crearPedido(@Valid @RequestBody PedidoRequestDTO request) {
         try {
             PedidoResponseDTO response = pedidoService.crearPedido(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (IllegalArgumentException e) {
+        } catch (ValidacionException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
