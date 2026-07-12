@@ -1,13 +1,13 @@
 <template>
     <h2 class="text-[#7A4E2D] text-2xl font-radley mb-10">Selecciona los tipos de flor</h2>
 
-    <div v-if="loading" class="flex gap-5 px-6">
-      <div v-for="i in 4" :key="i" class="flex-shrink-0 w-52 h-64 rounded-xl bg-[#FFEDE3] animate-pulse" />
+    <div v-if="loading" class="flex gap-4 sm:gap-5 px-2 sm:px-6">
+      <div v-for="i in 4" :key="i" class="flex-shrink-0 w-44 sm:w-52 h-64 rounded-xl bg-[#FFEDE3] animate-pulse" />
     </div>
 
-    <div v-else class="relative group mb-16">
+    <div v-else class="relative group mb-16 px-2 sm:px-0">
       <button
-        class="absolute -left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-[#7A4E2D] opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
+        class="arrow-btn absolute -left-2 sm:-left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-[#7A4E2D] opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white active:scale-90"
         :class="{ 'opacity-100': scrollLeft > 0 }"
         @click="scrollSection(-1)"
         aria-label="Anterior"
@@ -17,26 +17,26 @@
 
       <div
         ref="scrollContainer"
-        class="flex gap-5 overflow-x-auto scroll-smooth pt-4 pb-2 scrollbar-hide px-6"
+        class="flex gap-4 sm:gap-5 overflow-x-auto scroll-smooth pt-4 pb-2 scrollbar-hide snap-x snap-mandatory"
         @scroll="onScroll"
       >
         <div
           v-for="flor in tiposFlor"
           :key="flor.id"
           @click="store.toggleFlor(flor)"
-          class="flex-shrink-0 w-52 rounded-xl shadow-md transition-all cursor-pointer flex flex-col items-center justify-center gap-3 p-6"
+          class="flex-shrink-0 w-44 sm:w-52 rounded-xl shadow-md transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-2 sm:gap-3 p-4 sm:p-6 snap-start"
           :class="store.isSelected(flor.id) ? 'bg-[#FFDCC8] ring-2 ring-[#7A4E2D]' : 'bg-[#FFEDE3] hover:bg-[#FFE8DD]'"
         >
           <div v-if="store.isSelected(flor.id)" class="w-8 h-8 rounded-full bg-[#7A4E2D] text-white flex items-center justify-center text-sm font-bold">✓</div>
           <div v-else class="w-8 h-8 rounded-full border-2 border-[#7A4E2D]/30"></div>
-          <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-4xl" :style="flor.iconoColor ? { color: flor.iconoColor } : {}" />
-          <span class="text-[#7A4E2D] text-lg font-radley">{{ flor.descripcionFlor }}</span>
-          <span class="text-[#7A4E2D] text-sm font-lora">${{ flor.precioUnidad?.toFixed(2) }} c/u</span>
+          <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-3xl sm:text-4xl" :style="flor.iconoColor ? { color: flor.iconoColor } : {}" />
+          <span class="text-[#7A4E2D] text-base sm:text-lg font-radley text-center">{{ flor.descripcionFlor }}</span>
+          <span class="text-[#7A4E2D] text-xs sm:text-sm font-lora">${{ flor.precioUnidad?.toFixed(2) }} c/u</span>
         </div>
       </div>
 
       <button
-        class="absolute -right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-[#7A4E2D] opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
+        class="arrow-btn absolute -right-2 sm:-right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-[#7A4E2D] opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white active:scale-90"
         @click="scrollSection(1)"
         aria-label="Siguiente"
       >
@@ -84,7 +84,8 @@ const scrollLeft = ref(0)
 function scrollSection(direction: number) {
   const el = scrollContainer.value
   if (!el) return
-  const cardWidth = 224
+  const card = el.querySelector('.snap-start') as HTMLElement | null
+  const cardWidth = card ? card.offsetWidth + 16 : 208
   el.scrollBy({ left: direction * cardWidth, behavior: 'smooth' })
 }
 
@@ -109,5 +110,14 @@ function irSiguiente() {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+.snap-start {
+  scroll-snap-align: start;
+}
+.arrow-btn {
+  -webkit-tap-highlight-color: transparent;
 }
 </style>

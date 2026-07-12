@@ -100,7 +100,7 @@
           class="bg-[#7A4E2D] text-white font-radley px-8 py-3 rounded-full hover:bg-[#5E3A1F] transition flex items-center gap-2 disabled:opacity-50"
         >
           <Icon icon="mdi:credit-card-outline" class="text-lg" />
-          {{ pagando ? 'Procesando...' : 'Pagar 50% con Wompi' }}
+          {{ pagando ? 'Procesando...' : pagoCompleto ? 'Pagar total con Wompi' : 'Pagar 50% con Wompi' }}
         </button>
       </div>
     </div>
