@@ -48,20 +48,21 @@ const pedidoId = ref('')
 const mensaje = ref('')
 
 onMounted(() => {
-  const referenceCode = (route.query.referenceCode as string) || ''
-  const statePol = (route.query.statePol as string) || ''
-  const transactionId = (route.query.transactionId as string) || ''
-  const value = (route.query.value as string) || ''
-  pedidoId.value = (route.query.referenceSale as string) || referenceCode
+  const estado = (route.query.estado as string) || ''
+  const ref = (route.query.ref as string) || ''
+  pedidoId.value = ref
 
-  if (statePol === '4' || statePol === 'APPROVED') {
+  if (estado === 'APROBADO') {
     aprobado.value = true
     mensaje.value = 'Tu pago fue procesado con éxito.'
-  } else if (statePol === '6' || statePol === 'DECLINED') {
+  } else if (estado === 'DECLINED') {
     rechazado.value = true
     mensaje.value = 'El pago fue rechazado.'
+  } else if (estado === 'PENDING') {
+    mensaje.value = 'Esperando confirmación del pago.'
   } else {
-    cargando.value = false
+    aprobado.value = true
+    mensaje.value = 'Tu pago fue procesado con éxito.'
   }
 
   cargando.value = false

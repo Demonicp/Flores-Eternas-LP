@@ -38,7 +38,7 @@
           :disabled="pagando"
           class="mt-6 w-full bg-btn-primary text-btn-primary-text py-3 rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
         >
-          {{ pagando ? 'Redirigiendo a PayU...' : 'Pagar saldo restante con PayU' }}
+          {{ pagando ? 'Redirigiendo a Wompi...' : 'Pagar saldo restante con Wompi' }}
         </button>
 
         <p v-else class="mt-6 text-center text-green-600 text-sm font-medium">
@@ -79,15 +79,23 @@ async function pagarSaldo() {
     const res: any = await apiClient.post(`/api/pagos/personalizado/${token}/pagar`, {
       responseUrl: window.location.origin + '/pago/resultado',
     })
-    if (res.urlPago && res.parametrosForm) {
+    if (res.signature) {
       const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = res.urlPago
-      for (const [key, val] of Object.entries(res.parametrosForm)) {
+      form.method = 'GET'
+      form.action = 'https://checkout.wompi.co/p/'
+      const campos = [
+        ['public-key', res.publicKey],
+        ['currency', res.currency],
+        ['amount-in-cents', String(res.amountInCents)],
+        ['reference', res.reference],
+        ['signature:integrity', res.signature],
+        ['redirect-url', res.redirectUrl || (window.location.origin + '/pago/resultado')],
+      ]
+      for (const [name, val] of campos) {
         const input = document.createElement('input')
         input.type = 'hidden'
-        input.name = key
-        input.value = val as string
+        input.name = name
+        input.value = val
         form.appendChild(input)
       }
       document.body.appendChild(form)
