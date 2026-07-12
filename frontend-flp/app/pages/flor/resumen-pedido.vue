@@ -36,9 +36,18 @@
           <span>Total</span>
           <span>${{ totalGeneral.toFixed(2) }}</span>
         </div>
-        <div class="flex justify-between text-sm text-[#7A4E2D] mt-1">
-          <span>Pago inicial (50%)</span>
-          <span class="font-semibold">${{ (totalGeneral * 0.5).toFixed(2) }}</span>
+        <div class="mt-3">
+          <label class="block text-sm text-[#7A4E2D] font-medium mb-2">Tipo de pago</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" v-model="pagoCompleto" :value="false" class="accent-[#7A4E2D]" />
+              <span class="text-sm text-[#7A4E2D]">Pagar 50% inicial (${{ (totalGeneral * 0.5).toFixed(2) }})</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" v-model="pagoCompleto" :value="true" class="accent-[#7A4E2D]" />
+              <span class="text-sm text-[#7A4E2D]">Pagar 100% (${{ totalGeneral.toFixed(2) }})</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -91,7 +100,7 @@
           class="bg-[#7A4E2D] text-white font-radley px-8 py-3 rounded-full hover:bg-[#5E3A1F] transition flex items-center gap-2 disabled:opacity-50"
         >
           <Icon icon="mdi:credit-card-outline" class="text-lg" />
-          {{ pagando ? 'Procesando...' : 'Pagar 50% con PayU' }}
+          {{ pagando ? 'Procesando...' : 'Pagar 50% con Wompi' }}
         </button>
       </div>
     </div>
@@ -130,6 +139,7 @@ const form = reactive({
   direccion: '',
   fechaEntrega: '',
 })
+const pagoCompleto = ref(false)
 const pagando = ref(false)
 const errorMsg = ref('')
 const showError = ref(false)
@@ -202,33 +212,45 @@ async function pagarAhora() {
   }))
 
   try {
-    const res = await apiClient.post('/api/pagos/payu/iniciar', {
+    const res = await apiClient.post('/api/pagos/wompi/iniciar', {
       nombreCliente: form.nombre,
       emailCliente: form.email,
       direccionEntrega: form.direccion,
       fechaEntrega: form.fechaEntrega,
       flores,
       adiciones,
+      pagoCompleto: pagoCompleto.value,
       responseUrl: window.location.origin + '/pago/resultado',
     })
 
     store.resetear()
 
-    if (res.urlPago && res.parametrosForm?.merchantId) {
+    if (res.signature) {
       const formEl = document.createElement('form')
-      formEl.method = 'POST'
-      formEl.action = res.urlPago
-      for (const [key, val] of Object.entries(res.parametrosForm)) {
+      formEl.method = 'GET'
+      formEl.action = 'https://checkout.wompi.co/p/'
+      const campos = [
+        ['public-key', res.publicKey],
+        ['currency', res.currency],
+        ['amount-in-cents', String(res.amountInCents)],
+        ['reference', res.reference],
+        ['signature:integrity', res.signature],
+        ['redirect-url', res.redirectUrl || (window.location.origin + '/pago/resultado')],
+        ['customer-data:email', form.email],
+        ['customer-data:full-name', form.nombre],
+        ['shipping-address:address-line-1', form.direccion],
+      ]
+      for (const [name, val] of campos) {
         const input = document.createElement('input')
         input.type = 'hidden'
-        input.name = key
+        input.name = name
         input.value = val
         formEl.appendChild(input)
       }
       document.body.appendChild(formEl)
       formEl.submit()
     } else {
-      router.push('/pago/resultado?statePol=4&referenceSale=' + res.pedidoId)
+      router.push('/pago/resultado?estado=APROBADO&ref=' + res.pedidoId)
     }
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : 'Error al procesar el pago. Intenta nuevamente.'

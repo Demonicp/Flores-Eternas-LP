@@ -48,6 +48,9 @@ public class CrearPedidoRequest {
 
     private String responseUrl;
 
+    /** Si es true, el cliente paga el 100% del pedido en lugar del 50% inicial. */
+    private boolean pagoCompleto;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
