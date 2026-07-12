@@ -63,12 +63,12 @@ public class Pedido extends AbstractEntity {
     @Column(name = "pago_token", unique = true)
     private String pagoToken;
 
-    @Column(name = "payu_reference_code")
-    private String payuReferenceCode;
+    @Column(name = "referencia_transaccion")
+    private String referenciaTransaccion;
 
-    @Column(name = "payu_transaction_id")
-    private String payuTransactionId;
+    @Column(name = "id_transaccion")
+    private String idTransaccion;
 
-    @Column(name = "payu_estado")
-    private String payuEstado;
+    @Column(name = "estado_transaccion")
+    private String estadoTransaccion;
 }

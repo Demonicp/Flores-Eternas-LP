@@ -11,6 +11,7 @@ const toast = useToast()
 const estadoCambiando = ref<number | null>(null)
 const expandedId = ref<number | null>(null)
 const filtro = ref<'todos' | 'pendientes' | 'entregados' | 'proximos' | 'valor'>('todos')
+const ordenValor = ref<'asc' | 'desc' | null>(null)
 
 function toggleExpand(id: number) {
   expandedId.value = expandedId.value === id ? null : id
@@ -94,7 +95,9 @@ const pedidosFiltrados = computed(() => {
       })
       break
     case 'valor':
-      filtered = filtered.sort((a, b) => b.total - a.total)
+      filtered = filtered.sort((a, b) =>
+        ordenValor.value === 'asc' ? a.total - b.total : b.total - a.total
+      )
       break
     default:
       break
@@ -123,14 +126,14 @@ onMounted(() => {
       <!-- Filter buttons -->
       <div class="mb-6 flex flex-wrap gap-2">
         <button
-          @click="() => (filtro = 'todos', store.cargarPedidos())"
+          @click="() => (filtro = 'todos', ordenValor = null, store.cargarPedidos())"
           :class="filtro === 'todos' ? 'bg-btn-primary text-btn-primary-text' : 'bg-gray-100 text-text-primary'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition"
         >
           Todos
         </button>
         <button
-          @click="() => (filtro = 'pendientes', store.cargarPedidos())"
+          @click="() => (filtro = 'pendientes', ordenValor = null, store.cargarPedidos())"
           :class="filtro === 'pendientes' ? 'bg-btn-primary text-btn-primary-text' : 'bg-gray-100 text-text-primary'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition"
         >
@@ -138,7 +141,7 @@ onMounted(() => {
         </button>
         
         <button
-          @click="() => (filtro = 'entregados', store.cargarPedidos())"
+          @click="() => (filtro = 'entregados', ordenValor = null, store.cargarPedidos())"
           :class="filtro === 'entregados' ? 'bg-btn-primary text-btn-primary-text' : 'bg-gray-100 text-text-primary'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition"
         >
@@ -146,7 +149,7 @@ onMounted(() => {
         </button>
         
         <button
-          @click="() => (filtro = 'proximos', store.cargarPedidos())"
+          @click="() => (filtro = 'proximos', ordenValor = null, store.cargarPedidos())"
           :class="filtro === 'proximos' ? 'bg-btn-primary text-btn-primary-text' : 'bg-gray-100 text-text-primary'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition"
         >
@@ -154,12 +157,22 @@ onMounted(() => {
         </button>
         
         <button
-          @click="() => (filtro = 'valor', store.cargarPedidos())"
+          @click="() => (filtro = 'valor', ordenValor = 'desc', store.cargarPedidos())"
           :class="filtro === 'valor' ? 'bg-btn-primary text-btn-primary-text' : 'bg-gray-100 text-text-primary'"
           class="px-4 py-2 rounded-lg text-sm font-medium transition"
         >
           Por valor
         </button>
+
+        <div v-if="filtro === 'valor'" class="flex items-center gap-1">
+          <select
+            v-model="ordenValor"
+            class="px-3 py-2 rounded-lg text-sm font-medium border border-border-soft bg-white text-text-primary cursor-pointer outline-none"
+          >
+            <option value="desc">Mayor a menor</option>
+            <option value="asc">Menor a mayor</option>
+          </select>
+        </div>
       </div>
 
       <!-- Loading state -->
