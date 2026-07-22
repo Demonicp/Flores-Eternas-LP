@@ -23,12 +23,11 @@ public class WompiController {
 
     private final WompiService wompiService;
     private final PedidoService pedidoService;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public WompiController(WompiService wompiService, PedidoService pedidoService, ObjectMapper objectMapper) {
+    public WompiController(WompiService wompiService, PedidoService pedidoService) {
         this.wompiService = wompiService;
         this.pedidoService = pedidoService;
-        this.objectMapper = objectMapper;
     }
 
     /**
