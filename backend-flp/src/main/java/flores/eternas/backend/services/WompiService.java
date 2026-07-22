@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.MessageDigest;
@@ -31,6 +34,7 @@ public class WompiService {
 
     private final String publicKey;
     private final String integritySecret;
+    private final String privateKey;
     private final String wompiUrl;
 
     /**
@@ -38,6 +42,7 @@ public class WompiService {
      * @param emailService servicio de email para notificaciones
      * @param publicKey      llave pública de Wompi (WOMPI_PUBLIC_KEY)
      * @param integritySecret secreto de integridad de Wompi (WOMPI_INTEGRITY_SECRET)
+     * @param privateKey     llave privada de Wompi (WOMPI_PRIVATE_KEY) para verificar webhooks
      * @param wompiUrl       URL base del API de Wompi (WOMPI_URL)
      * @author demonicp
      */
@@ -45,11 +50,13 @@ public class WompiService {
                         EmailService emailService,
                         @Value("${WOMPI_PUBLIC_KEY:}") String publicKey,
                         @Value("${WOMPI_INTEGRITY_SECRET:}") String integritySecret,
+                        @Value("${WOMPI_PRIVATE_KEY:}") String privateKey,
                         @Value("${WOMPI_URL:https://sandbox.wompi.co/v1}") String wompiUrl) {
         this.pedidoRepository = pedidoRepository;
         this.emailService = emailService;
         this.publicKey = publicKey;
         this.integritySecret = integritySecret;
+        this.privateKey = privateKey;
         this.wompiUrl = wompiUrl;
     }
 
@@ -160,6 +167,44 @@ public class WompiService {
         }
 
         return response;
+    }
+
+    /**
+     * Verifica la firma HMAC-SHA256 del webhook usando WOMPI_PRIVATE_KEY.
+     * Wompi envía el header X-Signature con formato "sha256=<hex>".
+     * @param signatureHeader valor del header X-Signature
+     * @param rawBody cuerpo crudo del webhook (JSON)
+     * @return true si la firma es válida
+     * @author demonicp
+     */
+    public boolean validarFirmaWebhook(String signatureHeader, String rawBody) {
+        if (signatureHeader == null || signatureHeader.isBlank() || rawBody == null || rawBody.isBlank()) {
+            log.warn("Webhook recibido sin firma o cuerpo");
+            return false;
+        }
+        if (privateKey == null || privateKey.isBlank()) {
+            log.warn("WOMPI_PRIVATE_KEY no configurada — no se puede verificar firma");
+            return false;
+        }
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(privateKey.getBytes("UTF-8"), "HmacSHA256");
+            mac.init(secretKey);
+            byte[] hmacBytes = mac.doFinal(rawBody.getBytes("UTF-8"));
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hmacBytes) {
+                hex.append(String.format("%02x", b));
+            }
+            String expected = "sha256=" + hex.toString();
+            boolean valida = expected.equals(signatureHeader);
+            if (!valida) {
+                log.warn("Firma webhook inválida. Esperada: {}, Recibida: {}", expected, signatureHeader);
+            }
+            return valida;
+        } catch (Exception e) {
+            log.error("Error verificando firma webhook", e);
+            return false;
+        }
     }
 
     /**
