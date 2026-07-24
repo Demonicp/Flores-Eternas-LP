@@ -1,4 +1,5 @@
 <template>
+<template>
     <div class="w-full">
       <h2 class="text-[#7A4E2D] text-2xl font-radley mb-8 text-center">Adiciones para tu ramo</h2>
 
@@ -10,24 +11,6 @@
           :error-generacion="errorGeneracion"
           @generar="generarImagenIA"
         />
-    <h2 class="text-[#7A4E2D] text-2xl font-radley mb-8">Adiciones para tu ramo</h2>
-
-    <div class="flex gap-8 w-full">
-      <div class="w-64 bg-white rounded-2xl shadow-lg p-6 flex-shrink-0 h-fit">
-        <h3 class="text-[#7A4E2D] font-radley text-lg mb-4">Resumen de flores</h3>
-        <div v-for="(item, idx) in store.floresSeleccionadas" :key="idx"
-          class="flex items-center justify-between py-2 border-b border-[#FFEDE3] last:border-0"
-        >
-          <div class="flex items-center gap-2">
-            <Icon :icon="item.tipoFlor.icono || 'mdi:flower-tulip-outline'" class="text-lg" :style="item.tipoFlor.iconoColor ? { color: item.tipoFlor.iconoColor } : {}" />
-            <span class="text-[#7A4E2D] text-sm font-radley">{{ item.tipoFlor.descripcionFlor }}</span>
-          </div>
-          <span class="text-[#7A4E2D] text-sm">×{{ item.cantidad }}</span>
-        </div>
-        <div class="flex justify-between pt-3 text-[#7A4E2D] font-lora">
-          <span>Subtotal</span>
-          <span>${{ subtotalFlores.toFixed(2) }}</span>
-        </div>
       </div>
 
       <div class="flex gap-8 w-full">
