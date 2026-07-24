@@ -23,9 +23,8 @@
         <div
           v-for="flor in tiposFlor"
           :key="flor.id"
-          @click="store.toggleFlor(flor)"
-          class="flex-shrink-0 w-44 sm:w-52 rounded-xl shadow-md transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-2 sm:gap-3 p-4 sm:p-6 snap-start"
-          :class="store.isSelected(flor.id) ? 'bg-[#FFDCC8] ring-2 ring-[#7A4E2D]' : 'bg-[#FFEDE3] hover:bg-[#FFE8DD]'"
+          :class="['flex-shrink-0 w-44 sm:w-52 rounded-xl shadow-md transition-all duration-200 flex flex-col items-center justify-center gap-2 sm:gap-3 p-4 sm:p-6 snap-start', store.isSelected(flor.id) ? 'bg-[#FFDCC8] ring-2 ring-[#7A4E2D]' : store.floresSeleccionadas.length >= 2 ? 'bg-[#FFEDE3] opacity-50 cursor-not-allowed' : 'bg-[#FFEDE3] hover:bg-[#FFE8DD] cursor-pointer']"
+          @click="store.floresSeleccionadas.length < 2 || store.isSelected(flor.id) ? store.toggleFlor(flor) : undefined"
         >
           <div v-if="store.isSelected(flor.id)" class="w-8 h-8 rounded-full bg-[#7A4E2D] text-white flex items-center justify-center text-sm font-bold">✓</div>
           <div v-else class="w-8 h-8 rounded-full border-2 border-[#7A4E2D]/30"></div>
@@ -54,7 +53,8 @@
         Siguiente →
       </button>
     </div>
-    <p v-if="store.floresSeleccionadas.length === 0" class="text-red-500 text-sm mt-2 text-center font-radley italic">Selecciona al menos un tipo de flor para continuar</p>
+    <p v-if="store.floresSeleccionadas.length === 0" class="text-red-500 text-sm mt-2 text-center font-radley italic">Máximo 2 tipos de flor. Selecciona al menos uno para continuar</p>
+    <p v-if="store.floresSeleccionadas.length === 2" class="text-amber-600 text-sm mt-2 text-center font-radley italic">Has alcanzado el máximo de 2 tipos de flor</p>
 </template>
 
 <script setup lang="ts">

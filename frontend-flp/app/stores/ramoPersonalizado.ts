@@ -14,6 +14,8 @@ export const useRamoPersonalizadoStore = defineStore('ramoPersonalizado', () => 
   const nombreCliente = ref('')
   const telefono = ref('')
   const direccionEntrega = ref('')
+  const imagenUrl = ref('')
+  const imagenGenerada = computed(() => imagenUrl.value !== '')
 
   const totalFlores = computed(() =>
     floresSeleccionadas.value.reduce((sum, f) => sum + f.cantidad, 0)
@@ -27,8 +29,11 @@ export const useRamoPersonalizadoStore = defineStore('ramoPersonalizado', () => 
     const idx = floresSeleccionadas.value.findIndex(f => f.tipoFlor.id === tipoFlor.id)
     if (idx >= 0) {
       floresSeleccionadas.value = floresSeleccionadas.value.filter(f => f.tipoFlor.id !== tipoFlor.id)
+      imagenUrl.value = ''
     } else {
+      if (floresSeleccionadas.value.length >= 2) return
       floresSeleccionadas.value.push({ tipoFlor, colorFlor: null, cantidad: 1 })
+      imagenUrl.value = ''
     }
   }
 
@@ -37,7 +42,12 @@ export const useRamoPersonalizadoStore = defineStore('ramoPersonalizado', () => 
   }
 
   function quitarVariante(index: number) {
+    const removida = floresSeleccionadas.value[index]
     floresSeleccionadas.value.splice(index, 1)
+    const sigueSiendoTipo = floresSeleccionadas.value.some(f => f.tipoFlor.id === removida?.tipoFlor?.id)
+    if (!sigueSiendoTipo) {
+      imagenUrl.value = ''
+    }
   }
 
   function setColor(index: number, color: any) {
@@ -83,10 +93,11 @@ export const useRamoPersonalizadoStore = defineStore('ramoPersonalizado', () => 
     nombreCliente.value = ''
     telefono.value = ''
     direccionEntrega.value = ''
+    imagenUrl.value = ''
   }
 
   return {
-    floresSeleccionadas, adiciones, cedula, nombreCliente, telefono, direccionEntrega,
+    floresSeleccionadas, adiciones, cedula, nombreCliente, telefono, direccionEntrega, imagenUrl, imagenGenerada,
     totalFlores,
     isSelected, toggleFlor, agregarVariante, quitarVariante, setColor, setCantidad,
     agregarAdicion, quitarAdicion, calcularTotal, resetear
