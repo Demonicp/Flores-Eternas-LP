@@ -1,6 +1,8 @@
 package flores.eternas.backend.controller;
 
 import flores.eternas.backend.services.GeminiImageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +11,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/gemini")
 public class GeminiController {
+
+    private static final Logger log = LoggerFactory.getLogger(GeminiController.class);
 
     private final GeminiImageService geminiImageService;
 
@@ -27,7 +31,8 @@ public class GeminiController {
             String imageUrl = geminiImageService.generarImagen(prompt);
             return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+            log.error("Error generando imagen con IA: {}", e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", "Servicio de IA no disponible. Intenta más tarde."));
         }
     }
 }
