@@ -1,4 +1,4 @@
-<template>
+
 <template>
     <div class="w-full">
       <h2 class="text-[#7A4E2D] text-2xl font-radley mb-8 text-center">Adiciones para tu ramo</h2>
