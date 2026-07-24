@@ -117,10 +117,6 @@
           <Icon icon="mdi:credit-card-outline" class="text-lg" />
           {{ pagando ? 'Procesando...' : pagoCompleto ? 'Pagar total con Wompi' : 'Pagar 50% con Wompi' }}
         </button>
-        <button @click="simularPago" class="bg-gray-200 text-gray-600 font-radley px-6 py-3 rounded-full hover:bg-gray-300 transition flex items-center gap-2">
-          <Icon icon="mdi:play-circle-outline" class="text-lg" />
-          Simular pago (prueba)
-        </button>
       </div>
     </div>
 </template>
@@ -313,8 +309,4 @@ async function pagarAhora() {
   }
 }
 
-function simularPago() {
-  store.resetear()
-  router.push('/pago/resultado?estado=APROBADO&ref=SIMULACION')
-}
 </script>
