@@ -19,6 +19,8 @@ public class PedidoResponseDTO {
     private String nombreCliente;
     private String emailCliente;
     private String direccionEntrega;
+    private String ciudad;
+    private String region;
     private String pagoToken;
     private List<ItemPedidoDTO> items;
 
@@ -44,6 +46,10 @@ public class PedidoResponseDTO {
     public void setEmailCliente(String emailCliente) { this.emailCliente = emailCliente; }
     public String getDireccionEntrega() { return direccionEntrega; }
     public void setDireccionEntrega(String direccionEntrega) { this.direccionEntrega = direccionEntrega; }
+    public String getCiudad() { return ciudad; }
+    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public String getRegion() { return region; }
+    public void setRegion(String region) { this.region = region; }
     public String getPagoToken() { return pagoToken; }
     public void setPagoToken(String pagoToken) { this.pagoToken = pagoToken; }
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
