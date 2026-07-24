@@ -65,6 +65,21 @@
           <input v-model="form.direccion" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Dirección" />
         </div>
         <div>
+          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Teléfono de contacto</label>
+          <input v-model="form.telefono" type="tel" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="+57 3001234567" />
+        </div>
+        <div>
+          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Ciudad</label>
+          <input v-model="form.ciudad" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Ciudad" />
+        </div>
+        <div>
+          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Departamento</label>
+          <select v-model="form.region" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]">
+            <option value="" disabled>Selecciona un departamento</option>
+            <option v-for="dept in departamentos" :key="dept" :value="dept">{{ dept }}</option>
+          </select>
+        </div>
+        <div>
           <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Fecha de entrega</label>
           <input v-model="form.fechaEntrega" type="date" :min="minFechaStr" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" />
           <p class="text-xs text-gray-400 mt-1">* La fecha de entrega debe ser al menos 5 días hábiles después de hoy</p>
@@ -102,6 +117,10 @@
           <Icon icon="mdi:credit-card-outline" class="text-lg" />
           {{ pagando ? 'Procesando...' : pagoCompleto ? 'Pagar total con Wompi' : 'Pagar 50% con Wompi' }}
         </button>
+        <button @click="simularPago" class="bg-gray-200 text-gray-600 font-radley px-6 py-3 rounded-full hover:bg-gray-300 transition flex items-center gap-2">
+          <Icon icon="mdi:play-circle-outline" class="text-lg" />
+          Simular pago (prueba)
+        </button>
       </div>
     </div>
 </template>
@@ -137,6 +156,9 @@ const form = reactive({
   nombre: '',
   email: '',
   direccion: '',
+  telefono: '',
+  ciudad: '',
+  region: '',
   fechaEntrega: '',
 })
 const pagoCompleto = ref(false)
@@ -145,7 +167,9 @@ const errorMsg = ref('')
 const showError = ref(false)
 
 const formValido = computed(() =>
-  form.nombre.trim() && form.email.trim() && form.direccion.trim() && form.fechaEntrega
+  form.nombre.trim() && form.email.trim() && form.direccion.trim()
+  && form.telefono.trim() && form.ciudad.trim() && form.region.trim()
+  && form.fechaEntrega
 )
 
 const subtotalFlores = computed(() =>
@@ -165,6 +189,16 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const telefonoRegex = /^(\+57\s?)?(3\d{9}|60\d{8})$/
 const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
 
+const departamentos = [
+  'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá D.C.',
+  'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca',
+  'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare',
+  'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño',
+  'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda',
+  'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima',
+  'Valle del Cauca', 'Vaupés', 'Vichada',
+]
+
 const validarFormulario = () => {
   if (!nombreRegex.test(form.nombre)) {
     toast.error('Nombre solo admite letras y espacios')
@@ -176,6 +210,18 @@ const validarFormulario = () => {
   }
   if (!direccionRegex.test(form.direccion)) {
     toast.error('Dirección debe ser: calle 28 #25-38')
+    return false
+  }
+  if (!telefonoRegex.test(form.telefono)) {
+    toast.error('Teléfono inválido. Formato: +57 3001234567')
+    return false
+  }
+  if (!form.ciudad.trim()) {
+    toast.error('Ciudad obligatoria')
+    return false
+  }
+  if (!form.region.trim()) {
+    toast.error('Región obligatoria')
     return false
   }
   if (!form.fechaEntrega) {
@@ -216,6 +262,9 @@ async function pagarAhora() {
       nombreCliente: form.nombre,
       emailCliente: form.email,
       direccionEntrega: form.direccion,
+      telefono: form.telefono,
+      ciudad: form.ciudad,
+      region: form.region,
       fechaEntrega: form.fechaEntrega,
       flores,
       adiciones,
@@ -239,6 +288,10 @@ async function pagarAhora() {
         ['customer-data:email', form.email],
         ['customer-data:full-name', form.nombre],
         ['shipping-address:address-line-1', form.direccion],
+        ['shipping-address:country', 'CO'],
+        ['shipping-address:city', form.ciudad],
+        ['shipping-address:region', form.region],
+        ['shipping-address:phone-number', form.telefono],
       ]
       for (const [name, val] of campos) {
         const input = document.createElement('input')
@@ -258,5 +311,10 @@ async function pagarAhora() {
   } finally {
     pagando.value = false
   }
+}
+
+function simularPago() {
+  store.resetear()
+  router.push('/pago/resultado?estado=APROBADO&ref=SIMULACION')
 }
 </script>

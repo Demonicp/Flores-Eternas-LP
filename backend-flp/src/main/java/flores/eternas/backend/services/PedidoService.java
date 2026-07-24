@@ -269,6 +269,8 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         pedido.setTotalPedido(total);
         pedido.setDireccionEntrega(request.getDireccionEntrega());
+        pedido.setCiudad(request.getCiudad());
+        pedido.setRegion(request.getRegion());
         pedido.setFechaEntrega(fechaEntrega);
         pedido.setEstado(Estado.EN_PROCESO);
         pedido.setMontoPagado(BigDecimal.ZERO);
@@ -447,6 +449,8 @@ public class PedidoService {
         pedido.setMontoPagado(montoPagado);
         pedido.setTipoPedido(request.getTipoPedido());
         pedido.setEmailCliente(request.getEmailCliente());
+        pedido.setCiudad(request.getCiudad());
+        pedido.setRegion(request.getRegion());
         pedido.setEstado(Estado.EN_PREPARACION);
         pedido = pedidoRepository.save(pedido);
 
@@ -479,6 +483,8 @@ public class PedidoService {
         response.setFechaEntrega(request.getFechaEntrega());
         response.setNombreCliente(persona.getNombreCliente());
         response.setEmailCliente(request.getEmailCliente());
+        response.setCiudad(request.getCiudad());
+        response.setRegion(request.getRegion());
         response.setItems(itemsResponse);
 
         if (montoPendiente.compareTo(BigDecimal.ZERO) > 0) {
@@ -613,6 +619,8 @@ public class PedidoService {
         dto.setNombreCliente(pedido.getCliente() != null ? pedido.getCliente().getNombreCliente() : null);
         dto.setEmailCliente(pedido.getEmailCliente());
         dto.setDireccionEntrega(pedido.getDireccionEntrega());
+        dto.setCiudad(pedido.getCiudad());
+        dto.setRegion(pedido.getRegion());
         dto.setPagoToken(pedido.getPagoToken());
         dto.setMensaje(null);
         dto.setItems(populateItems(pedido.getId()));

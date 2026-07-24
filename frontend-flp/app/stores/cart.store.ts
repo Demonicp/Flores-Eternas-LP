@@ -15,6 +15,8 @@ export const useCartStore = defineStore('cart', () => {
     nombre: '',
     email: '',
     direccion: '',
+    ciudad: '',
+    region: '',
     fechaEntrega: '',
     cedula: '',
     telefono: '',
@@ -91,7 +93,7 @@ export const useCartStore = defineStore('cart', () => {
     items.value = []
     personalizados.value = []
     respuestaPedido.value = null
-    checkoutForm.value = { nombre: '', email: '', direccion: '', fechaEntrega: '', cedula: '', telefono: '' }
+    checkoutForm.value = { nombre: '', email: '', direccion: '', ciudad: '', region: '', fechaEntrega: '', cedula: '', telefono: '' }
     errorMsg.value = ''
     modoCheckout.value = 'cart'
   }
@@ -116,6 +118,8 @@ export const useCartStore = defineStore('cart', () => {
           : undefined,
         cedulaCliente: checkoutForm.value.cedula || undefined,
         telefonoCliente: checkoutForm.value.telefono || undefined,
+        ciudad: checkoutForm.value.ciudad || undefined,
+        region: checkoutForm.value.region || undefined,
       }
       const res = await pedidoService.crearPedido(body)
       respuestaPedido.value = res

@@ -34,6 +34,10 @@ public class Pedido extends AbstractEntity {
     @Column(name = "direccion_entrega")
     private String direccionEntrega;
 
+    private String ciudad;
+
+    private String region;
+
     @Column(name = "fecha_entrega")
     private LocalDate fechaEntrega;
 

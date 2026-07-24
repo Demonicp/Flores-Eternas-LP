@@ -42,6 +42,12 @@ public class PedidoRequestDTO {
     @Pattern(regexp = "^(\\+57\\s?)?(3\\d{9}|60\\d{8})$", message = "Teléfono: +57 3001234567 o 6012345678")
     private String telefonoCliente;
 
+    @NotBlank(message = "Ciudad obligatoria")
+    private String ciudad;
+
+    @NotBlank(message = "Departamento obligatorio")
+    private String region;
+
     public String getNombreCliente() { return nombreCliente; }
     public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
     public String getEmailCliente() { return emailCliente; }
@@ -64,6 +70,12 @@ public class PedidoRequestDTO {
     public void setCedulaCliente(String cedulaCliente) { this.cedulaCliente = cedulaCliente; }
     public String getTelefonoCliente() { return telefonoCliente; }
     public void setTelefonoCliente(String telefonoCliente) { this.telefonoCliente = telefonoCliente; }
+
+    public String getCiudad() { return ciudad; }
+    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+
+    public String getRegion() { return region; }
+    public void setRegion(String region) { this.region = region; }
 
     public static class ItemPedidoDTO {
         private Long idRamo;
