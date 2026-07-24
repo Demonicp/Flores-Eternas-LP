@@ -60,6 +60,8 @@ async function handleRealizarPedido() {
       nombreCliente: f.nombre,
       emailCliente: f.email,
       direccionEntrega: f.direccion,
+      ciudad: f.ciudad,
+      region: f.region,
       fechaEntrega: f.fechaEntrega,
       tipoPedido: 'RAPIDO',
       tipoPago: 'COMPLETO',
