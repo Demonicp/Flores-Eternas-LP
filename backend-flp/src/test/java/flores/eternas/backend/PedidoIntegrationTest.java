@@ -278,4 +278,26 @@ class PedidoIntegrationTest {
                 () -> pedidoService.crearPedidoPersonalizadoPendiente(request));
         assertEquals("La fecha de entrega debe ser al menos 5 días hábiles después de hoy.", ex.getMessage());
     }
+
+    @Test
+    void testCrearPedidoPersonalizadoPendiente_ConCiudadYRegion() {
+        CrearPedidoRequest request = new CrearPedidoRequest();
+        request.setFlores(List.of(
+            new CrearPedidoRequest.ItemFlorRequest(rosa.getId(), rojo.getId(), 3)
+        ));
+        request.setNombreCliente("Carlos Ruiz");
+        request.setEmailCliente("carlos@test.com");
+        request.setDireccionEntrega("calle 5 #10-20");
+        request.setTelefono("+57 3001234567");
+        request.setCiudad("Medellín");
+        request.setRegion("Antioquia");
+        request.setFechaEntrega(LocalDate.now().plusDays(8).toString());
+
+        Pedido pedido = pedidoService.crearPedidoPersonalizadoPendiente(request);
+
+        assertNotNull(pedido);
+        assertNotNull(pedido.getId());
+        assertEquals("Medellín", pedido.getCiudad());
+        assertEquals("Antioquia", pedido.getRegion());
+    }
 }
