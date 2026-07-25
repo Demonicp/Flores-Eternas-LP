@@ -9,7 +9,7 @@
     <ContCartInterno @realizar-pedido="handleRealizarPedido" @cerrar-y-limpiar="cerrarYLimpiar" />
   </div>
 
-  <Teleport v-if="esOverlay" to="body">
+  <Teleport v-if="esOverlay && !soloSidebar" to="body">
     <Transition name="cart-slide">
       <div v-if="store.abierto" class="fixed inset-0 z-50 flex justify-end">
         <div class="absolute inset-0 bg-black/30" @click="store.cerrarOverlay()" />
@@ -35,6 +35,8 @@ import { apiClient } from '~/services/api-client'
 
 const store = useCartStore()
 
+const props = defineProps<{ soloSidebar?: boolean }>()
+
 const titulo = computed(() => {
   if (store.modoCheckout === 'confirm') return 'Pedido Confirmado'
   if (store.modoCheckout === 'checkout') return 'Datos de Entrega'
@@ -47,12 +49,12 @@ const esOverlay = computed(() => store.vista === 'overlay')
 async function handleRealizarPedido() {
   store.errorMsg = ''
   const f = store.checkoutForm
-  if (!f.nombre || !f.email || !f.direccion || !f.fechaEntrega) {
-    store.errorMsg = 'Todos los campos son obligatorios.'
+  if (!f.nombre || !f.email || !f.direccion || !f.fechaEntrega || !f.telefono) {
+    store.errorMsg = 'Todos los campos obligatorios deben estar llenos.'
     return
   }
-  if (store.tienePersonalizados && (!f.cedula || !f.telefono)) {
-    store.errorMsg = 'Cédula y teléfono son obligatorios para pedidos personalizados.'
+  if (store.tienePersonalizados && !f.cedula) {
+    store.errorMsg = 'Cédula es obligatoria para pedidos personalizados.'
     return
   }
 
