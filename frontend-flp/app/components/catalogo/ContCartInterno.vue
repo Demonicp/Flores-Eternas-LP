@@ -210,7 +210,7 @@ const camposBase: { key: CampoKey; label: string; icon: string; type: string; pl
   { key: 'nombre', label: 'Nombre completo', icon: 'mdi:account-outline', type: 'text', placeholder: '¿Quién recibe el ramo?', obligatorio: true },
   { key: 'email', label: 'Correo electrónico', icon: 'mdi:email-outline', type: 'email', placeholder: 'correo@ejemplo.com', obligatorio: true },
   { key: 'cedula', label: 'Cédula', icon: 'mdi:card-account-details-outline', type: 'text', placeholder: 'Número de cédula', obligatorio: false },
-  { key: 'telefono', label: 'Teléfono', icon: 'mdi:phone-outline', type: 'tel', placeholder: '300 123 4567', obligatorio: false },
+  { key: 'telefono', label: 'Teléfono', icon: 'mdi:phone-outline', type: 'tel', placeholder: '300 123 4567', obligatorio: true },
   { key: 'ciudad', label: 'Ciudad', icon: 'mdi:city', type: 'text', placeholder: 'Bogotá', obligatorio: true },
   { key: 'region', label: 'Departamento', icon: 'mdi:map', type: 'text', placeholder: 'Cundinamarca', obligatorio: true },
   { key: 'direccion', label: 'Dirección de entrega', icon: 'mdi:map-marker-outline', type: 'text', placeholder: 'Calle 123 #45-67', obligatorio: true },
@@ -218,7 +218,7 @@ const camposBase: { key: CampoKey; label: string; icon: string; type: string; pl
 ]
 
 const campos = computed(() =>
-  camposBase.filter(c => c.key !== 'cedula' && c.key !== 'telefono' || store.tienePersonalizados)
+  camposBase.filter(c => c.key !== 'cedula' || store.tienePersonalizados)
 )
 
 function fieldClase(key: string): string {
