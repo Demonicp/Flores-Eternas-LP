@@ -4,6 +4,7 @@ import flores.eternas.backend.dto.WompiIniciarResponse;
 import flores.eternas.backend.model.Pedido;
 import flores.eternas.backend.model.enums.Estado;
 import flores.eternas.backend.repository.PedidoRepository;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +59,13 @@ public class WompiService {
         this.integritySecret = integritySecret;
         this.privateKey = privateKey;
         this.wompiUrl = wompiUrl;
+    }
+
+    @PostConstruct
+    public void debugWompiEnv() {
+        log.info("WOMPI_PUBLIC_KEY loaded: {}", publicKey != null && !publicKey.isBlank());
+        log.info("WOMPI_INTEGRITY_SECRET loaded: {}", integritySecret != null && !integritySecret.isBlank());
+        log.info("WOMPI_PRIVATE_KEY loaded: {}", privateKey != null && !privateKey.isBlank());
     }
 
     /**
