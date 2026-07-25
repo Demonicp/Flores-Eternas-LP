@@ -1,11 +1,11 @@
 <template>
     <h2 class="text-[#7A4E2D] text-2xl font-radley mb-10">Selecciona los tipos de flor</h2>
 
-    <div v-if="loading" class="flex gap-4 sm:gap-5 px-2 sm:px-6">
-      <div v-for="i in 4" :key="i" class="flex-shrink-0 w-44 sm:w-52 h-64 rounded-xl bg-[#FFEDE3] animate-pulse" />
+    <div v-if="loading" class="flex gap-4 px-2 sm:px-6">
+      <div v-for="i in 4" :key="i" class="flex-shrink-0 w-36 sm:w-40 md:w-48 lg:w-56 h-64 rounded-xl bg-[#FFEDE3] animate-pulse" />
     </div>
 
-    <div v-else class="relative group mb-16 px-2 sm:px-0">
+    <div v-else class="relative group mb-16 px-2 sm:px-0 w-full">
       <button
         class="arrow-btn absolute -left-2 sm:-left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-[#7A4E2D] opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white active:scale-90"
         :class="{ 'opacity-100': scrollLeft > 0 }"
@@ -17,13 +17,13 @@
 
       <div
         ref="scrollContainer"
-        class="flex gap-4 sm:gap-5 overflow-x-auto scroll-smooth pt-4 pb-2 scrollbar-hide snap-x snap-mandatory"
+        class="flex gap-4 overflow-x-auto scroll-smooth pt-4 pb-2 scrollbar-hide snap-x snap-mandatory"
         @scroll="onScroll"
       >
         <div
           v-for="flor in tiposFlor"
           :key="flor.id"
-          :class="['flex-shrink-0 w-44 sm:w-52 rounded-xl shadow-md transition-all duration-200 flex flex-col items-center justify-center gap-2 sm:gap-3 p-4 sm:p-6 snap-start', store.isSelected(flor.id) ? 'bg-[#FFDCC8] ring-2 ring-[#7A4E2D]' : store.floresSeleccionadas.length >= 2 ? 'bg-[#FFEDE3] opacity-50 cursor-not-allowed' : 'bg-[#FFEDE3] hover:bg-[#FFE8DD] cursor-pointer']"
+          :class="['flex-shrink-0 w-36 sm:w-40 md:w-48 lg:w-56 rounded-xl shadow-md transition-all duration-200 flex flex-col items-center justify-center gap-2 sm:gap-3 p-4 sm:p-6 snap-start', store.isSelected(flor.id) ? 'bg-[#FFDCC8] ring-2 ring-[#7A4E2D]' : store.floresSeleccionadas.length >= 2 ? 'bg-[#FFEDE3] opacity-50 cursor-not-allowed' : 'bg-[#FFEDE3] hover:bg-[#FFE8DD] cursor-pointer']"
           @click="store.floresSeleccionadas.length < 2 || store.isSelected(flor.id) ? store.toggleFlor(flor) : undefined"
         >
           <div v-if="store.isSelected(flor.id)" class="w-8 h-8 rounded-full bg-[#7A4E2D] text-white flex items-center justify-center text-sm font-bold">✓</div>
@@ -85,7 +85,7 @@ function scrollSection(direction: number) {
   const el = scrollContainer.value
   if (!el) return
   const card = el.querySelector('.snap-start') as HTMLElement | null
-  const cardWidth = card ? card.offsetWidth + 16 : 208
+  const cardWidth = card ? card.offsetWidth + 16 : 240
   el.scrollBy({ left: direction * cardWidth, behavior: 'smooth' })
 }
 

@@ -12,8 +12,8 @@
         />
       </div>
 
-      <div class="flex gap-8 w-full">
-        <div class="w-64 bg-white rounded-2xl shadow-lg p-6 flex-shrink-0 h-fit">
+      <div class="flex flex-col lg:flex-row gap-8 w-full">
+        <div class="w-full lg:w-64 bg-white rounded-2xl shadow-lg p-6 flex-shrink-0 h-fit">
           <h3 class="text-[#7A4E2D] font-radley text-lg mb-4">Resumen de flores</h3>
           <div v-for="(item, idx) in store.floresSeleccionadas" :key="idx"
             class="flex items-center justify-between py-2 border-b border-[#FFEDE3] last:border-0"

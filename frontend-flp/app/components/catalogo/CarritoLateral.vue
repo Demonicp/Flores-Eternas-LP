@@ -31,6 +31,7 @@
 import { computed } from 'vue'
 import { useCartStore } from '../../stores/cart.store'
 import ContCartInterno from './ContCartInterno.vue'
+import { apiClient } from '~/services/api-client'
 
 const store = useCartStore()
 
@@ -56,7 +57,7 @@ async function handleRealizarPedido() {
   }
 
   try {
-    await store.realizarPedido({
+    const res = await apiClient.post('/api/pagos/wompi/iniciar-rapido', {
       nombreCliente: f.nombre,
       emailCliente: f.email,
       direccionEntrega: f.direccion,
@@ -69,8 +70,57 @@ async function handleRealizarPedido() {
         idRamo: i.ramo.id,
         cantidad: i.cantidad,
       })),
+      floresPersonalizadas: store.personalizados.length > 0
+        ? store.personalizados.flatMap(p => p.flores.map(f2 => ({
+            tipoFlorId: f2.tipoFlorId,
+            colorFlorId: f2.colorFlorId,
+            cantidad: f2.cantidad,
+          })))
+        : undefined,
+      adicionesPersonalizadas: store.personalizados.length > 0
+        ? store.personalizados.flatMap(p => p.adiciones.map(a => ({
+            inventarioId: a.inventarioId,
+            cantidad: a.cantidad,
+          })))
+        : undefined,
+      cedulaCliente: f.cedula || undefined,
+      telefonoCliente: f.telefono || undefined,
+      responseUrl: window.location.origin + '/pago/resultado',
     })
-    store.modoCheckout = 'confirm'
+
+    if (res.signature) {
+      store.limpiarCarrito()
+      const formEl = document.createElement('form')
+      formEl.method = 'GET'
+      formEl.action = 'https://checkout.wompi.co/p/'
+      const campos = [
+        ['public-key', res.publicKey],
+        ['currency', res.currency],
+        ['amount-in-cents', String(res.amountInCents)],
+        ['reference', res.reference],
+        ['signature:integrity', res.signature],
+        ['redirect-url', res.redirectUrl || (window.location.origin + '/pago/resultado')],
+        ['customer-data:email', f.email],
+        ['customer-data:full-name', f.nombre],
+        ['shipping-address:address-line-1', f.direccion],
+        ['shipping-address:country', 'CO'],
+        ['shipping-address:city', f.ciudad],
+        ['shipping-address:region', f.region],
+        ['shipping-address:phone-number', f.telefono],
+      ]
+      for (const [name, val] of campos) {
+        if (!val) continue
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = name
+        input.value = val
+        formEl.appendChild(input)
+      }
+      document.body.appendChild(formEl)
+      formEl.submit()
+    } else {
+      window.location.href = '/pago/resultado?estado=APROBADO&ref=' + res.pedidoId
+    }
   } catch (e) {
     store.errorMsg = e instanceof Error ? e.message : 'Error al procesar el pedido.'
   }

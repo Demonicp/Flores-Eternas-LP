@@ -49,7 +49,7 @@
             </div>
             <div class="mt-3">
               <label class="block text-sm text-[#7A4E2D] font-medium mb-2">Tipo de pago</label>
-              <div class="flex gap-4">
+              <div class="flex flex-col sm:flex-row gap-4">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="radio" v-model="pagoCompleto" :value="false" class="accent-[#7A4E2D]" />
                   <span class="text-sm text-[#7A4E2D]">Pagar 50% inicial (${{ (totalGeneral * 0.5).toFixed(2) }})</span>
@@ -113,7 +113,7 @@
             </div>
           </div>
 
-          <div class="flex gap-4 justify-center mt-8">
+          <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
             <button
               @click="router.push('/flor/seleccion-apartados')"
               class="bg-[#FFEDE3] text-[#7A4E2D] font-radley px-6 py-3 rounded-full hover:bg-[#FFDCC8] transition"

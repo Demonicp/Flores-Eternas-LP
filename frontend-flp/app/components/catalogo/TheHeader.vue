@@ -4,7 +4,7 @@
     style="background-image: url('/assets/images/FondoPruebaHeader.png'); background-position: center 35%; background-color: #5a3a2a;"
   >
     <div class="bg-black/30">
-      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:grid md:grid-cols-[1fr_auto_1fr] items-center min-h-[120px] sm:min-h-[200px] gap-1 md:gap-0">
 
           <nav class="flex items-center justify-center md:justify-start gap-3 md:gap-6 order-2 md:order-1 mt-1 md:mt-0">

@@ -48,6 +48,11 @@ public class PedidoRequestDTO {
     @NotBlank(message = "Departamento obligatorio")
     private String region;
 
+    private String responseUrl;
+
+    public String getResponseUrl() { return responseUrl; }
+    public void setResponseUrl(String responseUrl) { this.responseUrl = responseUrl; }
+
     public String getNombreCliente() { return nombreCliente; }
     public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
     public String getEmailCliente() { return emailCliente; }
