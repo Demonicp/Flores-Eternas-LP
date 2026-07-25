@@ -7,7 +7,7 @@
         <CatalogoPublico />
       </div>
       <div class="hidden lg:block flex-shrink-0 sticky top-0 self-start max-h-screen overflow-y-auto">
-        <CarritoLateral />
+        <CarritoLateral soloSidebar />
       </div>
     </div>
 
