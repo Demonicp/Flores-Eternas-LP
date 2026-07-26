@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -131,6 +132,11 @@ public class GeminiImageService {
             throw new RuntimeException("Gemini no genero una imagen en la respuesta");
 
         } catch (QuotaExceededException e) {
+            throw e;
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode().value() == 429) {
+                throw new QuotaExceededException("Gemini respondio con HTTP 429 (quota excedida)");
+            }
             throw e;
         } catch (Exception e) {
             log.error("Error al generar imagen con Gemini: {}", e.getMessage(), e);
