@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 export interface VarianteFlor {
   tipoFlor: any
@@ -16,6 +16,11 @@ export const useRamoPersonalizadoStore = defineStore('ramoPersonalizado', () => 
   const direccionEntrega = ref('')
   const imagenUrl = ref('')
   const imagenGenerada = computed(() => imagenUrl.value !== '')
+  const sesionToken = ref(sessionStorage.getItem('flp_sesion') || crypto.randomUUID())
+  watch(sesionToken, (val) => {
+    if (val) sessionStorage.setItem('flp_sesion', val)
+    else sessionStorage.removeItem('flp_sesion')
+  })
 
   const totalFlores = computed(() =>
     floresSeleccionadas.value.reduce((sum, f) => sum + f.cantidad, 0)
@@ -94,10 +99,11 @@ export const useRamoPersonalizadoStore = defineStore('ramoPersonalizado', () => 
     telefono.value = ''
     direccionEntrega.value = ''
     imagenUrl.value = ''
+    sesionToken.value = crypto.randomUUID()
   }
 
   return {
-    floresSeleccionadas, adiciones, cedula, nombreCliente, telefono, direccionEntrega, imagenUrl, imagenGenerada,
+    floresSeleccionadas, adiciones, cedula, nombreCliente, telefono, direccionEntrega, imagenUrl, imagenGenerada, sesionToken,
     totalFlores,
     isSelected, toggleFlor, agregarVariante, quitarVariante, setColor, setCantidad,
     agregarAdicion, quitarAdicion, calcularTotal, resetear
