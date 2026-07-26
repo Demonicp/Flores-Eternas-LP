@@ -25,7 +25,7 @@ public class GeminiImageService {
     private static final String GEMINI_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent";
     private static final String HF_URL =
-            "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-2-1";
+            "https://image.pollinations.ai/prompt/";
 
     private final String apiKey;
     private final String hfApiKey;
@@ -146,27 +146,18 @@ public class GeminiImageService {
 
     /**
      * @author demonicp
-     * Llama a Hugging Face Inference API (FLUX.1-dev) como fallback.
-     * La respuesta son bytes crudos que se convierten a base64.
+     * Genera una imagen usando Pollinations.ai como fallback gratuito sin API key.
+     * GET request que retorna bytes de la imagen directamente.
      */
     private String generarConHuggingFace(String prompt) {
-        if (hfApiKey == null || hfApiKey.isBlank()) {
-            throw new RuntimeException("HF_API_KEY no esta configurada en el .env — no hay fallback disponible");
-        }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(hfApiKey);
-
-        Map<String, String> requestBody = Map.of("inputs", prompt);
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
+        String url = HF_URL + java.net.URLEncoder.encode(prompt, java.nio.charset.StandardCharsets.UTF_8);
 
         try {
             ResponseEntity<byte[]> response = restTemplate.exchange(
-                    HF_URL, HttpMethod.POST, entity, byte[].class);
+                    url, HttpMethod.GET, null, byte[].class);
 
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-                throw new RuntimeException("Error llamando a Hugging Face: " + response.getStatusCode());
+                throw new RuntimeException("Error llamando a Pollinations: " + response.getStatusCode());
             }
 
             byte[] imageBytes = response.getBody();
@@ -174,7 +165,7 @@ public class GeminiImageService {
             return "data:image/png;base64," + base64Data;
 
         } catch (Exception e) {
-            log.error("Error al generar imagen con Hugging Face: {}", e.getMessage(), e);
+            log.error("Error al generar imagen con Pollinations: {}", e.getMessage(), e);
             throw new RuntimeException("Error al generar imagen con fallback: " + e.getMessage(), e);
         }
     }
