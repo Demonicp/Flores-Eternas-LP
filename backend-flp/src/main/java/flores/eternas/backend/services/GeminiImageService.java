@@ -25,7 +25,7 @@ public class GeminiImageService {
     private static final String GEMINI_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent";
     private static final String HF_URL =
-            "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1";
+            "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-2-1";
 
     private final String apiKey;
     private final String hfApiKey;
