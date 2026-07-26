@@ -148,7 +148,7 @@ async function generarImagenIA() {
   const prompt = `Fotografía profesional de catálogo de un ramo de flores eternas artesanal hecho a mano con cinta de satén brillante y listón de raso. Compuesto por: ${flores}.${adiciones ? ` Accesorios incluidos: ${adiciones}.` : ''} El ramo tiene envoltorio elegante en capas de papel coreano plisado con un gran moño de cinta satinada. Iluminación suave de estudio, brillo sutil del tejido de satén, composición limpia de boutique floral, alta resolución.`
 
   try {
-    const res = await geminiApi.generarImagen(prompt)
+    const res = await geminiApi.generarImagen(prompt, store.sesionToken)
     store.imagenUrl = res.imageUrl
   } catch (e) {
     errorGeneracion.value = e instanceof Error ? e.message : 'Error al generar la imagen'

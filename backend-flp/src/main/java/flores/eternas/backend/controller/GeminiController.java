@@ -27,12 +27,17 @@ public class GeminiController {
             return ResponseEntity.badRequest().body(Map.of("error", "El prompt es obligatorio"));
         }
 
+        String sesionToken = body.get("sesionToken");
+        if (sesionToken == null || sesionToken.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El token de sesion es obligatorio"));
+        }
+
         try {
-            String imageUrl = geminiImageService.generarImagen(prompt);
+            String imageUrl = geminiImageService.generarImagen(prompt, sesionToken);
             return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
         } catch (Exception e) {
             log.error("Error generando imagen con IA: {}", e.getMessage());
-            return ResponseEntity.status(500).body(Map.of("error", "Servicio de IA no disponible. Intenta más tarde."));
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
 }
