@@ -1,0 +1,54 @@
+name: Sync Upstream Testing to Fork
+
+on:
+  repository_dispatch:
+    types: [sync-testing]   # se activa cuando el repo original envía el evento
+  workflow_dispatch:        # ejecución manual opcional
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git remote add upstream https://github.com/Flores-Eternas-org/Flores-Eternas-org.git
+          git fetch upstream
+
+          # 1️⃣ Actualizar testing con upstream/testing
+          git checkout -B testing origin/testing
+          git reset --hard upstream/testing
+
+          # 2️⃣ Promover a master desde testing (solo local)
+          git checkout -B master origin/master
+          git reset --hard testing
+
+      - name: Create Pull Request to master
+        id: create-pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          branch: sync-testing-to-master
+          base: master
+          title: "Sync testing → master"
+          body: |
+            Este PR sincroniza la rama `master` con los últimos cambios validados en `testing`.
+            Generado automáticamente por GitHub Actions.
+
+      - name: Enable auto-merge
+        if: ${{ steps.create-pr.outputs.pull-request-number }}
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
+          merge-method: squash
