@@ -76,15 +76,24 @@
                     </svg>
                   </button>
                 </div>
-              </div>
-
-              <button
-                @click="store.agregarVariante(grupo.tipoFlor)"
-                class="mt-3 text-sm text-[#7A4E2D] hover:text-[#5E3A1F] font-radley underline underline-offset-2"
-              >
-                + Añadir más {{ grupo.tipoFlor.descripcionFlor.toLowerCase() }}
-              </button>
 </div>
+
+              <div v-if="gruposFlores.length < 2" class="mt-4">
+                <button @click="mostrarSelector = !mostrarSelector"
+                  class="w-full bg-white rounded-2xl shadow-lg p-6 border-2 border-dashed border-[#FFEDE3] hover:bg-[#FFFAF5] transition flex items-center justify-center gap-3">
+                  <span class="text-[#7A4E2D] text-lg font-radley">A&ntilde;adir otra flor</span>
+                </button>
+
+                <div v-if="mostrarSelector" class="flex gap-4 mt-4 overflow-x-auto pb-2">
+                  <div v-for="flor in floresDisponibles" :key="flor.id"
+                    @click="agregarSegundaFlor(flor)"
+                    class="flex-shrink-0 w-32 rounded-xl bg-[#FFEDE3] hover:bg-[#FFDCC8] cursor-pointer shadow-md p-4 flex flex-col items-center gap-2 transition">
+                    <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-3xl" />
+                    <span class="text-[#7A4E2D] text-sm font-radley text-center">{{ flor.descripcionFlor }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
             </div>
 
       <div class="flex flex-wrap gap-4 justify-center mt-10">
@@ -130,15 +139,27 @@ if (store.floresSeleccionadas.length === 0) {
 }
 
 const colores = ref([])
+const tiposFlorGlobal = ref([])
 const loading = ref(true)
 const generando = ref(false)
 const errorGeneracion = ref('')
+const mostrarSelector = ref(false)
+
+const floresDisponibles = computed(() => {
+  const seleccionados = new Set(store.floresSeleccionadas.map(f => f.tipoFlor.id))
+  return tiposFlorGlobal.value.filter(f => !seleccionados.has(f.id))
+})
 
 onMounted(async () => {
   try {
-    colores.value = await floresApi.getColores()
+    const [coloresRes, tiposRes] = await Promise.all([
+      floresApi.getColores(),
+      floresApi.getTipos()
+    ])
+    colores.value = coloresRes
+    tiposFlorGlobal.value = tiposRes
   } catch (e) {
-    console.error('Error al cargar colores:', e)
+    console.error('Error al cargar datos:', e)
   } finally {
     loading.value = false
   }
@@ -185,6 +206,11 @@ function irResumen() {
   }
 }
 
+function agregarSegundaFlor(flor) {
+  store.agregarVariante(flor)
+  mostrarSelector.value = false
+}
+
 async function generarImagenIA() {
   if (generando.value || store.imagenGenerada) return
   generando.value = true
@@ -200,7 +226,7 @@ async function generarImagenIA() {
   const prompt = `Fotografía profesional de catálogo de un ramo de flores eternas artesanal hecho a mano con cinta de satén brillante y listón de raso. Compuesto por: ${flores}.${adiciones ? ` Accesorios incluidos: ${adiciones}.` : ''} El ramo tiene envoltorio elegante en capas de papel coreano plisado con un gran moño de cinta satinada. Iluminación suave de estudio, brillo sutil del tejido de satén, composición limpia de boutique floral, alta resolución.`
 
   try {
-    const res = await geminiApi.generarImagen(prompt)
+    const res = await geminiApi.generarImagen(prompt, store.sesionToken)
     store.imagenUrl = res.imageUrl
   } catch (e) {
     errorGeneracion.value = e instanceof Error ? e.message : 'Error al generar la imagen'
