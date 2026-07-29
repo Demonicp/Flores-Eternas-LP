@@ -34,3 +34,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Logs de la aplicación — pueden contener correos, IPs y trazas de auth
+backend-flp/backend.log
+backend-flp/logs/*.log
