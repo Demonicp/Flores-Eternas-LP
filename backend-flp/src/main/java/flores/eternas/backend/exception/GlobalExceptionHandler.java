@@ -3,11 +3,15 @@ package flores.eternas.backend.exception;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 //Santiago Montenegro HU6
 @ControllerAdvice
@@ -46,6 +50,35 @@ public class GlobalExceptionHandler {
         }
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("message", message));
+    }
+
+    /**
+     * @author esteban
+     * Maneja los errores de validacion de Bean Validation lanzados por
+     * {@code @Valid} en los DTOs de request. Devuelve 400 Bad Request con
+     * un mensaje legible y un mapa field -> mensaje para que el frontend
+     * pueda mostrar errores por campo si lo desea.
+     * @param ex Excepcion con los errores de validacion acumulados.
+     * @return ResponseEntity con status 400, mensaje consolidado y detalle
+     *         de errores por campo.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> errores = new HashMap<>();
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errores.put(error.getField(), error.getDefaultMessage());
+        }
+
+        String message = errores.isEmpty()
+                ? "Datos de entrada inválidos"
+                : errores.entrySet().stream()
+                        .map(e -> e.getKey() + ": " + e.getValue())
+                        .collect(Collectors.joining(", "));
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", message);
+        body.put("errors", errores);
+        return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(Exception.class)
