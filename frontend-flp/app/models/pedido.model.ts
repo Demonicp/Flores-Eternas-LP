@@ -54,6 +54,8 @@ export type PedidoRequest = {
   }>
   cedulaCliente?: string
   telefonoCliente?: string
+  ciudad?: string
+  region?: string
 }
 
 export type PedidoResponse = {

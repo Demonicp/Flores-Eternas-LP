@@ -46,6 +46,10 @@ public class CrearPedidoRequest {
     @Email(message = "Email inválido")
     private String emailCliente;
 
+    private String ciudad;
+
+    private String region;
+
     private String responseUrl;
 
     /** Si es true, el cliente paga el 100% del pedido en lugar del 50% inicial. */

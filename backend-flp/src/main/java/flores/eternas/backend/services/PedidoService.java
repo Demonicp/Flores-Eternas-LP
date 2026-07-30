@@ -269,6 +269,8 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         pedido.setTotalPedido(total);
         pedido.setDireccionEntrega(request.getDireccionEntrega());
+        pedido.setCiudad(request.getCiudad());
+        pedido.setRegion(request.getRegion());
         pedido.setFechaEntrega(fechaEntrega);
         pedido.setEstado(Estado.EN_PROCESO);
         pedido.setMontoPagado(BigDecimal.ZERO);
@@ -308,6 +310,139 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findByPagoToken(token)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado para el token: " + token));
         return toResponseDTO(pedido);
+    }
+
+    @Transactional
+    public Pedido crearPedidoPendiente(PedidoRequestDTO request) {
+        LocalDate hoy = LocalDate.now();
+        boolean tienePersonalizados = request.getFloresPersonalizadas() != null && !request.getFloresPersonalizadas().isEmpty();
+
+        if (tienePersonalizados) {
+            LocalDate fechaMinima = sumarDiasHabiles(hoy, 5);
+            if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(fechaMinima)) {
+                throw new ValidacionException("La fecha de entrega debe ser al menos 5 días hábiles después de hoy.");
+            }
+        } else {
+            if (request.getFechaEntrega() == null || request.getFechaEntrega().isBefore(hoy)) {
+                throw new ValidacionException("La fecha de entrega no puede ser anterior a hoy.");
+            }
+        }
+
+        Persona persona;
+
+        if (tienePersonalizados && request.getCedulaCliente() != null && !request.getCedulaCliente().isBlank()) {
+            persona = personaRepository.findByCedula(request.getCedulaCliente()).orElse(null);
+            if (persona == null) {
+                persona = new Persona();
+                persona.setCedula(request.getCedulaCliente());
+                persona.setNombreCliente(request.getNombreCliente());
+                persona.setTelefono(request.getTelefonoCliente());
+                persona = personaRepository.save(persona);
+            } else {
+                persona.setNombreCliente(request.getNombreCliente());
+                if (request.getTelefonoCliente() != null) {
+                    persona.setTelefono(request.getTelefonoCliente());
+                }
+                persona = personaRepository.save(persona);
+            }
+        } else {
+            persona = new Persona();
+            persona.setNombreCliente(request.getNombreCliente());
+            persona.setTelefono(null);
+            persona.setCedula(null);
+            persona.setFechaNacimiento(null);
+            persona = personaRepository.save(persona);
+        }
+
+        BigDecimal total = BigDecimal.ZERO;
+        List<DetallePedido> detalles = new ArrayList<>();
+
+        if (request.getItems() != null) {
+            for (PedidoRequestDTO.ItemPedidoDTO itemReq : request.getItems()) {
+                Ramo ramo = ramoRepository.findById(itemReq.getIdRamo())
+                        .orElseThrow(() -> new EntityNotFoundException("Ramo no encontrado: " + itemReq.getIdRamo()));
+
+                BigDecimal subtotal = ramo.getPrecioRamo().multiply(BigDecimal.valueOf(itemReq.getCantidad()));
+                total = total.add(subtotal);
+
+                DetallePedido detalle = new DetallePedido();
+                detalle.setRamo(ramo);
+                detalle.setCantidad(itemReq.getCantidad());
+                detalle.setPedido(null);
+                detalles.add(detalle);
+            }
+        }
+
+        StringBuilder adicionesJson = new StringBuilder();
+        if (tienePersonalizados) {
+            if (request.getAdicionesPersonalizadas() != null && !request.getAdicionesPersonalizadas().isEmpty()) {
+                adicionesJson.append("[");
+                for (int i = 0; i < request.getAdicionesPersonalizadas().size(); i++) {
+                    var adicionReq = request.getAdicionesPersonalizadas().get(i);
+                    Inventario inventario = inventarioRepository.findById(adicionReq.getInventarioId())
+                            .orElseThrow(() -> new RuntimeException("Adicion no encontrada"));
+
+                    BigDecimal subtotal = inventario.getPrecioCosto()
+                            .multiply(BigDecimal.valueOf(adicionReq.getCantidad()));
+                    total = total.add(subtotal);
+
+                    if (i > 0) adicionesJson.append(",");
+                    adicionesJson.append("{")
+                            .append("\"nombre\":\"").append(escapeJson(inventario.getNombreInventario())).append("\",")
+                            .append("\"cantidad\":").append(adicionReq.getCantidad()).append(",")
+                            .append("\"precio\":").append(inventario.getPrecioCosto())
+                            .append("}");
+                }
+                adicionesJson.append("]");
+            }
+
+            String adicionesStr = adicionesJson.length() > 0 ? adicionesJson.toString() : null;
+            for (CrearPedidoRequest.ItemFlorRequest florReq : request.getFloresPersonalizadas()) {
+                TipoFlor tipoFlor = tipoFlorRepository.findById(florReq.getTipoFlorId())
+                        .orElseThrow(() -> new RuntimeException("Tipo de flor no encontrado: " + florReq.getTipoFlorId()));
+
+                BigDecimal subtotal = tipoFlor.getPrecioUnidad()
+                        .multiply(BigDecimal.valueOf(florReq.getCantidad()));
+                total = total.add(subtotal);
+
+                ColorFlor colorFlor = null;
+                if (florReq.getColorFlorId() != null) {
+                    colorFlor = colorFlorRepository.findById(florReq.getColorFlorId())
+                            .orElseThrow(() -> new RuntimeException("Color de flor no encontrado: " + florReq.getColorFlorId()));
+                }
+
+                DetallePedido detalle = new DetallePedido();
+                detalle.setPedido(null);
+                detalle.setTipoFlor(tipoFlor.getDescripcionFlor());
+                detalle.setColorFlor(colorFlor != null ? colorFlor.getDescripcionColor() : null);
+                detalle.setCantidadFlores(florReq.getCantidad());
+                detalle.setAdicionesJson(adicionesStr);
+                detalles.add(detalle);
+            }
+        }
+
+        Pedido pedido = new Pedido();
+        pedido.setTotalPedido(total);
+        pedido.setDireccionEntrega(request.getDireccionEntrega());
+        pedido.setFechaEntrega(request.getFechaEntrega());
+        pedido.setFechaCreacion(LocalDateTime.now());
+        pedido.setCliente(persona);
+        pedido.setMetodoPago(null);
+        pedido.setMontoPagado(BigDecimal.ZERO);
+        pedido.setTipoPedido(request.getTipoPedido());
+        pedido.setEmailCliente(request.getEmailCliente());
+        pedido.setCiudad(request.getCiudad());
+        pedido.setRegion(request.getRegion());
+        pedido.setEstado(Estado.EN_PROCESO);
+        pedido.setPagoToken(UUID.randomUUID().toString());
+        pedido = pedidoRepository.save(pedido);
+
+        for (DetallePedido detalle : detalles) {
+            detalle.setPedido(pedido);
+            detallePedidoRepository.save(detalle);
+        }
+
+        return pedido;
     }
 
     @Transactional
@@ -447,6 +582,8 @@ public class PedidoService {
         pedido.setMontoPagado(montoPagado);
         pedido.setTipoPedido(request.getTipoPedido());
         pedido.setEmailCliente(request.getEmailCliente());
+        pedido.setCiudad(request.getCiudad());
+        pedido.setRegion(request.getRegion());
         pedido.setEstado(Estado.EN_PREPARACION);
         pedido = pedidoRepository.save(pedido);
 
@@ -479,6 +616,8 @@ public class PedidoService {
         response.setFechaEntrega(request.getFechaEntrega());
         response.setNombreCliente(persona.getNombreCliente());
         response.setEmailCliente(request.getEmailCliente());
+        response.setCiudad(request.getCiudad());
+        response.setRegion(request.getRegion());
         response.setItems(itemsResponse);
 
         if (montoPendiente.compareTo(BigDecimal.ZERO) > 0) {
@@ -613,6 +752,8 @@ public class PedidoService {
         dto.setNombreCliente(pedido.getCliente() != null ? pedido.getCliente().getNombreCliente() : null);
         dto.setEmailCliente(pedido.getEmailCliente());
         dto.setDireccionEntrega(pedido.getDireccionEntrega());
+        dto.setCiudad(pedido.getCiudad());
+        dto.setRegion(pedido.getRegion());
         dto.setPagoToken(pedido.getPagoToken());
         dto.setMensaje(null);
         dto.setItems(populateItems(pedido.getId()));

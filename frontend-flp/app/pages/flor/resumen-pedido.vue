@@ -1,7 +1,18 @@
 <template>
-    <h2 class="text-[#7A4E2D] text-2xl font-radley mb-8">Resumen de tu ramo personalizado</h2>
+    <div class="w-full">
+      <h2 class="text-[#7A4E2D] text-2xl font-radley mb-8 text-center">Resumen de tu ramo personalizado</h2>
 
-    <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg">
+      <div class="mb-8 max-w-md mx-auto">
+        <DashboardIA
+          :imagen-url="store.imagenUrl"
+          :imagen-generada="store.imagenGenerada"
+          :generando="generando"
+          :error-generacion="errorGeneracion"
+          @generar="generarImagenIA"
+        />
+      </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg mx-auto">
       <div class="space-y-4 mb-6">
         <div v-for="(item, idx) in store.floresSeleccionadas" :key="idx"
           class="flex items-center justify-between py-3 border-b border-[#FFEDE3] last:border-0"
@@ -32,77 +43,93 @@
       </div>
 
       <div class="border-t border-[#FFEDE3] pt-4 mb-6">
-        <div class="flex justify-between text-lg font-lora text-[#7A4E2D]">
-          <span>Total</span>
-          <span>${{ totalGeneral.toFixed(2) }}</span>
-        </div>
-        <div class="mt-3">
-          <label class="block text-sm text-[#7A4E2D] font-medium mb-2">Tipo de pago</label>
-          <div class="flex gap-4">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" v-model="pagoCompleto" :value="false" class="accent-[#7A4E2D]" />
-              <span class="text-sm text-[#7A4E2D]">Pagar 50% inicial (${{ (totalGeneral * 0.5).toFixed(2) }})</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" v-model="pagoCompleto" :value="true" class="accent-[#7A4E2D]" />
-              <span class="text-sm text-[#7A4E2D]">Pagar 100% (${{ totalGeneral.toFixed(2) }})</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-4 mb-6">
-        <div>
-          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Nombre completo</label>
-          <input v-model="form.nombre" @input="filtrarNombre" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Tu nombre" />
-        </div>
-        <div>
-          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Email</label>
-          <input v-model="form.email" type="email" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="correo@ejemplo.com" />
-        </div>
-        <div>
-          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Dirección de entrega</label>
-          <input v-model="form.direccion" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Dirección" />
-        </div>
-        <div>
-          <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Fecha de entrega</label>
-          <input v-model="form.fechaEntrega" type="date" :min="minFechaStr" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" />
-          <p class="text-xs text-gray-400 mt-1">* La fecha de entrega debe ser al menos 5 días hábiles después de hoy</p>
-        </div>
-      </div>
-
-      <!-- Modal error -->
-      <div v-if="showError" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showError = false">
-        <div class="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-xl">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-              <Icon icon="mdi:alert-circle" class="text-xl text-red-500" />
+            <div class="flex justify-between text-lg font-lora text-[#7A4E2D]">
+              <span>Total</span>
+              <span>${{ totalGeneral.toFixed(2) }}</span>
             </div>
-            <p class="text-lg font-semibold text-[#7A4E2D]">Error</p>
+            <div class="mt-3">
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-2">Tipo de pago</label>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="pagoCompleto" :value="false" class="accent-[#7A4E2D]" />
+                  <span class="text-sm text-[#7A4E2D]">Pagar 50% inicial (${{ (totalGeneral * 0.5).toFixed(2) }})</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="pagoCompleto" :value="true" class="accent-[#7A4E2D]" />
+                  <span class="text-sm text-[#7A4E2D]">Pagar 100% (${{ totalGeneral.toFixed(2) }})</span>
+                </label>
+              </div>
+            </div>
           </div>
-          <p class="text-[#7A4E2D]/80 mb-4">{{ errorMsg }}</p>
-          <button @click="showError = false" class="w-full bg-[#7A4E2D] text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#5E3A1F] transition">
-            Aceptar
-          </button>
-        </div>
-      </div>
 
-      <div class="flex gap-4 justify-center mt-8">
-        <button
-          @click="router.push('/flor/seleccion-apartados')"
-          class="bg-[#FFEDE3] text-[#7A4E2D] font-radley px-6 py-3 rounded-full hover:bg-[#FFDCC8] transition"
-        >
-          Volver
-        </button>
-        <button
-          @click="pagarAhora"
-          :disabled="pagando || !formValido"
-          class="bg-[#7A4E2D] text-white font-radley px-8 py-3 rounded-full hover:bg-[#5E3A1F] transition flex items-center gap-2 disabled:opacity-50"
-        >
-          <Icon icon="mdi:credit-card-outline" class="text-lg" />
-          {{ pagando ? 'Procesando...' : pagoCompleto ? 'Pagar total con Wompi' : 'Pagar 50% con Wompi' }}
-        </button>
-      </div>
+          <div class="space-y-4 mb-6">
+            <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Nombre completo</label>
+              <input v-model="form.nombre" @input="filtrarNombre" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Tu nombre" />
+            </div>
+            <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Email</label>
+              <input v-model="form.email" type="email" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="correo@ejemplo.com" />
+            </div>
+            <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Dirección de entrega</label>
+              <input v-model="form.direccion" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Dirección" />
+            </div>
+            <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Teléfono de contacto</label>
+              <input v-model="form.telefono" type="tel" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="+57 3001234567" />
+            </div>
+            <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Ciudad</label>
+              <input v-model="form.ciudad" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Ciudad" />
+            </div>
+            <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Departamento</label>
+              <select v-model="form.region" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]">
+                <option value="" disabled>Selecciona un departamento</option>
+                <option v-for="dept in departamentos" :key="dept" :value="dept">{{ dept }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Fecha de entrega</label>
+              <input v-model="form.fechaEntrega" type="date" :min="minFechaStr" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" />
+              <p class="text-xs text-gray-400 mt-1">* La fecha de entrega debe ser al menos 5 días hábiles después de hoy</p>
+            </div>
+          </div>
+
+          <!-- Modal error -->
+          <div v-if="showError" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showError = false">
+            <div class="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-xl">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                  <Icon icon="mdi:alert-circle" class="text-xl text-red-500" />
+                </div>
+                <p class="text-lg font-semibold text-[#7A4E2D]">Error</p>
+              </div>
+              <p class="text-[#7A4E2D]/80 mb-4">{{ errorMsg }}</p>
+              <button @click="showError = false" class="w-full bg-[#7A4E2D] text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#5E3A1F] transition">
+                Aceptar
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <button
+              @click="router.push('/flor/seleccion-apartados')"
+              class="bg-[#FFEDE3] text-[#7A4E2D] font-radley px-6 py-3 rounded-full hover:bg-[#FFDCC8] transition"
+            >
+              Volver
+            </button>
+            <button
+              @click="pagarAhora"
+              :disabled="pagando || !formValido"
+              class="bg-[#7A4E2D] text-white font-radley px-8 py-3 rounded-full hover:bg-[#5E3A1F] transition flex items-center gap-2 disabled:opacity-50"
+            >
+              <Icon icon="mdi:credit-card-outline" class="text-lg" />
+              {{ pagando ? 'Procesando...' : pagoCompleto ? 'Pagar total con Wompi' : 'Pagar 50% con Wompi' }}
+            </button>
+          </div>
+        </div>
     </div>
 </template>
 
@@ -123,6 +150,7 @@ function sumarDiasHabiles(desde, dias) {
 const minFechaStr = computed(() => sumarDiasHabiles(new Date(), 5))
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
 import { apiClient } from '~/services/api-client'
+import { geminiApi } from '~/services/gemini.service'
 import { useToast } from '~/composables/useToast'
 
 const store = useRamoPersonalizadoStore()
@@ -137,15 +165,22 @@ const form = reactive({
   nombre: '',
   email: '',
   direccion: '',
+  telefono: '',
+  ciudad: '',
+  region: '',
   fechaEntrega: '',
 })
 const pagoCompleto = ref(false)
 const pagando = ref(false)
 const errorMsg = ref('')
 const showError = ref(false)
+const generando = ref(false)
+const errorGeneracion = ref('')
 
 const formValido = computed(() =>
-  form.nombre.trim() && form.email.trim() && form.direccion.trim() && form.fechaEntrega
+  form.nombre.trim() && form.email.trim() && form.direccion.trim()
+  && form.telefono.trim() && form.ciudad.trim() && form.region.trim()
+  && form.fechaEntrega
 )
 
 const subtotalFlores = computed(() =>
@@ -165,6 +200,16 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const telefonoRegex = /^(\+57\s?)?(3\d{9}|60\d{8})$/
 const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
 
+const departamentos = [
+  'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá D.C.',
+  'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca',
+  'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare',
+  'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño',
+  'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda',
+  'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima',
+  'Valle del Cauca', 'Vaupés', 'Vichada',
+]
+
 const validarFormulario = () => {
   if (!nombreRegex.test(form.nombre)) {
     toast.error('Nombre solo admite letras y espacios')
@@ -176,6 +221,18 @@ const validarFormulario = () => {
   }
   if (!direccionRegex.test(form.direccion)) {
     toast.error('Dirección debe ser: calle 28 #25-38')
+    return false
+  }
+  if (!telefonoRegex.test(form.telefono)) {
+    toast.error('Teléfono inválido. Formato: +57 3001234567')
+    return false
+  }
+  if (!form.ciudad.trim()) {
+    toast.error('Ciudad obligatoria')
+    return false
+  }
+  if (!form.region.trim()) {
+    toast.error('Región obligatoria')
     return false
   }
   if (!form.fechaEntrega) {
@@ -193,6 +250,30 @@ const filtrarNombre = (event) => {
   const input = event.target
   input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')
   form.nombre = input.value
+}
+
+async function generarImagenIA() {
+  if (generando.value || store.imagenGenerada) return
+  generando.value = true
+  errorGeneracion.value = ''
+
+  const flores = store.floresSeleccionadas.map(f =>
+    `${f.cantidad}x ${f.tipoFlor.descripcionFlor}${f.colorFlor ? ' color ' + f.colorFlor.descripcionColor : ''}`
+  ).join(', ')
+  const adiciones = store.adiciones.map(a =>
+    `${a.cantidad}x ${a.nombre}`
+  ).join(', ')
+
+  const prompt = `Fotografía profesional de catálogo de un ramo de flores eternas artesanal hecho a mano con cinta de satén brillante y listón de raso. Compuesto por: ${flores}.${adiciones ? ` Accesorios incluidos: ${adiciones}.` : ''} El ramo tiene envoltorio elegante en capas de papel coreano plisado con un gran moño de cinta satinada. Iluminación suave de estudio, brillo sutil del tejido de satén, composición limpia de boutique floral, alta resolución.`
+
+  try {
+    const res = await geminiApi.generarImagen(prompt, store.sesionToken)
+    store.imagenUrl = res.imageUrl
+  } catch (e) {
+    errorGeneracion.value = e instanceof Error ? e.message : 'Error al generar la imagen'
+  } finally {
+    generando.value = false
+  }
 }
 
 async function pagarAhora() {
@@ -216,6 +297,9 @@ async function pagarAhora() {
       nombreCliente: form.nombre,
       emailCliente: form.email,
       direccionEntrega: form.direccion,
+      telefono: form.telefono,
+      ciudad: form.ciudad,
+      region: form.region,
       fechaEntrega: form.fechaEntrega,
       flores,
       adiciones,
@@ -239,6 +323,10 @@ async function pagarAhora() {
         ['customer-data:email', form.email],
         ['customer-data:full-name', form.nombre],
         ['shipping-address:address-line-1', form.direccion],
+        ['shipping-address:country', 'CO'],
+        ['shipping-address:city', form.ciudad],
+        ['shipping-address:region', form.region],
+        ['shipping-address:phone-number', form.telefono],
       ]
       for (const [name, val] of campos) {
         const input = document.createElement('input')
@@ -259,4 +347,5 @@ async function pagarAhora() {
     pagando.value = false
   }
 }
+
 </script>

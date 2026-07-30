@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Pre-commit hook: reject .env files (except .env.example) to prevent credential leaks.
+
+echo "🔍 Verificando que no se estén subiendo archivos .env..."
+
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(^|/)\.env([^.]|$)' | grep -v '\.env\.example$')
+
+if [ -n "$FILES" ]; then
+  echo ""
+  echo "❌  ERROR: Se detectaron archivos .env en el commit:"
+  echo "$FILES" | sed 's/^/   /'
+  echo ""
+  echo "   Los archivos .env contienen credenciales y NO deben subirse."
+  echo "   Si es intencional, usa: git commit --no-verify"
+  echo "   Para ignorarlos permanentemente, revisa .gitignore."
+  echo ""
+  exit 1
+fi
+
+echo "✅  No hay archivos .env en el commit."
+exit 0

@@ -1,82 +1,100 @@
 <template>
     <div class="w-full">
-      <h2 class="text-[#7A4E2D] text-2xl font-radley mb-2">Configura tu ramo</h2>
-      <p class="text-[#7A4E2D] text-sm mb-8 font-radley italic">{{ store.totalFlores }} flor(es) seleccionadas</p>
+      <h2 class="text-[#7A4E2D] text-2xl font-radley mb-2 text-center">Configura tu ramo</h2>
+      <p class="text-[#7A4E2D] text-sm mb-8 font-radley italic text-center">{{ store.totalFlores }} flor(es) seleccionadas</p>
 
-      <div v-if="loading" class="space-y-4">
-        <div v-for="i in 2" :key="i" class="bg-white rounded-2xl shadow-lg p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-12 rounded-full bg-[#FFEDE3] animate-pulse" />
-            <div class="space-y-2 flex-1">
-              <div class="h-5 w-40 bg-[#FFEDE3] animate-pulse rounded" />
-              <div class="h-4 w-24 bg-[#FFEDE3] animate-pulse rounded" />
-            </div>
-          </div>
-          <div class="h-16 bg-[#FFEDE3] animate-pulse rounded-lg" />
-        </div>
+      <div class="mb-8 max-w-md mx-auto">
+        <DashboardIA
+          :imagen-url="store.imagenUrl"
+          :imagen-generada="store.imagenGenerada"
+          :generando="generando"
+          :error-generacion="errorGeneracion"
+          @generar="generarImagenIA"
+        />
       </div>
-
-      <div v-else class="space-y-6">
-        <div v-for="grupo in gruposFlores" :key="grupo.tipoFlor.id" class="bg-white rounded-2xl shadow-lg p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <Icon :icon="grupo.tipoFlor.icono || 'mdi:flower-tulip-outline'" class="text-3xl" :style="grupo.tipoFlor.iconoColor ? { color: grupo.tipoFlor.iconoColor } : {}" />
-            <div>
-              <h3 class="text-[#7A4E2D] text-lg font-radley">{{ grupo.tipoFlor.descripcionFlor }}</h3>
-              <p class="text-[#7A4E2D] text-sm font-lora">${{ grupo.tipoFlor.precioUnidad?.toFixed(2) }} c/u</p>
+          <div v-if="loading" class="space-y-4">
+            <div v-for="i in 2" :key="i" class="bg-white rounded-2xl shadow-lg p-6">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-full bg-[#FFEDE3] animate-pulse" />
+                <div class="space-y-2 flex-1">
+                  <div class="h-5 w-40 bg-[#FFEDE3] animate-pulse rounded" />
+                  <div class="h-4 w-24 bg-[#FFEDE3] animate-pulse rounded" />
+                </div>
+              </div>
+              <div class="h-16 bg-[#FFEDE3] animate-pulse rounded-lg" />
             </div>
           </div>
 
-          <div class="space-y-4">
-            <div
-              v-for="(item, idx) in grupo.variantes"
-              :key="grupo.tipoFlor.id + '-' + idx"
-              class="flex items-center gap-4 p-3 rounded-xl bg-[#FFFAF5]"
-            >
-              <div class="flex-1">
-                <label class="block text-xs text-gray-500 mb-1">Color</label>
-                <select
-                  :value="item.colorFlor?.id ?? ''"
-                  @change="onColorChange(item, $event)"
-                  class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D] bg-white"
+          <div v-else class="space-y-6">
+            <div v-for="grupo in gruposFlores" :key="grupo.tipoFlor.id" class="bg-white rounded-2xl shadow-lg p-6">
+              <div class="flex items-center gap-3 mb-4">
+                <Icon :icon="grupo.tipoFlor.icono || 'mdi:flower-tulip-outline'" class="text-3xl" :style="grupo.tipoFlor.iconoColor ? { color: grupo.tipoFlor.iconoColor } : {}" />
+                <div>
+                  <h3 class="text-[#7A4E2D] text-lg font-radley">{{ grupo.tipoFlor.descripcionFlor }}</h3>
+                  <p class="text-[#7A4E2D] text-sm font-lora">${{ grupo.tipoFlor.precioUnidad?.toFixed(2) }} c/u</p>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <div
+                  v-for="(item, idx) in grupo.variantes"
+                  :key="grupo.tipoFlor.id + '-' + idx"
+                  class="flex items-center gap-4 p-3 rounded-xl bg-[#FFFAF5]"
                 >
-                  <option value="" disabled selected>Selecciona un color</option>
-                  <option v-for="color in colores" :key="color.id" :value="color.id">
-                    {{ color.descripcionColor }}
-                  </option>
-                </select>
-              </div>
+                  <div class="flex-1">
+                    <label class="block text-xs text-gray-500 mb-1">Color</label>
+                    <select
+                      :value="item.colorFlor?.id ?? ''"
+                      @change="onColorChange(item, $event)"
+                      class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D] bg-white"
+                    >
+                      <option value="" disabled selected>Selecciona un color</option>
+                      <option v-for="color in colores" :key="color.id" :value="color.id">
+                        {{ color.descripcionColor }}
+                      </option>
+                    </select>
+                  </div>
 
-              <div class="w-24">
-                <label class="block text-xs text-gray-500 mb-1">Cantidad</label>
-                <input
-                  type="number"
-                  min="1"
-                  :value="item.cantidad"
-                  @input="onCantidadChange(item, $event)"
-                  class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]"
-                />
-              </div>
+                  <div class="w-24">
+                    <label class="block text-xs text-gray-500 mb-1">Cantidad</label>
+                    <input
+                      type="number"
+                      min="1"
+                      :value="item.cantidad"
+                      @input="onCantidadChange(item, $event)"
+                      class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]"
+                    />
+                  </div>
 
-              <button
-                @click="store.quitarVariante(store.floresSeleccionadas.indexOf(item))"
-                class="w-9 h-9 rounded-full bg-[#FFEDE3] text-[#7A4E2D] hover:bg-[#FFDCC8] transition flex items-center justify-center flex-shrink-0"
-                title="Eliminar"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                </svg>
-              </button>
+                  <button
+                    @click="store.quitarVariante(store.floresSeleccionadas.indexOf(item))"
+                    class="w-9 h-9 rounded-full bg-[#FFEDE3] text-[#7A4E2D] hover:bg-[#FFDCC8] transition flex items-center justify-center flex-shrink-0"
+                    title="Eliminar"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    </svg>
+                  </button>
+                </div>
+</div>
+
+              <div v-if="gruposFlores.length < 2" class="mt-4">
+                <button @click="mostrarSelector = !mostrarSelector"
+                  class="w-full bg-white rounded-2xl shadow-lg p-6 border-2 border-dashed border-[#FFEDE3] hover:bg-[#FFFAF5] transition flex items-center justify-center gap-3">
+                  <span class="text-[#7A4E2D] text-lg font-radley">A&ntilde;adir otra flor</span>
+                </button>
+
+                <div v-if="mostrarSelector" class="flex gap-4 mt-4 overflow-x-auto pb-2">
+                  <div v-for="flor in floresDisponibles" :key="flor.id"
+                    @click="agregarSegundaFlor(flor)"
+                    class="flex-shrink-0 w-32 rounded-xl bg-[#FFEDE3] hover:bg-[#FFDCC8] cursor-pointer shadow-md p-4 flex flex-col items-center gap-2 transition">
+                    <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-3xl" />
+                    <span class="text-[#7A4E2D] text-sm font-radley text-center">{{ flor.descripcionFlor }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <button
-            @click="store.agregarVariante(grupo.tipoFlor)"
-            class="mt-3 text-sm text-[#7A4E2D] hover:text-[#5E3A1F] font-radley underline underline-offset-2"
-          >
-            + Añadir más {{ grupo.tipoFlor.descripcionFlor.toLowerCase() }}
-          </button>
-        </div>
-      </div>
+            </div>
 
       <div class="flex flex-wrap gap-4 justify-center mt-10">
         <button
@@ -108,9 +126,10 @@
 
 <script setup>
 definePageMeta({ layout: 'flor' })
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRamoPersonalizadoStore } from '~/stores/ramoPersonalizado'
 import { floresApi } from '~/services/api-client'
+import { geminiApi } from '~/services/gemini.service'
 
 const store = useRamoPersonalizadoStore()
 const router = useRouter()
@@ -120,13 +139,27 @@ if (store.floresSeleccionadas.length === 0) {
 }
 
 const colores = ref([])
+const tiposFlorGlobal = ref([])
 const loading = ref(true)
+const generando = ref(false)
+const errorGeneracion = ref('')
+const mostrarSelector = ref(false)
+
+const floresDisponibles = computed(() => {
+  const seleccionados = new Set(store.floresSeleccionadas.map(f => f.tipoFlor.id))
+  return tiposFlorGlobal.value.filter(f => !seleccionados.has(f.id))
+})
 
 onMounted(async () => {
   try {
-    colores.value = await floresApi.getColores()
+    const [coloresRes, tiposRes] = await Promise.all([
+      floresApi.getColores(),
+      floresApi.getTipos()
+    ])
+    colores.value = coloresRes
+    tiposFlorGlobal.value = tiposRes
   } catch (e) {
-    console.error('Error al cargar colores:', e)
+    console.error('Error al cargar datos:', e)
   } finally {
     loading.value = false
   }
@@ -170,6 +203,35 @@ function onCantidadChange(item, e) {
 function irResumen() {
   if (puedeContinuar.value) {
     router.push('/flor/resumen-pedido')
+  }
+}
+
+function agregarSegundaFlor(flor) {
+  store.agregarVariante(flor)
+  mostrarSelector.value = false
+}
+
+async function generarImagenIA() {
+  if (generando.value || store.imagenGenerada) return
+  generando.value = true
+  errorGeneracion.value = ''
+
+  const flores = store.floresSeleccionadas.map(f =>
+    `${f.cantidad}x ${f.tipoFlor.descripcionFlor}${f.colorFlor ? ' color ' + f.colorFlor.descripcionColor : ''}`
+  ).join(', ')
+  const adiciones = store.adiciones.map(a =>
+    `${a.cantidad}x ${a.nombre}`
+  ).join(', ')
+
+  const prompt = `Fotografía profesional de catálogo de un ramo de flores eternas artesanal hecho a mano con cinta de satén brillante y listón de raso. Compuesto por: ${flores}.${adiciones ? ` Accesorios incluidos: ${adiciones}.` : ''} El ramo tiene envoltorio elegante en capas de papel coreano plisado con un gran moño de cinta satinada. Iluminación suave de estudio, brillo sutil del tejido de satén, composición limpia de boutique floral, alta resolución.`
+
+  try {
+    const res = await geminiApi.generarImagen(prompt, store.sesionToken)
+    store.imagenUrl = res.imageUrl
+  } catch (e) {
+    errorGeneracion.value = e instanceof Error ? e.message : 'Error al generar la imagen'
+  } finally {
+    generando.value = false
   }
 }
 </script>

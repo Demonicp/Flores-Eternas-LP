@@ -93,7 +93,34 @@
             {{ field.label }}
             <span v-if="field.obligatorio" class="text-red-400 text-xs">*</span>
           </label>
+          <select
+            v-if="field.key === 'region'"
+            :id="'field-' + field.key"
+            v-model="store.checkoutForm[field.key]"
+            class="w-full px-4 py-3 border-2 rounded-xl text-[15px] transition-all duration-200 bg-white outline-none"
+            :class="fieldClase(field.key)"
+            @blur="validarCampo(field.key)"
+            @change="limpiarError(field.key)"
+            @focus="fieldFocus = field.key"
+          >
+            <option value="">Seleccione un departamento</option>
+            <option
+              v-for="dep in [
+                'Amazonas','Antioquia','Arauca','Atl\u00e1ntico','Bol\u00edvar',
+                'Boyac\u00e1','Caldas','Caquet\u00e1','Casanare','Cauca',
+                'Cesar','Choc\u00f3','C\u00f3rdoba','Cundinamarca',
+                'Guain\u00eda','Guaviare','Huila','La Guajira',
+                'Magdalena','Meta','Nari\u00f1o','Norte de Santander',
+                'Putumayo','Quind\u00edo','Risaralda','San Andr\u00e9s y Providencia',
+                'Santander','Sucre','Tolima','Valle del Cauca',
+                'Vaup\u00e9s','Vichada','Bogot\u00e1 D.C.'
+              ]"
+              :key="dep"
+              :value="dep"
+            >{{ dep }}</option>
+          </select>
           <input
+            v-else
             :id="'field-' + field.key"
             v-model="store.checkoutForm[field.key]"
             :type="field.type"
@@ -177,19 +204,21 @@ watch(() => store.errorMsg, (val) => {
   }
 })
 
-type CampoKey = 'nombre' | 'email' | 'cedula' | 'telefono' | 'direccion' | 'fechaEntrega'
+type CampoKey = 'nombre' | 'email' | 'cedula' | 'telefono' | 'direccion' | 'fechaEntrega' | 'ciudad' | 'region'
 
 const camposBase: { key: CampoKey; label: string; icon: string; type: string; placeholder: string; obligatorio: boolean }[] = [
   { key: 'nombre', label: 'Nombre completo', icon: 'mdi:account-outline', type: 'text', placeholder: '¿Quién recibe el ramo?', obligatorio: true },
   { key: 'email', label: 'Correo electrónico', icon: 'mdi:email-outline', type: 'email', placeholder: 'correo@ejemplo.com', obligatorio: true },
   { key: 'cedula', label: 'Cédula', icon: 'mdi:card-account-details-outline', type: 'text', placeholder: 'Número de cédula', obligatorio: false },
-  { key: 'telefono', label: 'Teléfono', icon: 'mdi:phone-outline', type: 'tel', placeholder: '300 123 4567', obligatorio: false },
+  { key: 'telefono', label: 'Teléfono', icon: 'mdi:phone-outline', type: 'tel', placeholder: '300 123 4567', obligatorio: true },
+  { key: 'ciudad', label: 'Ciudad', icon: 'mdi:city', type: 'text', placeholder: 'Bogotá', obligatorio: true },
+  { key: 'region', label: 'Departamento', icon: 'mdi:map', type: 'text', placeholder: 'Cundinamarca', obligatorio: true },
   { key: 'direccion', label: 'Dirección de entrega', icon: 'mdi:map-marker-outline', type: 'text', placeholder: 'Calle 123 #45-67', obligatorio: true },
   { key: 'fechaEntrega', label: 'Fecha de entrega', icon: 'mdi:calendar-outline', type: 'date', placeholder: '', obligatorio: true },
 ]
 
 const campos = computed(() =>
-  camposBase.filter(c => c.key !== 'cedula' && c.key !== 'telefono' || store.tienePersonalizados)
+  camposBase.filter(c => c.key !== 'cedula' || store.tienePersonalizados)
 )
 
 function fieldClase(key: string): string {
@@ -234,7 +263,7 @@ function validarTodo(): boolean {
     if (!validarCampo(c.key)) ok = false
   }
   if (store.tienePersonalizados) {
-    for (const extra of ['cedula', 'telefono'] as CampoKey[]) {
+    for (const extra of ['cedula', 'telefono', 'ciudad', 'region'] as CampoKey[]) {
       if (!validarCampo(extra)) ok = false
     }
   }
