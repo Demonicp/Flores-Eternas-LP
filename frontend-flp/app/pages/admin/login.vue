@@ -68,6 +68,16 @@
                 </UiButton>
               </div>
             </form>
+
+            <div class="flex justify-center pt-4">
+              <NuxtLink
+                to="/admin/recuperar-contrasena"
+                data-testid="link-olvide-contrasena"
+                class="select-text no-underline text-sm text-[#FFEDE3] hover:text-[#F0D3C1] hover:underline transition-colors font-['Poppins'] cursor-pointer"
+              >
+                He olvidado mi contraseña
+              </NuxtLink>
+            </div>
           </div>
         </UiCard>
       </div>
