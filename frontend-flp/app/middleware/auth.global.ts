@@ -19,7 +19,7 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   const auth = useAuthStore()
-  const publicRoutes = ['/admin/login', '/admin/registro']
+  const publicRoutes = ['/admin/login', '/admin/registro', '/admin/recuperar-contrasena']
   const isPublicRoute = publicRoutes.includes(to.path)
 
   if (!auth.isLoggedIn && !isPublicRoute) {
