@@ -47,3 +47,34 @@ export interface AdminUser {
   rol: string
   nombre: string
 }
+
+/**
+ * @author esteban
+ * DTO para solicitar el envio de un codigo de recuperacion de contrasena.
+ * Contiene unicamente el correo electronico de la administradora.
+ */
+export interface ForgotPasswordRequest {
+  correo: string
+}
+
+/**
+ * @author esteban
+ * DTO para restablecer la contrasena a partir del codigo de 6 digitos
+ * recibido por correo. El backend valida el codigo, su vigencia y la
+ * politica de contrasena antes de persistir el cambio.
+ */
+export interface ResetPasswordRequest {
+  correo: string
+  codigo: string
+  nuevaContrasena: string
+}
+
+/**
+ * @author esteban
+ * Respuesta generica del backend con un solo campo "message".
+ * Se usa en endpoints de recuperacion de contrasena que solo
+ * devuelven un mensaje legible (exito o error).
+ */
+export interface MessageResponse {
+  message: string
+}
