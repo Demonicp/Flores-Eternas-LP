@@ -19,11 +19,12 @@ export const useInventarioStore = defineStore('inventario', () => {
 
   async function cargarInventario() {
     loading.value = true
+    error.value = null
 
     try {
       productos.value = await inventarioService.listar()
     } catch (e) {
-      error.value = 'Error al cargar inventario'
+      error.value = e instanceof Error ? e.message : 'Error al cargar inventario'
     } finally {
       loading.value = false
     }
@@ -43,6 +44,8 @@ export const useInventarioStore = defineStore('inventario', () => {
   }
   async function guardarProducto() {
 
+    error.value = null
+
     if (
       precioCosto.value === null ||
       stock.value === null
@@ -58,13 +61,18 @@ export const useInventarioStore = defineStore('inventario', () => {
       stock: stock.value
     }
   
-    if (editandoId.value) {
-      await inventarioService.actualizar(
-        editandoId.value,
-        payload
-      )
-    } else {
-      await inventarioService.crear(payload)
+    try {
+      if (editandoId.value) {
+        await inventarioService.actualizar(
+          editandoId.value,
+          payload
+        )
+      } else {
+        await inventarioService.crear(payload)
+      }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Error al guardar el producto'
+      return
     }
   
     await cargarInventario()
@@ -87,7 +95,14 @@ export const useInventarioStore = defineStore('inventario', () => {
 
   async function eliminarProducto(id: number) {
 
-    await inventarioService.eliminar(id)
+    error.value = null
+
+    try {
+      await inventarioService.eliminar(id)
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Error al eliminar el producto'
+      return
+    }
   
     await cargarInventario()
   }

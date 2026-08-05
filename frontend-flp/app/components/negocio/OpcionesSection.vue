@@ -66,38 +66,74 @@
           />
         </div>
 
+        <div class="mb-4 flex justify-end">
+          <button
+            @click="vistaLista.color = !vistaLista.color"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-text-primary text-white hover:opacity-90 transition"
+            :title="vistaLista.color ? 'Cambiar a cuadrícula' : 'Cambiar a lista'"
+          >
+            <Icon :icon="vistaLista.color ? 'mdi:view-grid-outline' : 'mdi:view-agenda-outline'" class="text-base" />
+            {{ vistaLista.color ? 'Cuadrícula' : 'Lista' }}
+          </button>
+        </div>
+
         <div class="bg-bg-card rounded-xl overflow-hidden">
-          <table v-if="filteredColores.length > 0" class="w-full text-sm text-text-primary">
-            <thead>
-              <tr class="text-left border-b border-border-soft bg-bg-card/80">
-                <th class="p-3 font-medium">Nombre</th>
-                <th class="p-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="color in filteredColores" :key="color.id" class="border-b border-border-soft/50 hover:bg-bg-input/50 transition-colors" :class="store.colEditandoId === color.id ? 'bg-btn-primary/50' : ''">
-                <td class="p-3">{{ color.descripcionColor }}</td>
-                <td class="p-3 flex gap-1">
-                  <button
-                    type="button"
-                    @click="store.editarColor(color)"
-                    class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
-                    title="Editar"
-                  >
-                    <Icon icon="mdi:pencil-outline" class="text-lg" />
-                  </button>
-                  <button
-                    type="button"
-                    @click="confirmarEliminarColor(color)"
-                    class="px-2 py-1 text-sm text-red-500 hover:text-red-700"
-                    title="Eliminar"
-                  >
-                    <Icon icon="mdi:delete-outline" class="text-lg" />
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div v-if="filteredColores.length > 0 && vistaLista.color" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-3">
+            <div
+              v-for="color in filteredColores"
+              :key="color.id"
+              class="bg-white border border-border-soft rounded-xl p-3 shadow-sm flex items-center justify-between gap-2"
+              :class="store.colEditandoId === color.id ? 'bg-btn-primary/50' : ''"
+            >
+              <span class="text-sm text-text-primary font-medium truncate">{{ color.descripcionColor }}</span>
+              <span class="flex gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  @click="store.editarColor(color)"
+                  class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
+                  title="Editar"
+                >
+                  <Icon icon="mdi:pencil-outline" class="text-lg" />
+                </button>
+                <button
+                  type="button"
+                  @click="confirmarEliminarColor(color)"
+                  class="px-2 py-1 text-sm text-[#A52A2A] hover:text-[#7C1D1B]"
+                  title="Eliminar"
+                >
+                  <Icon icon="mdi:delete-outline" class="text-lg" />
+                </button>
+              </span>
+            </div>
+          </div>
+          <div v-else-if="filteredColores.length > 0" class="flex flex-col gap-2 p-3">
+            <div
+              v-for="color in filteredColores"
+              :key="color.id"
+              class="bg-white border border-border-soft rounded-xl px-3 py-2 shadow-sm flex items-center justify-between gap-2"
+              :class="store.colEditandoId === color.id ? 'bg-btn-primary/50' : ''"
+            >
+              <span class="text-sm text-text-primary font-medium truncate">{{ color.descripcionColor }}</span>
+              <span class="flex gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  @click="store.editarColor(color)"
+                  class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
+                  title="Editar"
+                >
+                  <Icon icon="mdi:pencil-outline" class="text-lg" />
+                </button>
+                <button
+                  type="button"
+                  @click="confirmarEliminarColor(color)"
+                  class="px-2 py-1 text-sm text-[#A52A2A] hover:text-[#7C1D1B]"
+                  title="Eliminar"
+                >
+                  <Icon icon="mdi:delete-outline" class="text-lg" />
+                </button>
+              </span>
+            </div>
+          </div>
           <p v-else class="text-sm text-text-primary text-center py-8">
             {{ store.colores.length === 0 ? 'No hay colores añadidos aún.' : 'No se encontraron colores.' }}
           </p>
@@ -243,53 +279,90 @@
               <Icon v-else-if="ordenPrecio === 'desc'" icon="mdi:arrow-down" class="text-base" />
               <Icon v-else icon="mdi:swap-vertical" class="text-base text-text-primary/40" />
             </button>
+            <button
+              type="button"
+              @click="vistaLista.flor = !vistaLista.flor"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-text-primary text-white hover:opacity-90 transition flex-shrink-0"
+              :title="vistaLista.flor ? 'Cambiar a cuadrícula' : 'Cambiar a lista'"
+            >
+              <Icon :icon="vistaLista.flor ? 'mdi:view-grid-outline' : 'mdi:view-agenda-outline'" class="text-base" />
+              {{ vistaLista.flor ? 'Cuadrícula' : 'Lista' }}
+            </button>
           </div>
         </div>
 
         <div class="bg-bg-card rounded-xl overflow-hidden">
-          <table v-if="filteredFlores.length > 0" class="w-full text-sm text-text-primary">
-            <thead>
-              <tr class="text-left border-b border-border-soft bg-bg-card/80">
-                <th class="p-3 font-medium">Icono</th>
-                <th class="p-3 font-medium">Nombre</th>
-                <th class="p-3 font-medium cursor-pointer select-none" @click="toggleOrdenPrecio">
-                  Precio ud.
-                  <Icon v-if="ordenPrecio === 'asc'" icon="mdi:arrow-up" class="inline text-base align-text-bottom" />
-                  <Icon v-else-if="ordenPrecio === 'desc'" icon="mdi:arrow-down" class="inline text-base align-text-bottom" />
-                </th>
-                <th class="p-3 font-medium">% Mayor</th>
-                <th class="p-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="flor in filteredFlores" :key="flor.id" class="border-b border-border-soft/50 hover:bg-bg-input/50 transition-colors" :class="store.florEditandoId === flor.id ? 'bg-btn-primary/50' : ''">
-                <td class="p-3">
-                  <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-xl text-text-primary" />
-                </td>
-                <td class="p-3">{{ flor.descripcionFlor }}</td>
-                <td class="p-3">${{ formatoPrecio(flor.precioUnidad) }}</td>
-                <td class="p-3">{{ Number(flor.porcentajePorMayor).toFixed(1) }}%</td>
-                <td class="p-3 flex gap-1">
-                  <button
-                    type="button"
-                    @click="store.editarFlor(flor)"
-                    class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
-                    title="Editar"
-                  >
-                    <Icon icon="mdi:pencil-outline" class="text-lg" />
-                  </button>
-                  <button
-                    type="button"
-                    @click="confirmarEliminarFlor(flor)"
-                    class="px-2 py-1 text-sm text-red-500 hover:text-red-700"
-                    title="Eliminar"
-                  >
-                    <Icon icon="mdi:delete-outline" class="text-lg" />
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div v-if="filteredFlores.length > 0 && vistaLista.flor" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-3">
+            <div
+              v-for="flor in filteredFlores"
+              :key="flor.id"
+              class="bg-white border border-border-soft rounded-xl p-3 shadow-sm flex flex-col gap-2"
+              :class="store.florEditandoId === flor.id ? 'bg-btn-primary/50' : ''"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  v-if="flor.icono || true"
+                  class="w-8 h-8 rounded-lg bg-bg-card flex items-center justify-center flex-shrink-0"
+                >
+                  <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-xl" :style="{ color: flor.iconoColor || undefined }" />
+                </span>
+                <span class="text-sm font-semibold text-text-primary truncate">{{ flor.descripcionFlor }}</span>
+              </div>
+              <div class="text-xs text-text-primary/80 space-y-0.5">
+                <div class="flex justify-between"><span class="text-text-primary/60">Precio</span><span class="font-medium">${{ formatoPrecio(flor.precioUnidad) }}</span></div>
+                <div class="flex justify-between"><span class="text-text-primary/60">% Mayor</span><span class="font-medium">{{ Number(flor.porcentajePorMayor).toFixed(1) }}%</span></div>
+              </div>
+              <div class="flex justify-end gap-1 border-t border-border-soft/50 pt-2">
+                <button
+                  type="button"
+                  @click="store.editarFlor(flor)"
+                  class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
+                  title="Editar"
+                >
+                  <Icon icon="mdi:pencil-outline" class="text-lg" />
+                </button>
+                <button
+                  type="button"
+                  @click="confirmarEliminarFlor(flor)"
+                  class="px-2 py-1 text-sm text-[#A52A2A] hover:text-[#7C1D1B]"
+                  title="Eliminar"
+                >
+                  <Icon icon="mdi:delete-outline" class="text-lg" />
+                </button>
+              </div>
+            </div>
+          </div>
+<div v-else-if="filteredFlores.length > 0" class="flex flex-col gap-2 p-3">
+            <div
+              v-for="flor in filteredFlores" :key="flor.id"
+              class="bg-white border border-border-soft rounded-xl px-3 py-2 shadow-sm flex items-center gap-3"
+              :class="store.florEditandoId === flor.id ? 'bg-btn-primary/50' : ''"
+            >
+              <span class="flex items-center gap-2 flex-shrink-0">
+                <Icon :icon="flor.icono || 'mdi:flower-tulip-outline'" class="text-xl text-text-primary" />
+              </span>
+              <span class="text-sm font-medium text-text-primary flex-1 truncate">{{ flor.descripcionFlor }}</span>
+              <span class="text-xs text-text-primary/70 flex-shrink-0">${{ formatoPrecio(flor.precioUnidad) }} · {{ Number(flor.porcentajePorMayor).toFixed(1) }}%</span>
+              <span class="flex gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  @click="store.editarFlor(flor)"
+                  class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
+                  title="Editar"
+                >
+                  <Icon icon="mdi:pencil-outline" class="text-lg" />
+                </button>
+                <button
+                  type="button"
+                  @click="confirmarEliminarFlor(flor)"
+                  class="px-2 py-1 text-sm text-[#A52A2A] hover:text-[#7C1D1B]"
+                  title="Eliminar"
+                >
+                  <Icon icon="mdi:delete-outline" class="text-lg" />
+                </button>
+              </span>
+            </div>
+          </div>
           <p v-else class="text-sm text-text-primary text-center py-8">
             {{ store.flores.length === 0 ? 'No hay flores añadidas aún.' : 'No se encontraron flores.' }}
           </p>
@@ -411,6 +484,8 @@ import { formatoPrecio } from '~/utils/formatters'
 
 const store = useNegocioStore()
 const toast = useToast()
+
+const vistaLista = ref<Record<'color' | 'flor', boolean>>({})
 
 /* ========= Color ========= */
 const colorSearch = ref('')

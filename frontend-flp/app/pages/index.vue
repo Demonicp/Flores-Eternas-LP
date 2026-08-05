@@ -2,11 +2,11 @@
   <div class="min-h-screen bg-bg-page">
     <TheHeader />
 
-    <div class="flex max-w-7xl mx-auto">
+    <div class="flex">
       <div class="flex-1 min-w-0">
         <CatalogoPublico />
       </div>
-      <div class="hidden lg:block flex-shrink-0 sticky top-0 self-start max-h-screen overflow-y-auto">
+      <div class="hidden lg:block w-96 flex-shrink-0 sticky top-0 self-start">
         <CarritoLateral soloSidebar />
       </div>
     </div>

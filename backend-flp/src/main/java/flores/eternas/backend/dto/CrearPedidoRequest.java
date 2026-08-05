@@ -24,9 +24,7 @@ public class CrearPedidoRequest {
     private List<AdicionRequest> adiciones;
 
     @NotBlank(message = "Dirección obligatoria")
-    @Pattern(regexp = "^(calle|carrera|av\\.?|avenida|transversal|diagonal|circular|cra|kr|cl|cll|tv|tr|dg|cq)\\s+\\d{1,3}[a-zA-Z]?\\s*#?\\s*\\d{1,3}[a-zA-Z]?[-–]\\d{1,3}[a-zA-Z]?$",
-             flags = Pattern.Flag.CASE_INSENSITIVE,
-             message = "Dirección debe ser: calle 28 #25-38")
+    @Size(max = 120, message = "Dirección demasiado larga")
     private String direccionEntrega;
 
     @Pattern(regexp = "^\\d{6,10}$", message = "Cédula: solo números (6-10 dígitos)")
@@ -37,7 +35,7 @@ public class CrearPedidoRequest {
     @Size(max = 100, message = "Nombre demasiado largo")
     private String nombreCliente;
 
-    @Pattern(regexp = "^(\\+57\\s?)?(3\\d{9}|60\\d{8})$", message = "Teléfono: +57 3001234567 o 6012345678")
+    @Pattern(regexp = "^(\\+57\\s?)?[0-9\\s\\-()]{7,15}$", message = "Teléfono no válido")
     private String telefono;
 
     private String fechaEntrega;

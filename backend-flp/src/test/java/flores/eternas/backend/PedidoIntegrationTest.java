@@ -195,7 +195,7 @@ class PedidoIntegrationTest {
         request.setEmailCliente("maria@test.com");
         request.setDireccionEntrega("carrera 5 #20-30");
         request.setFechaEntrega(LocalDate.now().plusDays(5));
-        request.setTipoPedido("RAPIDO");
+        request.setTipoPedido("CATALOGO");
         request.setTipoPago("COMPLETO");
 
         PedidoRequestDTO.ItemPedidoDTO item = new PedidoRequestDTO.ItemPedidoDTO();
@@ -208,7 +208,7 @@ class PedidoIntegrationTest {
         assertNotNull(response);
         assertNotNull(response.getId());
         assertEquals(Estado.EN_PREPARACION.name(), response.getEstado());
-        assertEquals("RAPIDO", response.getTipoPedido());
+        assertEquals("CATALOGO", response.getTipoPedido());
 
         BigDecimal precioEsperado = ramo.getPrecioRamo().multiply(BigDecimal.valueOf(3));
         assertEquals(0, precioEsperado.compareTo(response.getTotal()));
@@ -221,7 +221,7 @@ class PedidoIntegrationTest {
         request.setEmailCliente("carlos@test.com");
         request.setDireccionEntrega("av 10 #15-25");
         request.setFechaEntrega(LocalDate.now().plusDays(2));
-        request.setTipoPedido("RAPIDO");
+        request.setTipoPedido("CATALOGO");
         request.setTipoPago("COMPLETO");
 
         PedidoRequestDTO.ItemPedidoDTO item = new PedidoRequestDTO.ItemPedidoDTO();

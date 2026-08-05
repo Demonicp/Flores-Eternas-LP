@@ -13,6 +13,7 @@
   "dependencies": {
     "@iconify/vue": "^5.0.1",
     "@pinia/nuxt": "^0.11.3",
+    "divipola": "^1.0.3",
     "nuxt": "^4.4.6",
     "pinia": "^3.0.4",
     "vue": "^3.5.34",
