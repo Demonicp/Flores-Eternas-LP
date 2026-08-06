@@ -348,7 +348,7 @@ const pedidosFiltrados = computed(() => {
             </span>
 
             <!-- Expandable detail -->
-            <div v-if="expandedId === pedido.id" class="border-t border-border-soft pt-3 space-y-4" :class="vistaLista[filtro] ? 'w-full' : ''">
+            <div v-if="expandedId === pedido.id" class="border-t border-border-soft pt-3 space-y-4" :class="vistaLista[filtro] ? 'w-full lg:col-span-full' : ''">
               <!-- Info grid -->
               <div class="grid grid-cols-1 gap-4">
                 <div class="space-y-2">
