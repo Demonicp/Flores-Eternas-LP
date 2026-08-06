@@ -309,6 +309,18 @@ const validarFormulario = () => {
     toast.error('Región obligatoria')
     return false
   }
+  if (!telefonoRegex.test(form.telefono)) {
+    toast.error('Teléfono inválido. Formato: +57 3001234567')
+    return false
+  }
+  if (!form.ciudad.trim()) {
+    toast.error('Ciudad obligatoria')
+    return false
+  }
+  if (!form.region.trim()) {
+    toast.error('Región obligatoria')
+    return false
+  }
   if (!form.fechaEntrega) {
     toast.error('Fecha de entrega obligatoria')
     return false
