@@ -36,7 +36,7 @@ JWT_SECRET=tu_clave_secreta_jwt_minimo_64_caracteres
 **Nunca agregues a `opencode` ni a `claude` (ni a ningun otro agente / bot de IA) como colaborador del repositorio en GitHub ni en ninguna otra plataforma.** Esto aplica para invites directos, GitHub Apps, OAuth Apps, o cualquier otro mecanismo de colaboracion. Solo se agregaran personas reales cuando el usuario lo solicite explicitamente.
 
 ### Documentación de código
-- Usar `@author esteban` en todos los comentarios Javadoc
+- Usar `@author <nombre>`, documentado con el nombre de usuario de quien escribió el código, en todos los comentarios Javadoc
 - Documentar propósito de cada método y clase
 - Comentarios concisos pero descriptivos
 
