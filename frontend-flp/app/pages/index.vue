@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <section id="conocenos" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+    <section id="conocenos" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 scroll-mt-4">
       <div class="bg-white rounded-2xl p-8 md:p-12 shadow-sm">
         <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
           <div class="flex-1 text-center md:text-left">

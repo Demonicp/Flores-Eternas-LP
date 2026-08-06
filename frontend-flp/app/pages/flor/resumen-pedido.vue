@@ -64,6 +64,14 @@
 
           <div class="space-y-4 mb-6">
             <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Nombre completo</label>
+              <input v-model="form.nombre" @input="filtrarNombre" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Tu nombre" />
+            </div>
+            <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Email</label>
+              <input v-model="form.email" type="email" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="correo@ejemplo.com" />
+            </div>
+            <div>
               <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Modo de entrega</label>
               <div class="flex flex-col sm:flex-row gap-3">
                 <label class="flex items-center gap-2 cursor-pointer">

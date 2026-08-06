@@ -266,10 +266,10 @@ const pedidosFiltrados = computed(() => {
             v-for="pedido in pedidosFiltrados"
             :key="pedido.id"
             class="bg-white border border-border-soft rounded-xl p-4 shadow-sm"
-            :class="vistaLista[filtro] ? 'flex items-center gap-4 flex-wrap' : 'flex flex-col gap-3'"
+            :class="vistaLista[filtro] ? 'grid grid-cols-1 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,0.85fr)] items-center gap-x-6 gap-y-3' : 'flex flex-col gap-3'"
           >
             <!-- Card header -->
-            <div class="flex items-start justify-between gap-2">
+            <div class="flex items-start justify-between gap-2 min-w-0">
               <div class="min-w-0">
                 <p class="font-mono text-xs text-text-primary/70">#{{ pedido.id }}</p>
                 <p class="text-sm font-semibold text-text-primary truncate">{{ pedido.nombreCliente || '—' }}</p>
@@ -290,18 +290,18 @@ const pedidosFiltrados = computed(() => {
             </div>
 
             <!-- Cliente / tipo / entrega -->
-            <div class="text-xs text-text-primary/80 space-y-1">
-              <div class="flex justify-between gap-2">
+            <div class="text-xs text-text-primary/80 space-y-1 min-w-0">
+              <div class="flex justify-between gap-x-2">
                 <span class="text-text-primary/60 flex-shrink-0">Tipo</span>
-                <span class="text-right">{{ etiquetaTipoPedido(pedido.tipoPedido) }}</span>
+                <span class="text-right truncate">{{ etiquetaTipoPedido(pedido.tipoPedido) }}</span>
               </div>
-              <div class="flex justify-between gap-2">
+              <div class="flex justify-between gap-x-2">
                 <span class="text-text-primary/60 flex-shrink-0">Email</span>
                 <span class="text-right truncate">{{ pedido.emailCliente || '—' }}</span>
               </div>
-              <div class="flex justify-between gap-2">
+              <div class="flex justify-between gap-x-2">
                 <span class="text-text-primary/60 flex-shrink-0">Entrega</span>
-                <span class="text-right">{{ pedido.fechaEntrega ? formatearFecha(pedido.fechaEntrega) : '—' }}</span>
+                <span class="text-right truncate">{{ pedido.fechaEntrega ? formatearFecha(pedido.fechaEntrega) : '—' }}</span>
               </div>
             </div>
 
@@ -322,21 +322,21 @@ const pedidosFiltrados = computed(() => {
             </div>
 
             <!-- Actions -->
-            <div class="flex items-center gap-2 pt-2 border-t border-border-soft/50 mt-auto" :class="vistaLista[filtro] ? 'ml-auto flex-shrink-0 border-t-0 pt-0' : 'justify-between'">
+            <div class="flex items-center gap-2 pt-2 border-t border-border-soft/50 lg:border-t-0 lg:pt-0 mt-auto lg:mt-0" :class="vistaLista[filtro] ? 'lg:justify-self-end' : 'justify-between'">
+              <span v-if="!(pedido.pagoToken && pedido.montoPendiente > 0)" class="w-28 flex-shrink-0"></span>
               <button
                 v-if="pedido.pagoToken && pedido.montoPendiente > 0"
                 @click="copiarLink(pedido.pagoToken)"
-                class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-btn-primary text-btn-primary-text hover:opacity-80 transition"
+                class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-btn-primary text-btn-primary-text hover:opacity-80 transition w-28 justify-center flex-shrink-0"
                 title="Copiar link de pago"
               >
                 <Icon icon="mdi:link-variant" class="text-sm" />
                 Copiar link
               </button>
-              <span v-else></span>
 
               <button
                 @click="toggleExpand(pedido.id)"
-                class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-text-primary text-white hover:opacity-90 transition"
+                class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-text-primary text-white hover:opacity-90 transition flex-shrink-0"
               >
                 <Icon :icon="expandedId === pedido.id ? 'mdi:chevron-up' : 'mdi:chevron-down'" class="text-sm" />
                 {{ expandedId === pedido.id ? 'Ver menos' : 'Ver detalles' }}
