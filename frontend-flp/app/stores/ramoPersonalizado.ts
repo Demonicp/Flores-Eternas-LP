@@ -16,8 +16,13 @@ export const useRamoPersonalizadoStore = defineStore('ramoPersonalizado', () => 
   const direccionEntrega = ref('')
   const imagenUrl = ref('')
   const imagenGenerada = computed(() => imagenUrl.value !== '')
-  const sesionToken = ref(sessionStorage.getItem('flp_sesion') || crypto.randomUUID())
+  const sesionToken = ref(
+    typeof window !== 'undefined'
+      ? sessionStorage.getItem('flp_sesion') || crypto.randomUUID()
+      : crypto.randomUUID()
+  )
   watch(sesionToken, (val) => {
+    if (typeof window === 'undefined') return
     if (val) sessionStorage.setItem('flp_sesion', val)
     else sessionStorage.removeItem('flp_sesion')
   })

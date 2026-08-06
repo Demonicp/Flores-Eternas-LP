@@ -20,6 +20,7 @@ public class DataSeeder implements CommandLineRunner {
     private final ColorFlorRepository colorFlorRepository;
     private final RamoRepository ramoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final LocalRepository localRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DataSeeder(CategoriaRamoRepository categoriaRamoRepository,
@@ -27,12 +28,14 @@ public class DataSeeder implements CommandLineRunner {
                       ColorFlorRepository colorFlorRepository,
                       RamoRepository ramoRepository,
                       UsuarioRepository usuarioRepository,
+                      LocalRepository localRepository,
                       PasswordEncoder passwordEncoder) {
         this.categoriaRamoRepository = categoriaRamoRepository;
         this.tipoFlorRepository = tipoFlorRepository;
         this.colorFlorRepository = colorFlorRepository;
         this.ramoRepository = ramoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.localRepository = localRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -49,6 +52,16 @@ public class DataSeeder implements CommandLineRunner {
             admin.setRol(Rol.ADMIN);
 
             usuarioRepository.save(admin);
+        }
+
+        if (localRepository.count() == 0) {
+            Local localPrincipal = new Local();
+            localPrincipal.setNombreLocal("Local Principal — Palmira");
+            localPrincipal.setDireccion("Calle 25 #28-32, Palmira");
+            localPrincipal.setCiudad("Palmira");
+            localPrincipal.setRegion("Valle del Cauca");
+            localPrincipal.setActivo(true);
+            localRepository.save(localPrincipal);
         }
 
         if (categoriaRamoRepository.count() > 0) {

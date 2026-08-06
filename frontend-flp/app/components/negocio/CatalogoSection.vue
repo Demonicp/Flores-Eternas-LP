@@ -178,48 +178,48 @@
             </option>
           </select>
         </div>
+        <button
+          type="button"
+          @click="vistaLista = !vistaLista"
+          class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-text-primary text-white hover:opacity-90 transition"
+          :title="vistaLista ? 'Cambiar a cuadrícula' : 'Cambiar a lista'"
+        >
+          <Icon :icon="vistaLista ? 'mdi:view-grid-outline' : 'mdi:view-agenda-outline'" class="text-base" />
+          {{ vistaLista ? 'Cuadrícula' : 'Lista' }}
+        </button>
       </div>
 
       <div class="bg-bg-card rounded-xl overflow-hidden">
-        <table v-if="filteredRamos.length > 0" class="w-full text-sm text-text-primary">
-          <thead>
-            <tr class="text-left border-b border-border-soft bg-bg-card/80">
-              <th class="p-3 font-medium">Nombre</th>
-              <th class="p-3 font-medium">Categoría</th>
-              <th class="p-3 font-medium hidden md:table-cell">Descripción</th>
-              <th class="p-3 font-medium">Precio</th>
-              <th class="p-3 font-medium">Stock</th>
-              <th class="p-3 font-medium">Estado</th>
-              <th class="p-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="ramo in filteredRamos" :key="ramo.id" class="border-b border-border-soft/50 hover:bg-bg-input/50 transition-colors" :class="store.ramoEditandoId === ramo.id ? 'bg-btn-primary/50' : ''">
-              <td class="p-3 truncate max-w-[180px]" :title="ramo.nombreRamo">{{ ramo.nombreRamo }}</td>
-              <td class="p-3">{{ ramo.categoria?.descripcionCategoriaRamo || '—' }}</td>
-              <td class="p-3 hidden md:table-cell truncate max-w-[250px]" :title="ramo.descripcionRamo">
-                {{ ramo.descripcionRamo ? ramo.descripcionRamo.slice(0, 80) + (ramo.descripcionRamo.length > 80 ? '...' : '') : '—' }}
-              </td>
-              <td class="p-3">${{ formatoPrecio(ramo.precioRamo) }}</td>
-              <td class="p-3">
-                <span v-if="ramo.stock != null">{{ ramo.stock }}</span>
-                <span v-else class="text-text-primary/40">∞</span>
-              </td>
-              <td class="p-3">
-                <span
-                  v-if="ramo.stock != null && ramo.stock <= 0"
-                  class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700"
-                >Agotado</span>
-                <span
-                  v-else-if="ramo.disponible === false"
-                  class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500"
-                >Inactivo</span>
-                <span
-                  v-else
-                  class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700"
-                >Activo</span>
-              </td>
-              <td class="p-3 flex gap-1">
+        <div v-if="filteredRamos.length > 0 && vistaLista" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-3">
+          <div
+            v-for="ramo in filteredRamos"
+            :key="ramo.id"
+            class="bg-white border border-border-soft rounded-xl p-3 shadow-sm flex flex-col gap-2"
+            :class="store.ramoEditandoId === ramo.id ? 'bg-btn-primary/50' : ''"
+          >
+            <p class="text-sm font-semibold text-text-primary truncate" :title="ramo.nombreRamo">{{ ramo.nombreRamo }}</p>
+            <p class="text-xs text-text-primary/70">{{ ramo.categoria?.descripcionCategoriaRamo || '—' }}</p>
+            <div class="text-xs text-text-primary/80 space-y-0.5">
+              <div class="flex justify-between"><span class="text-text-primary/60">Precio</span><span class="font-medium">${{ formatoPrecio(ramo.precioRamo) }}</span></div>
+              <div class="flex justify-between">
+                <span class="text-text-primary/60">Stock</span>
+                <span><span v-if="ramo.stock != null">{{ ramo.stock }}</span><span v-else class="text-text-primary/40">∞</span></span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span
+                v-if="ramo.stock != null && ramo.stock <= 0"
+                class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700"
+              >Agotado</span>
+              <span
+                v-else-if="ramo.disponible === false"
+                class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500"
+              >Inactivo</span>
+              <span
+                v-else
+                class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700"
+              >Activo</span>
+              <span class="flex gap-1">
                 <button
                   type="button"
                   @click="store.editarRamo(ramo)"
@@ -231,15 +231,58 @@
                 <button
                   type="button"
                   @click="confirmarEliminar(ramo)"
-                  class="px-2 py-1 text-sm text-red-500 hover:text-red-700"
+                  class="px-2 py-1 text-sm text-[#A52A2A] hover:text-[#7C1D1B]"
                   title="Eliminar"
                 >
                   <Icon icon="mdi:delete-outline" class="text-lg" />
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="filteredRamos.length > 0" class="flex flex-col gap-2 p-3">
+          <div
+            v-for="ramo in filteredRamos"
+            :key="ramo.id"
+            class="bg-white border border-border-soft rounded-xl px-3 py-2 shadow-sm flex items-center gap-3"
+            :class="store.ramoEditandoId === ramo.id ? 'bg-btn-primary/50' : ''"
+          >
+            <span class="text-sm font-medium text-text-primary flex-1 truncate min-w-0" :title="ramo.nombreRamo">{{ ramo.nombreRamo }}</span>
+            <span class="text-xs text-text-primary/70 flex-shrink-0 hidden md:inline">{{ ramo.categoria?.descripcionCategoriaRamo || '—' }}</span>
+            <span class="text-xs text-text-primary/80 flex-shrink-0">${{ formatoPrecio(ramo.precioRamo) }}</span>
+            <span class="text-xs text-text-primary/60 flex-shrink-0 hidden sm:inline"><span v-if="ramo.stock != null">{{ ramo.stock }}</span><span v-else>∞</span></span>
+            <span
+              v-if="ramo.stock != null && ramo.stock <= 0"
+              class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 flex-shrink-0"
+            >Agotado</span>
+            <span
+              v-else-if="ramo.disponible === false"
+              class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 flex-shrink-0"
+            >Inactivo</span>
+            <span
+              v-else
+              class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 flex-shrink-0"
+            >Activo</span>
+            <span class="flex gap-1 flex-shrink-0">
+              <button
+                type="button"
+                @click="store.editarRamo(ramo)"
+                class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
+                title="Editar"
+              >
+                <Icon icon="mdi:pencil-outline" class="text-lg" />
+              </button>
+              <button
+                type="button"
+                @click="confirmarEliminar(ramo)"
+                class="px-2 py-1 text-sm text-[#A52A2A] hover:text-[#7C1D1B]"
+                title="Eliminar"
+              >
+                <Icon icon="mdi:delete-outline" class="text-lg" />
+              </button>
+            </span>
+          </div>
+        </div>
         <p v-else class="text-sm text-text-primary text-center py-8">
           {{ store.ramosVisibles.length === 0 ? 'No hay ramos publicados aún.' : 'No se encontraron ramos con esos filtros.' }}
         </p>
@@ -294,6 +337,7 @@ watch(() => store.ramoEditandoId, () => {
 
 const searchQuery = ref('')
 const filterCategoria = ref('')
+const vistaLista = ref(false)
 
 const filteredRamos = computed(() => {
   let items = store.ramosVisibles

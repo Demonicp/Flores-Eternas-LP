@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 //Santiago Montenegro HU6
 @ControllerAdvice
@@ -71,9 +70,7 @@ public class GlobalExceptionHandler {
 
         String message = errores.isEmpty()
                 ? "Datos de entrada inválidos"
-                : errores.entrySet().stream()
-                        .map(e -> e.getKey() + ": " + e.getValue())
-                        .collect(Collectors.joining(", "));
+                : String.join(", ", errores.values());
 
         Map<String, Object> body = new HashMap<>();
         body.put("message", message);

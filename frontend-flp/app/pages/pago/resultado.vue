@@ -9,7 +9,6 @@
       <template v-else-if="aprobado">
         <Icon icon="mdi:check-circle" class="text-5xl text-green-500 mx-auto mb-4" />
         <h1 class="text-2xl font-serif text-text-primary font-medium mb-2">Pago exitoso</h1>
-        <p class="text-text-primary/70 mb-1">Pedido #{{ pedidoId }}</p>
         <p class="text-text-primary/70 mb-6">{{ mensaje }}</p>
         <NuxtLink to="/" class="inline-block bg-btn-primary text-btn-primary-text px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90">
           Volver al inicio

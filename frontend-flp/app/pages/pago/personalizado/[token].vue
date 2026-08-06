@@ -14,7 +14,7 @@
 
       <template v-else-if="pedido">
         <Icon icon="mdi:package-variant-closed" class="text-4xl text-text-primary mx-auto mb-4" />
-        <h1 class="text-xl font-serif text-text-primary font-medium mb-1 text-center">Pedido #{{ pedido.id }}</h1>
+        <h1 class="text-xl font-serif text-text-primary font-medium mb-1 text-center">Confirmar pago</h1>
         <p class="text-text-primary/60 text-sm text-center mb-6">{{ pedido.tipoPedido }}</p>
 
         <div class="border-t border-border-soft pt-4 space-y-2 text-sm">
@@ -38,7 +38,7 @@
           :disabled="pagando"
           class="mt-6 w-full bg-btn-primary text-btn-primary-text py-3 rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
         >
-          {{ pagando ? 'Redirigiendo a Wompi...' : 'Pagar saldo restante con Wompi' }}
+          {{ pagando ? 'Procesando...' : 'Completar pago' }}
         </button>
 
         <p v-else class="mt-6 text-center text-green-600 text-sm font-medium">

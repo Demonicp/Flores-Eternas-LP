@@ -6,7 +6,6 @@
       </div>
       <p class="text-text-primary font-medium text-lg">{{ store.respuestaPedido?.mensaje }}</p>
       <div class="w-full text-left space-y-2 text-sm text-text-primary/80 mt-4 bg-bg-card rounded-xl p-4">
-        <p><strong>Pedido #{{ store.respuestaPedido?.id }}</strong></p>
         <p>Total: ${{ formatoPrecio(store.respuestaPedido?.total ?? 0) }} COP</p>
         <p>Pagado: ${{ formatoPrecio(store.respuestaPedido?.montoPagado ?? 0) }} COP</p>
         <p v-if="(store.respuestaPedido?.montoPendiente ?? 0) > 0">Pendiente: ${{ formatoPrecio(store.respuestaPedido?.montoPendiente ?? 0) }} COP</p>
@@ -87,6 +86,30 @@
 
       <!-- Formulario -->
       <div class="space-y-4">
+        <!-- Modo de entrega -->
+        <div>
+          <p class="text-sm font-medium text-text-primary/80 block mb-1.5 flex items-center gap-1.5">
+            <Icon icon="mdi:truck-outline" class="text-base text-text-primary/60" />
+            Modo de entrega
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <label
+              class="flex items-center gap-2 px-3 py-2.5 border-2 rounded-xl cursor-pointer transition-all"
+              :class="store.checkoutForm.modoEntrega === 'domicilio' ? 'border-btn-primary bg-btn-primary/5' : 'border-gray-200 bg-white'"
+            >
+              <input type="radio" v-model="store.checkoutForm.modoEntrega" value="domicilio" class="accent-btn-primary" />
+              <span class="text-sm text-text-primary">A domicilio</span>
+            </label>
+            <label
+              class="flex items-center gap-2 px-3 py-2.5 border-2 rounded-xl cursor-pointer transition-all"
+              :class="store.checkoutForm.modoEntrega === 'retiro' ? 'border-btn-primary bg-btn-primary/5' : 'border-gray-200 bg-white'"
+            >
+              <input type="radio" v-model="store.checkoutForm.modoEntrega" value="retiro" class="accent-btn-primary" />
+              <span class="text-sm text-text-primary">Retiro en local</span>
+            </label>
+          </div>
+        </div>
+
         <div v-for="field in campos" :key="field.key">
           <label :for="'field-' + field.key" class="text-sm font-medium text-text-primary/80 block mb-1.5 flex items-center gap-1.5">
             <Icon :icon="field.icon" class="text-base text-text-primary/60" />
@@ -100,24 +123,52 @@
             class="w-full px-4 py-3 border-2 rounded-xl text-[15px] transition-all duration-200 bg-white outline-none"
             :class="fieldClase(field.key)"
             @blur="validarCampo(field.key)"
-            @change="limpiarError(field.key)"
+            @change="onRegionChange"
             @focus="fieldFocus = field.key"
           >
             <option value="">Seleccione un departamento</option>
             <option
-              v-for="dep in [
-                'Amazonas','Antioquia','Arauca','Atl\u00e1ntico','Bol\u00edvar',
-                'Boyac\u00e1','Caldas','Caquet\u00e1','Casanare','Cauca',
-                'Cesar','Choc\u00f3','C\u00f3rdoba','Cundinamarca',
-                'Guain\u00eda','Guaviare','Huila','La Guajira',
-                'Magdalena','Meta','Nari\u00f1o','Norte de Santander',
-                'Putumayo','Quind\u00edo','Risaralda','San Andr\u00e9s y Providencia',
-                'Santander','Sucre','Tolima','Valle del Cauca',
-                'Vaup\u00e9s','Vichada','Bogot\u00e1 D.C.'
-              ]"
+              v-for="dep in departamentos"
               :key="dep"
               :value="dep"
             >{{ dep }}</option>
+          </select>
+          <select
+            v-else-if="field.key === 'ciudad'"
+            :id="'field-' + field.key"
+            v-model="store.checkoutForm[field.key]"
+            :disabled="!store.checkoutForm.region"
+            class="w-full px-4 py-3 border-2 rounded-xl text-[15px] transition-all duration-200 bg-white outline-none"
+            :class="[fieldClase(field.key), !store.checkoutForm.region ? 'opacity-60 cursor-not-allowed' : '']"
+            @blur="validarCampo(field.key)"
+            @change="limpiarError(field.key)"
+            @focus="fieldFocus = field.key"
+          >
+            <option value="">
+              {{ store.checkoutForm.region ? 'Seleccione su ciudad' : 'Primero seleccione un departamento' }}
+            </option>
+            <option
+              v-for="ciudad in ciudadesDisponibles"
+              :key="ciudad"
+              :value="ciudad"
+            >{{ ciudad }}</option>
+          </select>
+          <select
+            v-else-if="field.key === 'local'"
+            :id="'field-' + field.key"
+            v-model="store.checkoutForm.localSeleccionadoId"
+            class="w-full px-4 py-3 border-2 rounded-xl text-[15px] transition-all duration-200 bg-white outline-none"
+            :class="fieldClase(field.key)"
+            @blur="validarCampo(field.key)"
+            @change="limpiarError(field.key)"
+            @focus="fieldFocus = field.key"
+          >
+            <option :value="null">Seleccione un local de retiro</option>
+            <option
+              v-for="local in locales"
+              :key="local.id"
+              :value="local.id"
+            >{{ local.nombreLocal }} — {{ local.direccion }}</option>
           </select>
           <input
             v-else
@@ -178,8 +229,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useCartStore } from '../../stores/cart.store'
+import { getDepartamentos, getCiudades } from '../../utils/colombia'
+import { localService } from '../../services/local.service'
+import type { Local } from '../../models/local.model'
 
 const store = useCartStore()
 
@@ -193,6 +247,29 @@ const fieldFocus = ref<string | null>(null)
 const fieldErrors = ref<Record<string, string>>({})
 const showError = ref(false)
 
+const departamentos = getDepartamentos()
+const locales = ref<Local[]>([])
+
+const ciudadesDisponibles = computed(() => {
+  if (!store.checkoutForm.region) return []
+  return getCiudades(store.checkoutForm.region)
+})
+
+onMounted(async () => {
+  try {
+    locales.value = await localService.listarActivos()
+  } catch {
+    locales.value = []
+  }
+})
+
+function onRegionChange() {
+  limpiarError('region')
+  store.checkoutForm.ciudad = ''
+  limpiarError('ciudad')
+  fieldErrors.value['ciudad'] = ''
+}
+
 function cerrarError() {
   showError.value = false
   store.errorMsg = ''
@@ -204,22 +281,36 @@ watch(() => store.errorMsg, (val) => {
   }
 })
 
-type CampoKey = 'nombre' | 'email' | 'cedula' | 'telefono' | 'direccion' | 'fechaEntrega' | 'ciudad' | 'region'
+type CampoKey = 'nombre' | 'email' | 'cedula' | 'telefono' | 'direccion' | 'fechaEntrega' | 'ciudad' | 'region' | 'local'
 
 const camposBase: { key: CampoKey; label: string; icon: string; type: string; placeholder: string; obligatorio: boolean }[] = [
   { key: 'nombre', label: 'Nombre completo', icon: 'mdi:account-outline', type: 'text', placeholder: '¿Quién recibe el ramo?', obligatorio: true },
   { key: 'email', label: 'Correo electrónico', icon: 'mdi:email-outline', type: 'email', placeholder: 'correo@ejemplo.com', obligatorio: true },
   { key: 'cedula', label: 'Cédula', icon: 'mdi:card-account-details-outline', type: 'text', placeholder: 'Número de cédula', obligatorio: false },
   { key: 'telefono', label: 'Teléfono', icon: 'mdi:phone-outline', type: 'tel', placeholder: '300 123 4567', obligatorio: true },
-  { key: 'ciudad', label: 'Ciudad', icon: 'mdi:city', type: 'text', placeholder: 'Bogotá', obligatorio: true },
   { key: 'region', label: 'Departamento', icon: 'mdi:map', type: 'text', placeholder: 'Cundinamarca', obligatorio: true },
+  { key: 'ciudad', label: 'Ciudad', icon: 'mdi:city', type: 'text', placeholder: 'Bogotá', obligatorio: true },
   { key: 'direccion', label: 'Dirección de entrega', icon: 'mdi:map-marker-outline', type: 'text', placeholder: 'Calle 123 #45-67', obligatorio: true },
   { key: 'fechaEntrega', label: 'Fecha de entrega', icon: 'mdi:calendar-outline', type: 'date', placeholder: '', obligatorio: true },
 ]
 
-const campos = computed(() =>
-  camposBase.filter(c => c.key !== 'cedula' || store.tienePersonalizados)
-)
+/**
+ * En modo retiro se ocultan departamento, ciudad y direccion y en su lugar
+ * se pide elegir un local de retiro.
+ *
+ * @author santiago (sesion 05/08/2026 - retiro en local)
+ */
+const campos = computed(() => {
+  const base = camposBase.filter(c => c.key !== 'cedula' || store.tienePersonalizados)
+  if (store.checkoutForm.modoEntrega === 'retiro') {
+    const ocultos: CampoKey[] = ['region', 'ciudad', 'direccion']
+    return [
+      ...base.filter(c => !ocultos.includes(c.key)),
+      { key: 'local' as CampoKey, label: 'Punto de retiro', icon: 'mdi:storefront-outline', type: 'text', placeholder: '', obligatorio: true },
+    ]
+  }
+  return base
+})
 
 function fieldClase(key: string): string {
   const base = 'border-gray-200 focus:border-btn-primary focus:ring-2 focus:ring-btn-primary/30 '
@@ -229,8 +320,11 @@ function fieldClase(key: string): string {
 }
 
 function validarCampo(key: string) {
-  const val = String(store.checkoutForm[key as CampoKey] ?? '').trim()
-  const label = camposBase.find(c => c.key === key)?.label ?? key
+  let val = String(store.checkoutForm[key as CampoKey] ?? '').trim()
+  const label = key === 'local' ? 'Punto de retiro' : camposBase.find(c => c.key === key)?.label ?? key
+  if (key === 'local') {
+    val = store.checkoutForm.localSeleccionadoId ? String(store.checkoutForm.localSeleccionadoId) : ''
+  }
   if (!val) {
     fieldErrors.value[key] = `${label} es obligatorio.`
     return false
@@ -264,6 +358,9 @@ function validarTodo(): boolean {
   }
   if (store.tienePersonalizados) {
     for (const extra of ['cedula', 'telefono', 'ciudad', 'region'] as CampoKey[]) {
+      if (store.checkoutForm.modoEntrega === 'retiro' && (extra === 'ciudad' || extra === 'region')) {
+        continue
+      }
       if (!validarCampo(extra)) ok = false
     }
   }

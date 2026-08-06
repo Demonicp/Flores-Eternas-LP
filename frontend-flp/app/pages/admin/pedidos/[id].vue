@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { apiClient } from '~/services/api-client'
 import { formatoPrecio } from '~/utils/formatters'
 import { useToast } from '~/composables/useToast'
+import { localService } from '~/services/local.service'
+import type { Local } from '~/models/local.model'
 
 definePageMeta({ layout: 'admin' })
 
@@ -15,8 +17,19 @@ const pedido = ref<any>(null)
 const cargando = ref(true)
 const error = ref('')
 const estadoCambiando = ref(false)
+const locales = ref<Local[]>([])
 
 const id = route.params.id as string
+
+/**
+ * Devuelve el local cuyo punto de retiro coincide con la direccion del pedido.
+ *
+ * @author santiago (sesion 05/08/2026 - retiro en local)
+ */
+function localEntrega(direccion: string | undefined): Local | null {
+  if (!direccion) return null
+  return locales.value.find(l => l.direccion.trim() === direccion.trim()) || null
+}
 
 function formatearFecha(fecha: string): string {
   if (!fecha) return '—'
@@ -44,9 +57,38 @@ function colorEstado(estado: string): string {
   }
 }
 
+/**
+ * Etiqueta legible del tipo de pedido.
+ *
+ * @author santiago
+ */
+function etiquetaTipoPedido(tipo: string | null | undefined): string {
+  if (!tipo) return '—'
+  if (tipo.toUpperCase() === 'PERSONALIZADO') return 'Personalizado'
+  if (tipo.toUpperCase() === 'CATALOGO' || tipo.toUpperCase() === 'RAPIDO') return 'Catálogo'
+  return tipo
+}
+
 function parseAdiciones(json: string): Array<{ nombre: string; cantidad: number; precio: number }> {
   if (!json) return []
   try { return JSON.parse(json) } catch { return [] }
+}
+
+/**
+ * Adiciones únicas del pedido: las flores de un ramo personalizado comparten el
+ * mismo adicionesJson, por lo que se deduplican para no repetirlas en la tabla.
+ *
+ * @author santiago
+ */
+function adicionesUnicas(): Array<{ nombre: string; cantidad: number; precio: number }> {
+  const mapa = new Map<string, { nombre: string; cantidad: number; precio: number }>()
+  for (const item of (pedido.value?.items || [])) {
+    for (const adicion of parseAdiciones(item.adicionesJson)) {
+      const clave = adicion.nombre + '|' + adicion.cantidad + '|' + adicion.precio
+      if (!mapa.has(clave)) mapa.set(clave, adicion)
+    }
+  }
+  return Array.from(mapa.values())
 }
 
 async function cargarPedido() {
@@ -83,7 +125,14 @@ function copiarLink(token: string) {
   })
 }
 
-onMounted(cargarPedido)
+onMounted(async () => {
+  try {
+    locales.value = await localService.listarActivos()
+  } catch {
+    locales.value = []
+  }
+  cargarPedido()
+})
 </script>
 
 <template>
@@ -131,7 +180,7 @@ onMounted(cargarPedido)
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-text-primary/60">Tipo</span>
-              <span>{{ pedido.tipoPedido || '—' }}</span>
+              <span>{{ etiquetaTipoPedido(pedido.tipoPedido) }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-text-primary/60">Fecha creacion</span>
@@ -158,6 +207,10 @@ onMounted(cargarPedido)
             <div class="flex justify-between text-sm">
               <span class="text-text-primary/60">Direccion</span>
               <span>{{ pedido.direccionEntrega || '—' }}</span>
+            </div>
+            <div v-if="localEntrega(pedido.direccionEntrega)" class="flex justify-between text-sm">
+              <span class="text-text-primary/60">Entrega</span>
+              <span class="text-green-700 font-medium">Retiro en local: {{ localEntrega(pedido.direccionEntrega)!.nombreLocal }}</span>
             </div>
           </div>
         </div>
@@ -210,8 +263,6 @@ onMounted(cargarPedido)
               <thead>
                 <tr class="text-left border-b border-border-soft bg-bg-card/80">
                   <th class="p-3 font-medium sticky top-0 bg-bg-card">Producto</th>
-                  <th class="p-3 font-medium sticky top-0 bg-bg-card">Tipo flor</th>
-                  <th class="p-3 font-medium sticky top-0 bg-bg-card">Color</th>
                   <th class="p-3 font-medium text-center sticky top-0 bg-bg-card">Cantidad</th>
                   <th class="p-3 font-medium text-right sticky top-0 bg-bg-card">Precio unitario</th>
                   <th class="p-3 font-medium text-right sticky top-0 bg-bg-card">Subtotal</th>
@@ -220,9 +271,17 @@ onMounted(cargarPedido)
               <tbody>
                 <tr v-for="(item, idx) in pedido.items" :key="idx"
                   class="border-b border-border-soft/50">
-                  <td class="p-3">{{ item.nombreRamo || '—' }}</td>
-                  <td class="p-3">{{ item.tipoFlor || '—' }}</td>
-                  <td class="p-3">{{ item.colorFlor || '—' }}</td>
+                  <td class="p-3">
+                    <div>{{ item.nombreRamo || '—' }}</div>
+                    <div v-if="item.flores && item.flores.length > 0" class="mt-1 space-y-0.5">
+                      <div v-for="(flor, fidx) in item.flores" :key="fidx" class="text-xs text-text-primary/60 pl-2">
+                        └ {{ flor.cantidad }}x {{ flor.tipoFlor }}<span v-if="flor.color"> ({{ flor.color }})</span>
+                      </div>
+                    </div>
+                    <div v-else-if="item.tipoFlor" class="mt-1 text-xs text-text-primary/60 pl-2">
+                      └ {{ item.cantidad }}x {{ item.tipoFlor }}<span v-if="item.colorFlor"> ({{ item.colorFlor }})</span>
+                    </div>
+                  </td>
                   <td class="p-3 text-center">{{ item.cantidad || '—' }}</td>
                   <td class="p-3 text-right">${{ formatoPrecio(item.precioUnitario) }}</td>
                   <td class="p-3 text-right font-medium">
@@ -240,7 +299,7 @@ onMounted(cargarPedido)
           </div>
         </div>
 
-        <div v-if="pedido.items && pedido.items.some((i: any) => i.adicionesJson)" class="mb-6">
+        <div v-if="adicionesUnicas().length > 0" class="mb-6">
           <h2 class="text-lg font-medium text-text-primary border-b border-border-soft pb-2 mb-4">
             Agregados
           </h2>
@@ -254,15 +313,13 @@ onMounted(cargarPedido)
                 </tr>
               </thead>
               <tbody>
-                <template v-for="(item, idx) in pedido.items" :key="'a-' + idx">
-                  <tr v-for="(adicion, aidx) in parseAdiciones(item.adicionesJson)"
-                    :key="'a-' + idx + '-' + aidx"
-                    class="border-b border-border-soft/50">
-                    <td class="p-3">{{ adicion.nombre }}</td>
-                    <td class="p-3 text-center">{{ adicion.cantidad }}</td>
-                    <td class="p-3 text-right">${{ formatoPrecio(adicion.precio * adicion.cantidad) }}</td>
-                  </tr>
-                </template>
+                <tr v-for="(adicion, aidx) in adicionesUnicas()"
+                  :key="'a-' + aidx"
+                  class="border-b border-border-soft/50">
+                  <td class="p-3">{{ adicion.nombre }}</td>
+                  <td class="p-3 text-center">{{ adicion.cantidad }}</td>
+                  <td class="p-3 text-right">${{ formatoPrecio(adicion.precio * adicion.cantidad) }}</td>
+                </tr>
               </tbody>
             </table>
           </div>

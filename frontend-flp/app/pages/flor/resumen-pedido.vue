@@ -72,6 +72,19 @@
               <input v-model="form.email" type="email" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="correo@ejemplo.com" />
             </div>
             <div>
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Modo de entrega</label>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.modoEntrega" value="domicilio" class="accent-[#7A4E2D]" />
+                  <span class="text-sm text-[#7A4E2D]">A domicilio</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.modoEntrega" value="retiro" class="accent-[#7A4E2D]" />
+                  <span class="text-sm text-[#7A4E2D]">Retiro en local</span>
+                </label>
+              </div>
+            </div>
+            <div v-if="form.modoEntrega === 'domicilio'">
               <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Dirección de entrega</label>
               <input v-model="form.direccion" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Dirección" />
             </div>
@@ -79,15 +92,30 @@
               <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Teléfono de contacto</label>
               <input v-model="form.telefono" type="tel" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="+57 3001234567" />
             </div>
-            <div>
-              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Ciudad</label>
-              <input v-model="form.ciudad" type="text" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]" placeholder="Ciudad" />
-            </div>
-            <div>
-              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Departamento</label>
-              <select v-model="form.region" class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]">
-                <option value="" disabled>Selecciona un departamento</option>
-                <option v-for="dept in departamentos" :key="dept" :value="dept">{{ dept }}</option>
+            <template v-if="form.modoEntrega === 'domicilio'">
+              <div>
+                <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Departamento</label>
+                <select v-model="form.region" @change="form.ciudad = ''"
+                  class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]">
+                  <option value="" disabled>Selecciona un departamento</option>
+                  <option v-for="dept in departamentos" :key="dept" :value="dept">{{ dept }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Ciudad</label>
+                <select v-model="form.ciudad" :disabled="!form.region"
+                  class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D] disabled:opacity-60">
+                  <option value="" disabled>{{ form.region ? 'Selecciona tu ciudad' : 'Primero elige el departamento' }}</option>
+                  <option v-for="ciudad in ciudadesDisponibles" :key="ciudad" :value="ciudad">{{ ciudad }}</option>
+                </select>
+              </div>
+            </template>
+            <div v-if="form.modoEntrega === 'retiro'">
+              <label class="block text-sm text-[#7A4E2D] font-medium mb-1">Local de retiro</label>
+              <select v-model="form.localSeleccionadoId"
+                class="w-full border-2 border-[#FFEDE3] rounded-lg px-3 py-2 text-sm text-[#7A4E2D] focus:outline-none focus:border-[#7A4E2D]">
+                <option value="" disabled>Selecciona un local</option>
+                <option v-for="local in locales" :key="local.id" :value="local.id">{{ local.nombreLocal }} — {{ local.direccion }}</option>
               </select>
             </div>
             <div>
@@ -126,7 +154,7 @@
               class="bg-[#7A4E2D] text-white font-radley px-8 py-3 rounded-full hover:bg-[#5E3A1F] transition flex items-center gap-2 disabled:opacity-50"
             >
               <Icon icon="mdi:credit-card-outline" class="text-lg" />
-              {{ pagando ? 'Procesando...' : pagoCompleto ? 'Pagar total con Wompi' : 'Pagar 50% con Wompi' }}
+              {{ pagando ? 'Procesando...' : pagoCompleto ? 'Pagar total' : 'Pagar 50%' }}
             </button>
           </div>
         </div>
@@ -135,7 +163,9 @@
 
 <script setup>
 definePageMeta({ layout: 'flor' })
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onMounted } from 'vue'
+import { getDepartamentos, getCiudades } from '~/utils/colombia'
+import { localService } from '~/services/local.service'
 
 function sumarDiasHabiles(desde, dias) {
   const fecha = new Date(desde)
@@ -161,6 +191,12 @@ if (store.floresSeleccionadas.length === 0) {
   router.replace('/flor/SeleccionFlor')
 }
 
+/**
+ * Datos de envio del pedido. En modo retiro, el cliente solo elige un local
+ * y la direccion/ciudad/region del local se inyectan al pagar.
+ *
+ * @author santiago (sesion 05/08/2026 - retiro en local)
+ */
 const form = reactive({
   nombre: '',
   email: '',
@@ -169,6 +205,8 @@ const form = reactive({
   ciudad: '',
   region: '',
   fechaEntrega: '',
+  modoEntrega: 'domicilio',
+  localSeleccionadoId: null,
 })
 const pagoCompleto = ref(false)
 const pagando = ref(false)
@@ -177,10 +215,28 @@ const showError = ref(false)
 const generando = ref(false)
 const errorGeneracion = ref('')
 
+const departamentos = getDepartamentos()
+const locales = ref([])
+
+const ciudadesDisponibles = computed(() => {
+  if (!form.region) return []
+  return getCiudades(form.region)
+})
+
+onMounted(async () => {
+  try {
+    locales.value = await localService.listarActivos()
+  } catch {
+    locales.value = []
+  }
+})
+
 const formValido = computed(() =>
-  form.nombre.trim() && form.email.trim() && form.direccion.trim()
-  && form.telefono.trim() && form.ciudad.trim() && form.region.trim()
+  form.nombre.trim() && form.email.trim() && form.telefono.trim()
   && form.fechaEntrega
+  && (form.modoEntrega === 'retiro'
+    ? !!form.localSeleccionadoId
+    : (form.direccion.trim() && form.ciudad.trim() && form.region.trim()))
 )
 
 const subtotalFlores = computed(() =>
@@ -195,20 +251,23 @@ const totalGeneral = computed(() =>
   subtotalFlores.value + totalAdiciones.value
 )
 
-const direccionRegex = /^(calle|carrera|av\.?|avenida|transversal|diagonal|circular|cra|kr|cl|cll|tv|tr|dg|cq)\s+\d{1,3}[a-zA-Z]?\s*#?\s*\d{1,3}[a-zA-Z]?[-–]\d{1,3}[a-zA-Z]?$/i
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const telefonoRegex = /^(\+57\s?)?(3\d{9}|60\d{8})$/
+const telefonoRegex = /^[0-9+\s\-()]{7,15}$/
 const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
 
-const departamentos = [
-  'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá D.C.',
-  'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca',
-  'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare',
-  'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño',
-  'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda',
-  'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima',
-  'Valle del Cauca', 'Vaupés', 'Vichada',
-]
+/**
+ * Normaliza el teléfono agregando el prefijo nacional +57 por defecto cuando
+ * el número es local de 10 dígitos (Colombia).
+ *
+ * @author santiago
+ */
+function normalizarTelefono(tel) {
+  if (!tel) return tel
+  const digitos = tel.replace(/\D/g, '')
+  if (digitos.startsWith('57') && digitos.length === 12) return '+57 ' + digitos.slice(2)
+  if (digitos.length === 10) return '+57 ' + digitos
+  return tel.trim()
+}
 
 const validarFormulario = () => {
   if (!nombreRegex.test(form.nombre)) {
@@ -219,12 +278,27 @@ const validarFormulario = () => {
     toast.error('Email inválido')
     return false
   }
-  if (!direccionRegex.test(form.direccion)) {
-    toast.error('Dirección debe ser: calle 28 #25-38')
-    return false
+  if (form.modoEntrega === 'retiro') {
+    if (!form.localSeleccionadoId) {
+      toast.error('Selecciona un local de retiro')
+      return false
+    }
+    if (!telefonoRegex.test(form.telefono)) {
+      toast.error('Teléfono no válido')
+      return false
+    }
+    if (!form.fechaEntrega) {
+      toast.error('Fecha de entrega obligatoria')
+      return false
+    }
+    if (form.fechaEntrega < minFechaStr.value) {
+      toast.error('La fecha de entrega debe ser al menos 5 días hábiles después de hoy')
+      return false
+    }
+    return true
   }
   if (!telefonoRegex.test(form.telefono)) {
-    toast.error('Teléfono inválido. Formato: +57 3001234567')
+    toast.error('Teléfono no válido')
     return false
   }
   if (!form.ciudad.trim()) {
@@ -281,6 +355,14 @@ async function pagarAhora() {
   pagando.value = true
   errorMsg.value = ''
 
+  const esRetiro = form.modoEntrega === 'retiro'
+  const local = esRetiro
+    ? locales.value.find(l => l.id === form.localSeleccionadoId) || null
+    : null
+  const direccionEntrega = local?.direccion ?? form.direccion
+  const ciudad = local?.ciudad ?? form.ciudad
+  const region = local?.region ?? form.region
+
   const flores = store.floresSeleccionadas.map(f => ({
     tipoFlorId: f.tipoFlor.id,
     colorFlorId: f.colorFlor?.id || null,
@@ -296,10 +378,10 @@ async function pagarAhora() {
     const res = await apiClient.post('/api/pagos/wompi/iniciar', {
       nombreCliente: form.nombre,
       emailCliente: form.email,
-      direccionEntrega: form.direccion,
-      telefono: form.telefono,
-      ciudad: form.ciudad,
-      region: form.region,
+      direccionEntrega,
+      telefono: normalizarTelefono(form.telefono),
+      ciudad,
+      region,
       fechaEntrega: form.fechaEntrega,
       flores,
       adiciones,
@@ -322,11 +404,11 @@ async function pagarAhora() {
         ['redirect-url', res.redirectUrl || (window.location.origin + '/pago/resultado')],
         ['customer-data:email', form.email],
         ['customer-data:full-name', form.nombre],
-        ['shipping-address:address-line-1', form.direccion],
+        ['shipping-address:address-line-1', direccionEntrega],
         ['shipping-address:country', 'CO'],
-        ['shipping-address:city', form.ciudad],
-        ['shipping-address:region', form.region],
-        ['shipping-address:phone-number', form.telefono],
+        ['shipping-address:city', ciudad],
+        ['shipping-address:region', region],
+        ['shipping-address:phone-number', normalizarTelefono(form.telefono)],
       ]
       for (const [name, val] of campos) {
         const input = document.createElement('input')
