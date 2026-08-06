@@ -138,14 +138,14 @@ public class PedidoService {
                 persona = new Persona();
                 persona.setCedula(request.getCedula());
                 persona.setNombreCliente(request.getNombreCliente());
-                persona.setTelefono(request.getTelefono());
+                persona.setTelefono(normalizarTelefono(request.getTelefono()));
                 persona = personaRepository.save(persona);
             } else {
                 if (request.getNombreCliente() != null) {
                     persona.setNombreCliente(request.getNombreCliente());
                 }
                 if (request.getTelefono() != null) {
-                    persona.setTelefono(request.getTelefono());
+                    persona.setTelefono(normalizarTelefono(request.getTelefono()));
                 }
                 persona = personaRepository.save(persona);
             }
@@ -238,12 +238,12 @@ public class PedidoService {
                 persona = new Persona();
                 persona.setNombreCliente(request.getNombreCliente());
                 if (request.getCedula() != null) persona.setCedula(request.getCedula());
-                if (request.getTelefono() != null) persona.setTelefono(request.getTelefono());
+                if (request.getTelefono() != null) persona.setTelefono(normalizarTelefono(request.getTelefono()));
                 persona = personaRepository.save(persona);
             } else {
                 persona.setNombreCliente(request.getNombreCliente());
                 if (request.getTelefono() != null) {
-                    persona.setTelefono(request.getTelefono());
+                    persona.setTelefono(normalizarTelefono(request.getTelefono()));
                 }
                 persona = personaRepository.save(persona);
             }
@@ -336,12 +336,12 @@ public class PedidoService {
                 persona = new Persona();
                 persona.setCedula(request.getCedulaCliente());
                 persona.setNombreCliente(request.getNombreCliente());
-                persona.setTelefono(request.getTelefonoCliente());
+                persona.setTelefono(normalizarTelefono(request.getTelefonoCliente()));
                 persona = personaRepository.save(persona);
             } else {
                 persona.setNombreCliente(request.getNombreCliente());
                 if (request.getTelefonoCliente() != null) {
-                    persona.setTelefono(request.getTelefonoCliente());
+                    persona.setTelefono(normalizarTelefono(request.getTelefonoCliente()));
                 }
                 persona = personaRepository.save(persona);
             }
@@ -469,12 +469,12 @@ public class PedidoService {
                 persona = new Persona();
                 persona.setCedula(request.getCedulaCliente());
                 persona.setNombreCliente(request.getNombreCliente());
-                persona.setTelefono(request.getTelefonoCliente());
+                persona.setTelefono(normalizarTelefono(request.getTelefonoCliente()));
                 persona = personaRepository.save(persona);
             } else {
                 persona.setNombreCliente(request.getNombreCliente());
                 if (request.getTelefonoCliente() != null) {
-                    persona.setTelefono(request.getTelefonoCliente());
+                    persona.setTelefono(normalizarTelefono(request.getTelefonoCliente()));
                 }
                 persona = personaRepository.save(persona);
             }
@@ -809,5 +809,24 @@ public class PedidoService {
                 .replace("\n", "\\n")
                 .replace("\r", "\\r")
                 .replace("\t", "\\t");
+    }
+
+    /**
+     * Normaliza el número de teléfono agregando el prefijo nacional +57
+     * (Colombia) por defecto cuando el número es local de 10 dígitos.
+     * @param telefono número crudo ingresado por el cliente
+     * @return número normalizado con prefijo +57, o el valor original
+     * @author santiago
+     */
+    private String normalizarTelefono(String telefono) {
+        if (telefono == null || telefono.isBlank()) return telefono;
+        String digitos = telefono.replaceAll("[^0-9]", "");
+        if (digitos.startsWith("57") && digitos.length() == 12) {
+            return "+57 " + digitos.substring(2);
+        }
+        if (digitos.length() == 10) {
+            return "+57 " + digitos;
+        }
+        return telefono.trim();
     }
 }

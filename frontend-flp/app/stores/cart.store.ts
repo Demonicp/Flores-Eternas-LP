@@ -11,6 +11,13 @@ export const useCartStore = defineStore('cart', () => {
   const cargando = ref(false)
   const respuestaPedido = ref<PedidoResponse | null>(null)
 
+  /**
+   * Formulario de checkout del carrito.
+   * modoEntrega: 'domicilio' | 'retiro'. En modo retiro se inyecta la
+   * direccion/ciudad del local seleccionado al enviar el pedido.
+   *
+   * @author santiago (sesion 05/08/2026 - retiro en local)
+   */
   const checkoutForm = ref({
     nombre: '',
     email: '',
@@ -20,6 +27,8 @@ export const useCartStore = defineStore('cart', () => {
     fechaEntrega: '',
     cedula: '',
     telefono: '',
+    modoEntrega: 'domicilio',
+    localSeleccionadoId: null as number | null,
   })
   const errorMsg = ref('')
   const modoCheckout = ref<'cart' | 'checkout' | 'confirm'>('cart')
@@ -93,7 +102,7 @@ export const useCartStore = defineStore('cart', () => {
     items.value = []
     personalizados.value = []
     respuestaPedido.value = null
-    checkoutForm.value = { nombre: '', email: '', direccion: '', ciudad: '', region: '', fechaEntrega: '', cedula: '', telefono: '' }
+    checkoutForm.value = { nombre: '', email: '', direccion: '', ciudad: '', region: '', fechaEntrega: '', cedula: '', telefono: '', modoEntrega: 'domicilio', localSeleccionadoId: null }
     errorMsg.value = ''
     modoCheckout.value = 'cart'
   }

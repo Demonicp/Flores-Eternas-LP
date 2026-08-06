@@ -45,47 +45,81 @@
 
     <!-- Búsqueda + Tabla -->
     <div>
-      <div class="mb-4 max-w-xs">
+      <div class="mb-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <input
           v-model="searchQuery"
           type="text"
           placeholder="Buscar evento por nombre..."
-          class="w-full rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
+          class="w-full sm:max-w-xs rounded-lg border border-border-soft bg-bg-input px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-btn-primary"
         />
+        <button
+          type="button"
+          @click="vistaLista = !vistaLista"
+          class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-text-primary text-white hover:opacity-90 transition"
+          :title="vistaLista ? 'Cambiar a cuadrícula' : 'Cambiar a lista'"
+        >
+          <Icon :icon="vistaLista ? 'mdi:view-grid-outline' : 'mdi:view-agenda-outline'" class="text-base" />
+          {{ vistaLista ? 'Cuadrícula' : 'Lista' }}
+        </button>
       </div>
 
       <div class="bg-bg-card rounded-xl overflow-hidden">
-        <table v-if="filteredCategorias.length > 0" class="w-full text-sm text-text-primary">
-          <thead>
-            <tr class="text-left border-b border-border-soft bg-bg-card/80">
-              <th class="p-3 font-medium">Nombre</th>
-              <th class="p-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="cat in filteredCategorias" :key="cat.id" class="border-b border-border-soft/50 hover:bg-bg-input/50 transition-colors" :class="store.catEditandoId === cat.id ? 'bg-btn-primary/50' : ''">
-              <td class="p-3">{{ cat.descripcionCategoriaRamo }}</td>
-              <td class="p-3 flex gap-1">
-                <button
-                  type="button"
-                  @click="store.editarCategoria(cat)"
-                  class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
-                  title="Editar"
-                >
-                  <Icon icon="mdi:pencil-outline" class="text-lg" />
-                </button>
-                <button
-                  type="button"
-                  @click="confirmarEliminar(cat)"
-                  class="px-2 py-1 text-sm text-red-500 hover:text-red-700"
-                  title="Eliminar"
-                >
-                  <Icon icon="mdi:delete-outline" class="text-lg" />
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="filteredCategorias.length > 0 && vistaLista" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-3">
+          <div
+            v-for="cat in filteredCategorias"
+            :key="cat.id"
+            class="bg-white border border-border-soft rounded-xl p-3 shadow-sm flex items-center justify-between gap-2"
+            :class="store.catEditandoId === cat.id ? 'bg-btn-primary/50' : ''"
+          >
+            <span class="text-sm text-text-primary font-medium truncate">{{ cat.descripcionCategoriaRamo }}</span>
+            <span class="flex gap-1 flex-shrink-0">
+              <button
+                type="button"
+                @click="store.editarCategoria(cat)"
+                class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
+                title="Editar"
+              >
+                <Icon icon="mdi:pencil-outline" class="text-lg" />
+              </button>
+              <button
+                type="button"
+                @click="confirmarEliminar(cat)"
+                class="px-2 py-1 text-sm text-[#A52A2A] hover:text-[#7C1D1B]"
+                title="Eliminar"
+              >
+                <Icon icon="mdi:delete-outline" class="text-lg" />
+              </button>
+            </span>
+          </div>
+        </div>
+        <div v-else-if="filteredCategorias.length > 0" class="flex flex-col gap-2 p-3">
+          <div
+            v-for="cat in filteredCategorias"
+            :key="cat.id"
+            class="bg-white border border-border-soft rounded-xl px-3 py-2 shadow-sm flex items-center justify-between gap-2"
+            :class="store.catEditandoId === cat.id ? 'bg-btn-primary/50' : ''"
+          >
+            <span class="text-sm text-text-primary font-medium truncate">{{ cat.descripcionCategoriaRamo }}</span>
+            <span class="flex gap-1 flex-shrink-0">
+              <button
+                type="button"
+                @click="store.editarCategoria(cat)"
+                class="px-2 py-1 text-sm text-text-primary hover:opacity-80"
+                title="Editar"
+              >
+                <Icon icon="mdi:pencil-outline" class="text-lg" />
+              </button>
+              <button
+                type="button"
+                @click="confirmarEliminar(cat)"
+                class="px-2 py-1 text-sm text-[#A52A2A] hover:text-[#7C1D1B]"
+                title="Eliminar"
+              >
+                <Icon icon="mdi:delete-outline" class="text-lg" />
+              </button>
+            </span>
+          </div>
+        </div>
         <p v-else class="text-sm text-text-primary text-center py-8">
           {{ store.categoriasVisibles.length === 0 ? 'No hay eventos creados aún.' : 'No se encontraron eventos.' }}
         </p>
@@ -154,6 +188,7 @@ const store = useNegocioStore()
 const toast = useToast()
 
 const searchQuery = ref('')
+const vistaLista = ref(false)
 const modalEliminar = ref<CategoriaRamo | null>(null)
 const erroresVisibles = ref<string[]>([])
 

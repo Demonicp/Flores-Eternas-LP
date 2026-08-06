@@ -156,7 +156,6 @@ public class WompiService {
 
         pedido.setReferenciaTransaccion(reference);
         pedido.setEstadoTransaccion("PENDIENTE");
-        pedido.setTipoPedido("PERSONALIZADO");
         pedidoRepository.save(pedido);
 
         WompiIniciarResponse response = new WompiIniciarResponse();

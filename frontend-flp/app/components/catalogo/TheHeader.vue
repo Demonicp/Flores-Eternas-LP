@@ -25,6 +25,7 @@
             </NuxtLink>
             <a
               href="#conocenos"
+              @click="scrollAConocemos"
               class="text-[14px] md:text-[17px] tracking-wide text-white hover:text-white/80 transition-colors duration-200 hidden sm:block"
             >
               Conócenos
@@ -72,4 +73,14 @@ const cartStore = useCartStore()
 const route = useRoute()
 const esPersonalizado = computed(() => route.path.startsWith('/flor'))
 const searchOpen = ref(false)
+
+function scrollAConocemos(event: MouseEvent) {
+  event.preventDefault()
+  const el = document.getElementById('conocenos')
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  } else {
+    window.location.hash = 'conocenos'
+  }
+}
 </script>

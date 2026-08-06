@@ -39,7 +39,7 @@
     <button
       type="button"
       @click="$emit('eliminar')"
-      class="mb-0.5 px-2 py-2 text-red-500 hover:text-red-700 text-lg leading-none"
+      class="mb-0.5 px-2 py-2 text-[#A52A2A] hover:text-[#7C1D1B] text-lg leading-none"
       title="Eliminar flor"
     >
       ✕
