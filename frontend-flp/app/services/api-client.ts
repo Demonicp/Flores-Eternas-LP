@@ -11,7 +11,7 @@ export class ApiError extends Error {
 let _apiBase = ''
 
 export function setApiBase(base: string) {
-  _apiBase = base
+  _apiBase = base.replace(/\/+$/, '')
 }
 
 export function getApiBase(): string {

@@ -11,12 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.MessageDigest;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -177,41 +176,84 @@ public class WompiService {
     }
 
     /**
-     * Verifica la firma HMAC-SHA256 del webhook usando WOMPI_PRIVATE_KEY.
-     * Wompi envía el header X-Signature con formato "sha256=<hex>".
-     * @param signatureHeader valor del header X-Signature
-     * @param rawBody cuerpo crudo del webhook (JSON)
+     * Verifica la firma del webhook de Wompi según su documentación.
+     * Wompi envía en el body: signature.checksum y signature.properties.
+     * El checksum es SHA256 de la concatenación de los valores de las properties
+     * extraídos del payload (ej: transaction.id -> data.transaction.id).
+     * @param payload JSON parseado del webhook
      * @return true si la firma es válida
      * @author demonicp
      */
-    public boolean validarFirmaWebhook(String signatureHeader, String rawBody) {
-        if (signatureHeader == null || signatureHeader.isBlank() || rawBody == null || rawBody.isBlank()) {
-            log.warn("Webhook recibido sin firma o cuerpo");
-            return false;
-        }
-        if (privateKey == null || privateKey.isBlank()) {
-            log.warn("WOMPI_PRIVATE_KEY no configurada — no se puede verificar firma");
-            return false;
-        }
+    public boolean validarFirmaWebhook(Map<String, Object> payload) {
         try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey = new SecretKeySpec(privateKey.getBytes("UTF-8"), "HmacSHA256");
-            mac.init(secretKey);
-            byte[] hmacBytes = mac.doFinal(rawBody.getBytes("UTF-8"));
+            Map<String, Object> signature = (Map<String, Object>) payload.get("signature");
+            if (signature == null) {
+                log.warn("Webhook sin campo signature");
+                return false;
+            }
+
+            String checksum = (String) signature.get("checksum");
+            List<String> properties = (List<String>) signature.get("properties");
+
+            if (checksum == null || properties == null || properties.isEmpty()) {
+                log.warn("Webhook con signature incompleto: checksum={}, properties={}", checksum, properties);
+                return false;
+            }
+
+            StringBuilder concatenado = new StringBuilder();
+            for (String prop : properties) {
+                Object valor = extraerPropiedad(payload, prop);
+                if (valor == null) {
+                    log.warn("No se pudo extraer propiedad: {}", prop);
+                    return false;
+                }
+                concatenado.append(valor);
+            }
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(concatenado.toString().getBytes("UTF-8"));
             StringBuilder hex = new StringBuilder();
-            for (byte b : hmacBytes) {
+            for (byte b : hash) {
                 hex.append(String.format("%02x", b));
             }
-            String expected = "sha256=" + hex.toString();
-            boolean valida = expected.equals(signatureHeader);
+            String calculated = hex.toString();
+            boolean valida = calculated.equals(checksum);
             if (!valida) {
-                log.warn("Firma webhook inválida. Esperada: {}, Recibida: {}", expected, signatureHeader);
+                log.warn("Firma webhook invalida. Esperada: {}, Calculada: {}, Concatenado: {}",
+                        checksum, calculated, concatenado);
             }
             return valida;
         } catch (Exception e) {
             log.error("Error verificando firma webhook", e);
             return false;
         }
+    }
+
+    /**
+     * Extrae el valor de una propiedad con formato "transaction.id" del payload.
+     * Busca primero en payload.data.transaction.id, luego en payload.transaction.id.
+     * @param payload JSON parseado
+     * @param property ruta de la propiedad (ej: "transaction.status")
+     * @return valor encontrado o null
+     * @author demonicp
+     */
+    private Object extraerPropiedad(Map<String, Object> payload, String property) {
+        String[] partes = property.split("\\.");
+        Object actual = payload;
+
+        if (actual instanceof Map<?, ?> map && map.containsKey("data")) {
+            actual = map.get("data");
+        }
+
+        for (String parte : partes) {
+            if (actual instanceof Map<?, ?> map) {
+                actual = map.get(parte);
+                if (actual == null) return null;
+            } else {
+                return null;
+            }
+        }
+        return actual;
     }
 
     /**
