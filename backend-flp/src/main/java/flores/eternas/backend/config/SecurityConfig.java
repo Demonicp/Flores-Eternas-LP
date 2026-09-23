@@ -49,6 +49,7 @@ public CorsConfigurationSource corsConfigurationSource() {
 
    
     configuration.addAllowedOriginPattern("https://*.vercel.app");
+    configuration.addAllowedOriginPattern("https://*.up.railway.app");
 
     configuration.setAllowedOrigins(List.of(
         "http://localhost:3000",
