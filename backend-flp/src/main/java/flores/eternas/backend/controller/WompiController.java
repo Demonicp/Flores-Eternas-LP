@@ -22,6 +22,8 @@ import java.util.Map;
 @RequestMapping("/api/pagos/wompi")
 public class WompiController {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WompiController.class);
+
     private final WompiService wompiService;
     private final PedidoService pedidoService;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -70,24 +72,22 @@ public class WompiController {
 
     /**
      * Recibe el webhook de Wompi con la actualización del estado de una transacción.
-     * Verifica la firma HMAC-SHA256 con WOMPI_PRIVATE_KEY antes de procesar.
-     * Wompi envía un POST con el header X-Signature y el payload JSON de la transacción.
-     * @param signature valor del header X-Signature
+     * Wompi envía la firma dentro del body en el campo signature.checksum,
+     * calculada como SHA256 de la concatenación de los valores de signature.properties.
      * @param rawBody cuerpo crudo del webhook (JSON)
      * @return confirmación de recepción
      * @author demonicp
      */
     @PostMapping("/webhook")
-    public ResponseEntity<String> webhook(
-            @RequestHeader("X-Signature") String signature,
-            @RequestBody String rawBody) {
+    public ResponseEntity<String> webhook(@RequestBody String rawBody) {
         try {
-            if (!wompiService.validarFirmaWebhook(signature, rawBody)) {
+            Map<String, Object> payload = objectMapper.readValue(rawBody, new TypeReference<Map<String, Object>>() {});
+
+            if (!wompiService.validarFirmaWebhook(payload)) {
                 log.warn("Webhook rechazado: firma inválida");
-                return ResponseEntity.status(401).body("Firma inválida");
+                return ResponseEntity.status(401).body("Firma invalida");
             }
 
-            Map<String, Object> payload = objectMapper.readValue(rawBody, new TypeReference<Map<String, Object>>() {});
             Map<String, Object> data = (Map<String, Object>) payload.get("data");
             if (data != null) {
                 Map<String, Object> transaction = (Map<String, Object>) data.get("transaction");
@@ -108,6 +108,4 @@ public class WompiController {
             return ResponseEntity.ok("OK");
         }
     }
-
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WompiController.class);
 }
